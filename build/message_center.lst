@@ -1,0 +1,700 @@
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccTxFvra.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"message_center.c"
+  16              		.text
+  17              	.Ltext0:
+  18              		.cfi_sections	.debug_frame
+  19              		.file 1 "modules/message_center/message_center.c"
+  20              		.section	.text.CheckLen,"ax",%progbits
+  21              		.align	1
+  22              		.syntax unified
+  23              		.thumb
+  24              		.thumb_func
+  26              	CheckLen:
+  27              	.LVL0:
+  28              	.LFB4:
+   1:modules/message_center/message_center.c **** #include "message_center.h"
+   2:modules/message_center/message_center.c **** #include "stdlib.h"
+   3:modules/message_center/message_center.c **** #include "string.h"
+   4:modules/message_center/message_center.c **** #include "bsp_log.h"
+   5:modules/message_center/message_center.c **** 
+   6:modules/message_center/message_center.c **** /* message_center是fake head node,是方便链表编写的技巧,这样就不需要处理链表头
+   7:modules/message_center/message_center.c **** static Publisher_t message_center = {
+   8:modules/message_center/message_center.c ****     .topic_name = "Message_Manager",
+   9:modules/message_center/message_center.c ****     .first_subs = NULL,
+  10:modules/message_center/message_center.c ****     .next_topic_node = NULL};
+  11:modules/message_center/message_center.c **** 
+  12:modules/message_center/message_center.c **** static void CheckName(char *name)
+  13:modules/message_center/message_center.c **** {
+  14:modules/message_center/message_center.c ****     if (strnlen(name, MAX_TOPIC_NAME_LEN + 1) >= MAX_TOPIC_NAME_LEN)
+  15:modules/message_center/message_center.c ****     {
+  16:modules/message_center/message_center.c ****         LOGERROR("EVENT NAME TOO LONG:%s", name);
+  17:modules/message_center/message_center.c ****         while (1)
+  18:modules/message_center/message_center.c ****             ; // 进入这里说明话题名超出长度限制
+  19:modules/message_center/message_center.c ****     }
+  20:modules/message_center/message_center.c **** }
+  21:modules/message_center/message_center.c **** 
+  22:modules/message_center/message_center.c **** static void CheckLen(uint8_t len1, uint8_t len2)
+  23:modules/message_center/message_center.c **** {
+  29              		.loc 1 23 1 view -0
+  30              		.cfi_startproc
+  31              		@ args = 0, pretend = 0, frame = 0
+  32              		@ frame_needed = 0, uses_anonymous_args = 0
+  33              		@ link register save eliminated.
+  24:modules/message_center/message_center.c ****     if (len1 != len2)
+  34              		.loc 1 24 5 view .LVU1
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccTxFvra.s 			page 2
+
+
+  35              		.loc 1 24 8 is_stmt 0 view .LVU2
+  36 0000 8842     		cmp	r0, r1
+  37 0002 00D0     		beq	.L1
+  38              	.L3:
+  25:modules/message_center/message_center.c ****     {
+  26:modules/message_center/message_center.c ****         LOGERROR("EVENT LEN NOT SAME:%d,%d", len1, len2);
+  39              		.loc 1 26 57 is_stmt 1 view .LVU3
+  27:modules/message_center/message_center.c ****         while (1)
+  40              		.loc 1 27 9 view .LVU4
+  41              		.loc 1 27 15 view .LVU5
+  42 0004 FEE7     		b	.L3
+  43              	.L1:
+  28:modules/message_center/message_center.c ****             ; // 进入这里说明相同话题的消息长度却不同
+  29:modules/message_center/message_center.c ****     }
+  30:modules/message_center/message_center.c **** }
+  44              		.loc 1 30 1 is_stmt 0 view .LVU6
+  45 0006 7047     		bx	lr
+  46              		.cfi_endproc
+  47              	.LFE4:
+  49              		.section	.text.CheckName,"ax",%progbits
+  50              		.align	1
+  51              		.syntax unified
+  52              		.thumb
+  53              		.thumb_func
+  55              	CheckName:
+  56              	.LVL1:
+  57              	.LFB3:
+  13:modules/message_center/message_center.c ****     if (strnlen(name, MAX_TOPIC_NAME_LEN + 1) >= MAX_TOPIC_NAME_LEN)
+  58              		.loc 1 13 1 is_stmt 1 view -0
+  59              		.cfi_startproc
+  60              		@ args = 0, pretend = 0, frame = 0
+  61              		@ frame_needed = 0, uses_anonymous_args = 0
+  13:modules/message_center/message_center.c ****     if (strnlen(name, MAX_TOPIC_NAME_LEN + 1) >= MAX_TOPIC_NAME_LEN)
+  62              		.loc 1 13 1 is_stmt 0 view .LVU8
+  63 0000 08B5     		push	{r3, lr}
+  64              	.LCFI0:
+  65              		.cfi_def_cfa_offset 8
+  66              		.cfi_offset 3, -8
+  67              		.cfi_offset 14, -4
+  14:modules/message_center/message_center.c ****     {
+  68              		.loc 1 14 5 is_stmt 1 view .LVU9
+  14:modules/message_center/message_center.c ****     {
+  69              		.loc 1 14 9 is_stmt 0 view .LVU10
+  70 0002 2121     		movs	r1, #33
+  71 0004 FFF7FEFF 		bl	strnlen
+  72              	.LVL2:
+  14:modules/message_center/message_center.c ****     {
+  73              		.loc 1 14 8 discriminator 1 view .LVU11
+  74 0008 1F28     		cmp	r0, #31
+  75 000a 00D9     		bls	.L4
+  76              	.L6:
+  16:modules/message_center/message_center.c ****         while (1)
+  77              		.loc 1 16 49 is_stmt 1 view .LVU12
+  17:modules/message_center/message_center.c ****             ; // 进入这里说明话题名超出长度限制
+  78              		.loc 1 17 9 view .LVU13
+  17:modules/message_center/message_center.c ****             ; // 进入这里说明话题名超出长度限制
+  79              		.loc 1 17 15 view .LVU14
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccTxFvra.s 			page 3
+
+
+  80 000c FEE7     		b	.L6
+  81              	.L4:
+  20:modules/message_center/message_center.c **** 
+  82              		.loc 1 20 1 is_stmt 0 view .LVU15
+  83 000e 08BD     		pop	{r3, pc}
+  84              		.cfi_endproc
+  85              	.LFE3:
+  87              		.section	.text.PubRegister,"ax",%progbits
+  88              		.align	1
+  89              		.global	PubRegister
+  90              		.syntax unified
+  91              		.thumb
+  92              		.thumb_func
+  94              	PubRegister:
+  95              	.LVL3:
+  96              	.LFB5:
+  31:modules/message_center/message_center.c **** 
+  32:modules/message_center/message_center.c **** Publisher_t *PubRegister(char *name, uint8_t data_len)
+  33:modules/message_center/message_center.c **** {
+  97              		.loc 1 33 1 is_stmt 1 view -0
+  98              		.cfi_startproc
+  99              		@ args = 0, pretend = 0, frame = 0
+ 100              		@ frame_needed = 0, uses_anonymous_args = 0
+ 101              		.loc 1 33 1 is_stmt 0 view .LVU17
+ 102 0000 F8B5     		push	{r3, r4, r5, r6, r7, lr}
+ 103              	.LCFI1:
+ 104              		.cfi_def_cfa_offset 24
+ 105              		.cfi_offset 3, -24
+ 106              		.cfi_offset 4, -20
+ 107              		.cfi_offset 5, -16
+ 108              		.cfi_offset 6, -12
+ 109              		.cfi_offset 7, -8
+ 110              		.cfi_offset 14, -4
+ 111 0002 0546     		mov	r5, r0
+ 112 0004 0F46     		mov	r7, r1
+  34:modules/message_center/message_center.c ****     CheckName(name);
+ 113              		.loc 1 34 5 is_stmt 1 view .LVU18
+ 114 0006 FFF7FEFF 		bl	CheckName
+ 115              	.LVL4:
+  35:modules/message_center/message_center.c ****     Publisher_t *node = &message_center;
+ 116              		.loc 1 35 5 view .LVU19
+  36:modules/message_center/message_center.c ****     while (node->next_topic_node) // message_center会直接跳过,不需要特殊处理,这被称�
+ 117              		.loc 1 36 5 view .LVU20
+  35:modules/message_center/message_center.c ****     Publisher_t *node = &message_center;
+ 118              		.loc 1 35 18 is_stmt 0 view .LVU21
+ 119 000a 144C     		ldr	r4, .L14
+ 120              	.LVL5:
+ 121              	.L9:
+ 122              		.loc 1 36 12 is_stmt 1 view .LVU22
+ 123 000c 2646     		mov	r6, r4
+ 124              		.loc 1 36 16 is_stmt 0 view .LVU23
+ 125 000e A46A     		ldr	r4, [r4, #40]
+ 126              	.LVL6:
+ 127              		.loc 1 36 12 view .LVU24
+ 128 0010 74B1     		cbz	r4, .L13
+  37:modules/message_center/message_center.c ****     {
+  38:modules/message_center/message_center.c ****         node = node->next_topic_node;            // 切换到下一个发布者(话题)结点
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccTxFvra.s 			page 4
+
+
+ 129              		.loc 1 38 9 is_stmt 1 view .LVU25
+ 130              	.LVL7:
+  39:modules/message_center/message_center.c ****         if (strcmp(node->topic_name, name) == 0) // 如果已经注册了相同的话题,直接返�
+ 131              		.loc 1 39 9 view .LVU26
+ 132              		.loc 1 39 13 is_stmt 0 view .LVU27
+ 133 0012 2946     		mov	r1, r5
+ 134 0014 2046     		mov	r0, r4
+ 135 0016 FFF7FEFF 		bl	strcmp
+ 136              	.LVL8:
+ 137              		.loc 1 39 12 discriminator 1 view .LVU28
+ 138 001a 0028     		cmp	r0, #0
+ 139 001c F6D1     		bne	.L9
+  40:modules/message_center/message_center.c ****         {
+  41:modules/message_center/message_center.c ****             CheckLen(data_len, node->data_len);
+ 140              		.loc 1 41 13 is_stmt 1 view .LVU29
+ 141 001e 94F82110 		ldrb	r1, [r4, #33]	@ zero_extendqisi2
+ 142 0022 3846     		mov	r0, r7
+ 143 0024 FFF7FEFF 		bl	CheckLen
+ 144              	.LVL9:
+  42:modules/message_center/message_center.c ****             node->pub_registered_flag = 1;
+ 145              		.loc 1 42 13 view .LVU30
+ 146              		.loc 1 42 39 is_stmt 0 view .LVU31
+ 147 0028 0123     		movs	r3, #1
+ 148 002a 84F82C30 		strb	r3, [r4, #44]
+  43:modules/message_center/message_center.c ****             return node;
+ 149              		.loc 1 43 13 is_stmt 1 view .LVU32
+ 150              		.loc 1 43 20 is_stmt 0 view .LVU33
+ 151 002e 12E0     		b	.L8
+ 152              	.LVL10:
+ 153              	.L13:
+  44:modules/message_center/message_center.c ****         }
+  45:modules/message_center/message_center.c ****     } // 遍历完发现尚未创建name对应的话题
+  46:modules/message_center/message_center.c ****     // 在链表尾部创建新的话题并初始化
+  47:modules/message_center/message_center.c ****     node->next_topic_node = (Publisher_t *)malloc(sizeof(Publisher_t));
+ 154              		.loc 1 47 5 is_stmt 1 view .LVU34
+ 155              		.loc 1 47 44 is_stmt 0 view .LVU35
+ 156 0030 3020     		movs	r0, #48
+ 157 0032 FFF7FEFF 		bl	malloc
+ 158              	.LVL11:
+ 159              		.loc 1 47 27 discriminator 1 view .LVU36
+ 160 0036 B062     		str	r0, [r6, #40]
+  48:modules/message_center/message_center.c ****     memset(node->next_topic_node, 0, sizeof(Publisher_t));
+ 161              		.loc 1 48 5 is_stmt 1 view .LVU37
+ 162 0038 3022     		movs	r2, #48
+ 163 003a 0021     		movs	r1, #0
+ 164 003c FFF7FEFF 		bl	memset
+ 165              	.LVL12:
+  49:modules/message_center/message_center.c ****     node->next_topic_node->data_len = data_len;
+ 166              		.loc 1 49 5 view .LVU38
+ 167              		.loc 1 49 9 is_stmt 0 view .LVU39
+ 168 0040 B36A     		ldr	r3, [r6, #40]
+ 169              		.loc 1 49 37 view .LVU40
+ 170 0042 83F82170 		strb	r7, [r3, #33]
+  50:modules/message_center/message_center.c ****     strcpy(node->next_topic_node->topic_name, name);
+ 171              		.loc 1 50 5 is_stmt 1 view .LVU41
+ 172 0046 2946     		mov	r1, r5
+ 173 0048 B06A     		ldr	r0, [r6, #40]
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccTxFvra.s 			page 5
+
+
+ 174 004a FFF7FEFF 		bl	strcpy
+ 175              	.LVL13:
+  51:modules/message_center/message_center.c ****     node->pub_registered_flag = 1;
+ 176              		.loc 1 51 5 view .LVU42
+ 177              		.loc 1 51 31 is_stmt 0 view .LVU43
+ 178 004e 0123     		movs	r3, #1
+ 179 0050 86F82C30 		strb	r3, [r6, #44]
+  52:modules/message_center/message_center.c ****     return node->next_topic_node;
+ 180              		.loc 1 52 5 is_stmt 1 view .LVU44
+ 181              		.loc 1 52 16 is_stmt 0 view .LVU45
+ 182 0054 B46A     		ldr	r4, [r6, #40]
+ 183              	.LVL14:
+ 184              	.L8:
+  53:modules/message_center/message_center.c **** }
+ 185              		.loc 1 53 1 view .LVU46
+ 186 0056 2046     		mov	r0, r4
+ 187 0058 F8BD     		pop	{r3, r4, r5, r6, r7, pc}
+ 188              	.LVL15:
+ 189              	.L15:
+ 190              		.loc 1 53 1 view .LVU47
+ 191 005a 00BF     		.align	2
+ 192              	.L14:
+ 193 005c 00000000 		.word	message_center
+ 194              		.cfi_endproc
+ 195              	.LFE5:
+ 197              		.section	.text.SubRegister,"ax",%progbits
+ 198              		.align	1
+ 199              		.global	SubRegister
+ 200              		.syntax unified
+ 201              		.thumb
+ 202              		.thumb_func
+ 204              	SubRegister:
+ 205              	.LVL16:
+ 206              	.LFB6:
+  54:modules/message_center/message_center.c **** 
+  55:modules/message_center/message_center.c **** Subscriber_t *SubRegister(char *name, uint8_t data_len)
+  56:modules/message_center/message_center.c **** {
+ 207              		.loc 1 56 1 is_stmt 1 view -0
+ 208              		.cfi_startproc
+ 209              		@ args = 0, pretend = 0, frame = 0
+ 210              		@ frame_needed = 0, uses_anonymous_args = 0
+ 211              		.loc 1 56 1 is_stmt 0 view .LVU49
+ 212 0000 F8B5     		push	{r3, r4, r5, r6, r7, lr}
+ 213              	.LCFI2:
+ 214              		.cfi_def_cfa_offset 24
+ 215              		.cfi_offset 3, -24
+ 216              		.cfi_offset 4, -20
+ 217              		.cfi_offset 5, -16
+ 218              		.cfi_offset 6, -12
+ 219              		.cfi_offset 7, -8
+ 220              		.cfi_offset 14, -4
+ 221 0002 0E46     		mov	r6, r1
+  57:modules/message_center/message_center.c ****     Publisher_t *pub = PubRegister(name, data_len); // 查找或创建该话题的发布者
+ 222              		.loc 1 57 5 is_stmt 1 view .LVU50
+ 223              		.loc 1 57 24 is_stmt 0 view .LVU51
+ 224 0004 FFF7FEFF 		bl	PubRegister
+ 225              	.LVL17:
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccTxFvra.s 			page 6
+
+
+ 226              		.loc 1 57 24 view .LVU52
+ 227 0008 0746     		mov	r7, r0
+ 228              	.LVL18:
+  58:modules/message_center/message_center.c ****     // 创建新的订阅者结点,申请内存,注意要memset因为新空间不一定是空的,�
+  59:modules/message_center/message_center.c ****     Subscriber_t *ret = (Subscriber_t *)malloc(sizeof(Subscriber_t));
+ 229              		.loc 1 59 5 is_stmt 1 view .LVU53
+ 230              		.loc 1 59 41 is_stmt 0 view .LVU54
+ 231 000a 0C20     		movs	r0, #12
+ 232              	.LVL19:
+ 233              		.loc 1 59 41 view .LVU55
+ 234 000c FFF7FEFF 		bl	malloc
+ 235              	.LVL20:
+ 236 0010 0546     		mov	r5, r0
+ 237              	.LVL21:
+  60:modules/message_center/message_center.c ****     memset(ret, 0, sizeof(Subscriber_t));
+ 238              		.loc 1 60 5 is_stmt 1 view .LVU56
+ 239 0012 0024     		movs	r4, #0
+ 240 0014 0460     		str	r4, [r0]	@ unaligned
+ 241 0016 4460     		str	r4, [r0, #4]	@ unaligned
+ 242 0018 8460     		str	r4, [r0, #8]	@ unaligned
+  61:modules/message_center/message_center.c ****     // 对新建的Subscriber进行初始化
+  62:modules/message_center/message_center.c ****     ret->data_len = data_len; // 设定数据长度
+ 243              		.loc 1 62 5 view .LVU57
+ 244              		.loc 1 62 19 is_stmt 0 view .LVU58
+ 245 001a 0671     		strb	r6, [r0, #4]
+  63:modules/message_center/message_center.c ****     for (size_t i = 0; i < QUEUE_SIZE; ++i)
+ 246              		.loc 1 63 5 is_stmt 1 view .LVU59
+ 247              	.LBB2:
+ 248              		.loc 1 63 10 view .LVU60
+ 249              	.LVL22:
+ 250              	.L17:
+ 251              		.loc 1 63 26 discriminator 1 view .LVU61
+ 252 001c 44B1     		cbz	r4, .L18
+ 253              	.LBE2:
+  64:modules/message_center/message_center.c ****     { // 给消息队列的每一个元素分配空间,queue里保存的实际上是数据执指针
+  65:modules/message_center/message_center.c ****         ret->queue[i] = malloc(data_len);
+  66:modules/message_center/message_center.c ****     }
+  67:modules/message_center/message_center.c ****     // 如果是第一个订阅者,特殊处理一下,将first_subs指针指向新建的订阅者(�
+  68:modules/message_center/message_center.c ****     if (pub->first_subs == NULL)
+ 254              		.loc 1 68 5 view .LVU62
+ 255              		.loc 1 68 12 is_stmt 0 view .LVU63
+ 256 001e 7B6A     		ldr	r3, [r7, #36]
+ 257              		.loc 1 68 8 view .LVU64
+ 258 0020 6BB1     		cbz	r3, .L22
+ 259              	.L19:
+ 260              	.LVL23:
+  69:modules/message_center/message_center.c ****     {
+  70:modules/message_center/message_center.c ****         pub->first_subs = ret;
+  71:modules/message_center/message_center.c ****         return ret;
+  72:modules/message_center/message_center.c ****     }
+  73:modules/message_center/message_center.c ****     // 若该话题已经有订阅者, 遍历订阅者链表,直到到达尾部
+  74:modules/message_center/message_center.c ****     Subscriber_t *sub = pub->first_subs; // 作为iterator
+  75:modules/message_center/message_center.c ****     while (sub->next_subs_queue)         // 遍历订阅了该话题的订阅者链表
+ 261              		.loc 1 75 12 is_stmt 1 view .LVU65
+ 262 0022 1A46     		mov	r2, r3
+ 263              		.loc 1 75 15 is_stmt 0 view .LVU66
+ 264 0024 9B68     		ldr	r3, [r3, #8]
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccTxFvra.s 			page 7
+
+
+ 265              	.LVL24:
+ 266              		.loc 1 75 12 view .LVU67
+ 267 0026 002B     		cmp	r3, #0
+ 268 0028 FBD1     		bne	.L19
+  76:modules/message_center/message_center.c ****     {
+  77:modules/message_center/message_center.c ****         sub = sub->next_subs_queue; // 移动到下一个订阅者,遇到空指针停下,说明到�
+  78:modules/message_center/message_center.c ****     }
+  79:modules/message_center/message_center.c ****     sub->next_subs_queue = ret; // 把刚刚创建的订阅者接上
+ 269              		.loc 1 79 5 is_stmt 1 view .LVU68
+ 270              		.loc 1 79 26 is_stmt 0 view .LVU69
+ 271 002a 9560     		str	r5, [r2, #8]
+  80:modules/message_center/message_center.c ****     return ret;
+ 272              		.loc 1 80 5 is_stmt 1 view .LVU70
+ 273              	.LVL25:
+ 274              	.L16:
+  81:modules/message_center/message_center.c **** }
+ 275              		.loc 1 81 1 is_stmt 0 view .LVU71
+ 276 002c 2846     		mov	r0, r5
+ 277 002e F8BD     		pop	{r3, r4, r5, r6, r7, pc}
+ 278              	.LVL26:
+ 279              	.L18:
+ 280              	.LBB3:
+  65:modules/message_center/message_center.c ****     }
+ 281              		.loc 1 65 9 is_stmt 1 view .LVU72
+  65:modules/message_center/message_center.c ****     }
+ 282              		.loc 1 65 25 is_stmt 0 view .LVU73
+ 283 0030 3046     		mov	r0, r6
+ 284 0032 FFF7FEFF 		bl	malloc
+ 285              	.LVL27:
+  65:modules/message_center/message_center.c ****     }
+ 286              		.loc 1 65 23 discriminator 1 view .LVU74
+ 287 0036 45F82400 		str	r0, [r5, r4, lsl #2]
+  63:modules/message_center/message_center.c ****     { // 给消息队列的每一个元素分配空间,queue里保存的实际上是数据执指针
+ 288              		.loc 1 63 40 is_stmt 1 discriminator 3 view .LVU75
+ 289 003a 0134     		adds	r4, r4, #1
+ 290              	.LVL28:
+  63:modules/message_center/message_center.c ****     { // 给消息队列的每一个元素分配空间,queue里保存的实际上是数据执指针
+ 291              		.loc 1 63 40 is_stmt 0 discriminator 3 view .LVU76
+ 292 003c EEE7     		b	.L17
+ 293              	.L22:
+  63:modules/message_center/message_center.c ****     { // 给消息队列的每一个元素分配空间,queue里保存的实际上是数据执指针
+ 294              		.loc 1 63 40 discriminator 3 view .LVU77
+ 295              	.LBE3:
+  70:modules/message_center/message_center.c ****         return ret;
+ 296              		.loc 1 70 9 is_stmt 1 view .LVU78
+  70:modules/message_center/message_center.c ****         return ret;
+ 297              		.loc 1 70 25 is_stmt 0 view .LVU79
+ 298 003e 7D62     		str	r5, [r7, #36]
+  71:modules/message_center/message_center.c ****     }
+ 299              		.loc 1 71 9 is_stmt 1 view .LVU80
+  71:modules/message_center/message_center.c ****     }
+ 300              		.loc 1 71 16 is_stmt 0 view .LVU81
+ 301 0040 F4E7     		b	.L16
+ 302              		.cfi_endproc
+ 303              	.LFE6:
+ 305              		.section	.text.SubGetMessage,"ax",%progbits
+ 306              		.align	1
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccTxFvra.s 			page 8
+
+
+ 307              		.global	SubGetMessage
+ 308              		.syntax unified
+ 309              		.thumb
+ 310              		.thumb_func
+ 312              	SubGetMessage:
+ 313              	.LVL29:
+ 314              	.LFB7:
+  82:modules/message_center/message_center.c **** 
+  83:modules/message_center/message_center.c **** /* 如果队列为空,会返回0;成功获取数据,返回1;后续可以做更多的修改,比如�
+  84:modules/message_center/message_center.c **** uint8_t SubGetMessage(Subscriber_t *sub, void *data_ptr)
+  85:modules/message_center/message_center.c **** {
+ 315              		.loc 1 85 1 is_stmt 1 view -0
+ 316              		.cfi_startproc
+ 317              		@ args = 0, pretend = 0, frame = 0
+ 318              		@ frame_needed = 0, uses_anonymous_args = 0
+ 319              		.loc 1 85 1 is_stmt 0 view .LVU83
+ 320 0000 10B5     		push	{r4, lr}
+ 321              	.LCFI3:
+ 322              		.cfi_def_cfa_offset 8
+ 323              		.cfi_offset 4, -8
+ 324              		.cfi_offset 14, -4
+ 325 0002 0446     		mov	r4, r0
+  86:modules/message_center/message_center.c ****     if (sub->temp_size == 0)
+ 326              		.loc 1 86 5 is_stmt 1 view .LVU84
+ 327              		.loc 1 86 12 is_stmt 0 view .LVU85
+ 328 0004 C079     		ldrb	r0, [r0, #7]	@ zero_extendqisi2
+ 329              	.LVL30:
+ 330              		.loc 1 86 8 view .LVU86
+ 331 0006 00B9     		cbnz	r0, .L26
+ 332              	.LVL31:
+ 333              	.L24:
+  87:modules/message_center/message_center.c ****     {
+  88:modules/message_center/message_center.c ****         return 0;
+  89:modules/message_center/message_center.c ****     }
+  90:modules/message_center/message_center.c ****     memcpy(data_ptr, sub->queue[sub->front_idx], sub->data_len);
+  91:modules/message_center/message_center.c ****     sub->front_idx = (sub->front_idx + 1) % QUEUE_SIZE; // 队列头索引增加
+  92:modules/message_center/message_center.c ****     sub->temp_size--;                                   // pop一个数据,长度减1
+  93:modules/message_center/message_center.c ****     return 1;
+  94:modules/message_center/message_center.c **** }
+ 334              		.loc 1 94 1 view .LVU87
+ 335 0008 10BD     		pop	{r4, pc}
+ 336              	.LVL32:
+ 337              	.L26:
+ 338              		.loc 1 94 1 view .LVU88
+ 339 000a 0B46     		mov	r3, r1
+  90:modules/message_center/message_center.c ****     sub->front_idx = (sub->front_idx + 1) % QUEUE_SIZE; // 队列头索引增加
+ 340              		.loc 1 90 5 is_stmt 1 view .LVU89
+  90:modules/message_center/message_center.c ****     sub->front_idx = (sub->front_idx + 1) % QUEUE_SIZE; // 队列头索引增加
+ 341              		.loc 1 90 36 is_stmt 0 view .LVU90
+ 342 000c 6179     		ldrb	r1, [r4, #5]	@ zero_extendqisi2
+ 343              	.LVL33:
+  90:modules/message_center/message_center.c ****     sub->front_idx = (sub->front_idx + 1) % QUEUE_SIZE; // 队列头索引增加
+ 344              		.loc 1 90 5 view .LVU91
+ 345 000e 2279     		ldrb	r2, [r4, #4]	@ zero_extendqisi2
+ 346 0010 54F82110 		ldr	r1, [r4, r1, lsl #2]
+ 347 0014 1846     		mov	r0, r3
+ 348 0016 FFF7FEFF 		bl	memcpy
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccTxFvra.s 			page 9
+
+
+ 349              	.LVL34:
+  91:modules/message_center/message_center.c ****     sub->temp_size--;                                   // pop一个数据,长度减1
+ 350              		.loc 1 91 5 is_stmt 1 view .LVU92
+  91:modules/message_center/message_center.c ****     sub->temp_size--;                                   // pop一个数据,长度减1
+ 351              		.loc 1 91 20 is_stmt 0 view .LVU93
+ 352 001a 0023     		movs	r3, #0
+ 353 001c 6371     		strb	r3, [r4, #5]
+  92:modules/message_center/message_center.c ****     return 1;
+ 354              		.loc 1 92 5 is_stmt 1 view .LVU94
+  92:modules/message_center/message_center.c ****     return 1;
+ 355              		.loc 1 92 8 is_stmt 0 view .LVU95
+ 356 001e E379     		ldrb	r3, [r4, #7]	@ zero_extendqisi2
+  92:modules/message_center/message_center.c ****     return 1;
+ 357              		.loc 1 92 19 view .LVU96
+ 358 0020 013B     		subs	r3, r3, #1
+ 359 0022 E371     		strb	r3, [r4, #7]
+  93:modules/message_center/message_center.c **** }
+ 360              		.loc 1 93 5 is_stmt 1 view .LVU97
+  93:modules/message_center/message_center.c **** }
+ 361              		.loc 1 93 12 is_stmt 0 view .LVU98
+ 362 0024 0120     		movs	r0, #1
+ 363 0026 EFE7     		b	.L24
+ 364              		.cfi_endproc
+ 365              	.LFE7:
+ 367              		.section	.text.PubPushMessage,"ax",%progbits
+ 368              		.align	1
+ 369              		.global	PubPushMessage
+ 370              		.syntax unified
+ 371              		.thumb
+ 372              		.thumb_func
+ 374              	PubPushMessage:
+ 375              	.LVL35:
+ 376              	.LFB8:
+  95:modules/message_center/message_center.c **** 
+  96:modules/message_center/message_center.c **** uint8_t PubPushMessage(Publisher_t *pub, void *data_ptr)
+  97:modules/message_center/message_center.c **** {
+ 377              		.loc 1 97 1 is_stmt 1 view -0
+ 378              		.cfi_startproc
+ 379              		@ args = 0, pretend = 0, frame = 0
+ 380              		@ frame_needed = 0, uses_anonymous_args = 0
+ 381              		.loc 1 97 1 is_stmt 0 view .LVU100
+ 382 0000 70B5     		push	{r4, r5, r6, lr}
+ 383              	.LCFI4:
+ 384              		.cfi_def_cfa_offset 16
+ 385              		.cfi_offset 4, -16
+ 386              		.cfi_offset 5, -12
+ 387              		.cfi_offset 6, -8
+ 388              		.cfi_offset 14, -4
+ 389 0002 0546     		mov	r5, r0
+ 390 0004 0E46     		mov	r6, r1
+  98:modules/message_center/message_center.c ****     static Subscriber_t *iter;
+ 391              		.loc 1 98 5 is_stmt 1 view .LVU101
+  99:modules/message_center/message_center.c ****     iter = pub->first_subs; // iter作为订阅者指针,遍历订阅该话题的所有订阅者;�
+ 392              		.loc 1 99 5 view .LVU102
+ 393              		.loc 1 99 15 is_stmt 0 view .LVU103
+ 394 0006 426A     		ldr	r2, [r0, #36]
+ 395              		.loc 1 99 10 view .LVU104
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccTxFvra.s 			page 10
+
+
+ 396 0008 0F4B     		ldr	r3, .L33
+ 397 000a 1A60     		str	r2, [r3]
+ 100:modules/message_center/message_center.c ****     // 遍历订阅了当前话题的所有订阅者,依次填入最新消息
+ 101:modules/message_center/message_center.c ****     while (iter)
+ 398              		.loc 1 101 5 is_stmt 1 view .LVU105
+ 399              		.loc 1 101 11 is_stmt 0 view .LVU106
+ 400 000c 0FE0     		b	.L28
+ 401              	.LVL36:
+ 402              	.L29:
+ 102:modules/message_center/message_center.c ****     {
+ 103:modules/message_center/message_center.c ****         if (iter->temp_size == QUEUE_SIZE) // 如果队列已满,则需要删除最老的数据(头
+ 104:modules/message_center/message_center.c ****         {
+ 105:modules/message_center/message_center.c ****             // 队列头索引前移动,相当于抛弃前一个位置的数据,被抛弃的位置�
+ 106:modules/message_center/message_center.c ****             iter->front_idx = (iter->front_idx + 1) % QUEUE_SIZE;
+ 107:modules/message_center/message_center.c ****             iter->temp_size--; // 相当于出队,size-1
+ 108:modules/message_center/message_center.c ****         }
+ 109:modules/message_center/message_center.c ****         // 将Pub的数据复制到队列的尾部(最新)
+ 110:modules/message_center/message_center.c ****         memcpy(iter->queue[iter->back_idx], data_ptr, pub->data_len);
+ 403              		.loc 1 110 9 is_stmt 1 view .LVU107
+ 404              		.loc 1 110 32 is_stmt 0 view .LVU108
+ 405 000e A379     		ldrb	r3, [r4, #6]	@ zero_extendqisi2
+ 406              		.loc 1 110 9 view .LVU109
+ 407 0010 95F82120 		ldrb	r2, [r5, #33]	@ zero_extendqisi2
+ 408 0014 3146     		mov	r1, r6
+ 409 0016 54F82300 		ldr	r0, [r4, r3, lsl #2]
+ 410 001a FFF7FEFF 		bl	memcpy
+ 411              	.LVL37:
+ 111:modules/message_center/message_center.c ****         iter->back_idx = (iter->back_idx + 1) % QUEUE_SIZE; // 队列尾部前移
+ 412              		.loc 1 111 9 is_stmt 1 view .LVU110
+ 413              		.loc 1 111 24 is_stmt 0 view .LVU111
+ 414 001e 0023     		movs	r3, #0
+ 415 0020 A371     		strb	r3, [r4, #6]
+ 112:modules/message_center/message_center.c ****         iter->temp_size++;                                  // 入队,size+1
+ 416              		.loc 1 112 9 is_stmt 1 view .LVU112
+ 417              		.loc 1 112 13 is_stmt 0 view .LVU113
+ 418 0022 E379     		ldrb	r3, [r4, #7]	@ zero_extendqisi2
+ 419              		.loc 1 112 24 view .LVU114
+ 420 0024 0133     		adds	r3, r3, #1
+ 421 0026 E371     		strb	r3, [r4, #7]
+ 113:modules/message_center/message_center.c **** 
+ 114:modules/message_center/message_center.c ****         iter = iter->next_subs_queue; // 访问下一个订阅者
+ 422              		.loc 1 114 9 is_stmt 1 view .LVU115
+ 423              		.loc 1 114 20 is_stmt 0 view .LVU116
+ 424 0028 A268     		ldr	r2, [r4, #8]
+ 425              		.loc 1 114 14 view .LVU117
+ 426 002a 074B     		ldr	r3, .L33
+ 427 002c 1A60     		str	r2, [r3]
+ 428              	.L28:
+ 101:modules/message_center/message_center.c ****     {
+ 429              		.loc 1 101 12 is_stmt 1 view .LVU118
+ 430 002e 064B     		ldr	r3, .L33
+ 431 0030 1C68     		ldr	r4, [r3]
+ 432 0032 3CB1     		cbz	r4, .L32
+ 103:modules/message_center/message_center.c ****         {
+ 433              		.loc 1 103 9 view .LVU119
+ 103:modules/message_center/message_center.c ****         {
+ 434              		.loc 1 103 17 is_stmt 0 view .LVU120
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccTxFvra.s 			page 11
+
+
+ 435 0034 E379     		ldrb	r3, [r4, #7]	@ zero_extendqisi2
+ 103:modules/message_center/message_center.c ****         {
+ 436              		.loc 1 103 12 view .LVU121
+ 437 0036 012B     		cmp	r3, #1
+ 438 0038 E9D1     		bne	.L29
+ 106:modules/message_center/message_center.c ****             iter->temp_size--; // 相当于出队,size-1
+ 439              		.loc 1 106 13 is_stmt 1 view .LVU122
+ 106:modules/message_center/message_center.c ****             iter->temp_size--; // 相当于出队,size-1
+ 440              		.loc 1 106 29 is_stmt 0 view .LVU123
+ 441 003a 0022     		movs	r2, #0
+ 442 003c 6271     		strb	r2, [r4, #5]
+ 107:modules/message_center/message_center.c ****         }
+ 443              		.loc 1 107 13 is_stmt 1 view .LVU124
+ 107:modules/message_center/message_center.c ****         }
+ 444              		.loc 1 107 28 is_stmt 0 view .LVU125
+ 445 003e 013B     		subs	r3, r3, #1
+ 446 0040 E371     		strb	r3, [r4, #7]
+ 447 0042 E4E7     		b	.L29
+ 448              	.L32:
+ 115:modules/message_center/message_center.c ****     }
+ 116:modules/message_center/message_center.c ****     return 1;
+ 449              		.loc 1 116 5 is_stmt 1 view .LVU126
+ 117:modules/message_center/message_center.c **** }
+ 450              		.loc 1 117 1 is_stmt 0 view .LVU127
+ 451 0044 0120     		movs	r0, #1
+ 452 0046 70BD     		pop	{r4, r5, r6, pc}
+ 453              	.LVL38:
+ 454              	.L34:
+ 455              		.loc 1 117 1 view .LVU128
+ 456              		.align	2
+ 457              	.L33:
+ 458 0048 00000000 		.word	iter.0
+ 459              		.cfi_endproc
+ 460              	.LFE8:
+ 462              		.section	.bss.iter.0,"aw",%nobits
+ 463              		.align	2
+ 466              	iter.0:
+ 467 0000 00000000 		.space	4
+ 468              		.section	.data.message_center,"aw"
+ 469              		.align	2
+ 472              	message_center:
+ 473 0000 4D657373 		.ascii	"Message_Manager\000"
+ 473      6167655F 
+ 473      4D616E61 
+ 473      67657200 
+ 474 0010 00000000 		.space	17
+ 474      00000000 
+ 474      00000000 
+ 474      00000000 
+ 474      00
+ 475 0021 000000   		.space	3
+ 476 0024 00000000 		.word	0
+ 477 0028 00000000 		.word	0
+ 478 002c 00000000 		.space	4
+ 479              		.text
+ 480              	.Letext0:
+ 481              		.file 2 "D:/msys2/mingw64/arm-none-eabi/include/machine/_default_types.h"
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccTxFvra.s 			page 12
+
+
+ 482              		.file 3 "D:/msys2/mingw64/arm-none-eabi/include/sys/_stdint.h"
+ 483              		.file 4 "modules/message_center/message_center.h"
+ 484              		.file 5 "D:/msys2/mingw64/lib/gcc/arm-none-eabi/13.3.0/include/stddef.h"
+ 485              		.file 6 "D:/msys2/mingw64/arm-none-eabi/include/string.h"
+ 486              		.file 7 "D:/msys2/mingw64/arm-none-eabi/include/stdlib.h"
+ 487              		.file 8 "<built-in>"
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccTxFvra.s 			page 13
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 message_center.c
+C:\Users\lenovo\AppData\Local\Temp\ccTxFvra.s:21     .text.CheckLen:00000000 $t
+C:\Users\lenovo\AppData\Local\Temp\ccTxFvra.s:26     .text.CheckLen:00000000 CheckLen
+C:\Users\lenovo\AppData\Local\Temp\ccTxFvra.s:50     .text.CheckName:00000000 $t
+C:\Users\lenovo\AppData\Local\Temp\ccTxFvra.s:55     .text.CheckName:00000000 CheckName
+C:\Users\lenovo\AppData\Local\Temp\ccTxFvra.s:88     .text.PubRegister:00000000 $t
+C:\Users\lenovo\AppData\Local\Temp\ccTxFvra.s:94     .text.PubRegister:00000000 PubRegister
+C:\Users\lenovo\AppData\Local\Temp\ccTxFvra.s:193    .text.PubRegister:0000005c $d
+C:\Users\lenovo\AppData\Local\Temp\ccTxFvra.s:472    .data.message_center:00000000 message_center
+C:\Users\lenovo\AppData\Local\Temp\ccTxFvra.s:198    .text.SubRegister:00000000 $t
+C:\Users\lenovo\AppData\Local\Temp\ccTxFvra.s:204    .text.SubRegister:00000000 SubRegister
+C:\Users\lenovo\AppData\Local\Temp\ccTxFvra.s:306    .text.SubGetMessage:00000000 $t
+C:\Users\lenovo\AppData\Local\Temp\ccTxFvra.s:312    .text.SubGetMessage:00000000 SubGetMessage
+C:\Users\lenovo\AppData\Local\Temp\ccTxFvra.s:368    .text.PubPushMessage:00000000 $t
+C:\Users\lenovo\AppData\Local\Temp\ccTxFvra.s:374    .text.PubPushMessage:00000000 PubPushMessage
+C:\Users\lenovo\AppData\Local\Temp\ccTxFvra.s:458    .text.PubPushMessage:00000048 $d
+C:\Users\lenovo\AppData\Local\Temp\ccTxFvra.s:466    .bss.iter.0:00000000 iter.0
+C:\Users\lenovo\AppData\Local\Temp\ccTxFvra.s:463    .bss.iter.0:00000000 $d
+C:\Users\lenovo\AppData\Local\Temp\ccTxFvra.s:469    .data.message_center:00000000 $d
+
+UNDEFINED SYMBOLS
+strnlen
+strcmp
+malloc
+memset
+strcpy
+memcpy

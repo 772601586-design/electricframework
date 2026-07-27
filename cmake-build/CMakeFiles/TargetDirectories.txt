@@ -1,0 +1,3 @@
+D:/QQQQQQ/infantry/electric_framework/cmake-build/CMakeFiles/basic_framework.elf.dir
+D:/QQQQQQ/infantry/electric_framework/cmake-build/CMakeFiles/edit_cache.dir
+D:/QQQQQQ/infantry/electric_framework/cmake-build/CMakeFiles/rebuild_cache.dir

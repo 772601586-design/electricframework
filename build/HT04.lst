@@ -1,0 +1,1800 @@
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccUIS2Ws.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"HT04.c"
+  16              		.text
+  17              	.Ltext0:
+  18              		.cfi_sections	.debug_frame
+  19              		.file 1 "modules/motor/HTmotor/HT04.c"
+  20              		.section	.text.float_to_uint,"ax",%progbits
+  21              		.align	1
+  22              		.syntax unified
+  23              		.thumb
+  24              		.thumb_func
+  26              	float_to_uint:
+  27              	.LVL0:
+  28              	.LFB277:
+   1:modules/motor/HTmotor/HT04.c **** #include "HT04.h"
+   2:modules/motor/HTmotor/HT04.c **** #include "memory.h"
+   3:modules/motor/HTmotor/HT04.c **** #include "general_def.h"
+   4:modules/motor/HTmotor/HT04.c **** #include "user_lib.h"
+   5:modules/motor/HTmotor/HT04.c **** #include "cmsis_os.h"
+   6:modules/motor/HTmotor/HT04.c **** #include "string.h"
+   7:modules/motor/HTmotor/HT04.c **** #include "daemon.h"
+   8:modules/motor/HTmotor/HT04.c **** #include "stdlib.h"
+   9:modules/motor/HTmotor/HT04.c **** #include "bsp_log.h"
+  10:modules/motor/HTmotor/HT04.c **** 
+  11:modules/motor/HTmotor/HT04.c **** static uint8_t idx;
+  12:modules/motor/HTmotor/HT04.c **** static HTMotorInstance *ht_motor_instance[HT_MOTOR_CNT];
+  13:modules/motor/HTmotor/HT04.c **** static osThreadId ht_task_handle[HT_MOTOR_CNT];
+  14:modules/motor/HTmotor/HT04.c **** static uint8_t zero_buff[6] = {0};
+  15:modules/motor/HTmotor/HT04.c **** 
+  16:modules/motor/HTmotor/HT04.c **** /**
+  17:modules/motor/HTmotor/HT04.c ****  * @brief 设置电机模式,报文内容[0xff,0xff,0xff,0xff,0xff,0xff,0xff,cmd]
+  18:modules/motor/HTmotor/HT04.c ****  *
+  19:modules/motor/HTmotor/HT04.c ****  * @param cmd
+  20:modules/motor/HTmotor/HT04.c ****  * @param motor
+  21:modules/motor/HTmotor/HT04.c ****  */
+  22:modules/motor/HTmotor/HT04.c **** static void HTMotorSetMode(HTMotor_Mode_t cmd, HTMotorInstance *motor)
+  23:modules/motor/HTmotor/HT04.c **** {
+  24:modules/motor/HTmotor/HT04.c ****     memset(motor->motor_can_instace->tx_buff, 0xff, 7);  // 发送电机指令的时候前面7bytes
+  25:modules/motor/HTmotor/HT04.c ****     motor->motor_can_instace->tx_buff[7] = (uint8_t)cmd; // 最后一位是命令id
+  26:modules/motor/HTmotor/HT04.c ****     CANTransmit(motor->motor_can_instace, 1);
+  27:modules/motor/HTmotor/HT04.c ****     memcpy(motor->motor_can_instace->tx_buff, zero_buff, 6);
+  28:modules/motor/HTmotor/HT04.c **** }
+  29:modules/motor/HTmotor/HT04.c **** /* 两个用于将uint值和float值进行映射的函数,在设定发送值和解析反馈值时�
+  30:modules/motor/HTmotor/HT04.c **** static uint16_t float_to_uint(float x, float x_min, float x_max, uint8_t bits)
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccUIS2Ws.s 			page 2
+
+
+  31:modules/motor/HTmotor/HT04.c **** {
+  29              		.loc 1 31 1 view -0
+  30              		.cfi_startproc
+  31              		@ args = 0, pretend = 0, frame = 0
+  32              		@ frame_needed = 0, uses_anonymous_args = 0
+  33              		@ link register save eliminated.
+  32:modules/motor/HTmotor/HT04.c ****     float span = x_max - x_min;
+  34              		.loc 1 32 5 view .LVU1
+  35              		.loc 1 32 11 is_stmt 0 view .LVU2
+  36 0000 31EE601A 		vsub.f32	s2, s2, s1
+  37              	.LVL1:
+  33:modules/motor/HTmotor/HT04.c ****     float offset = x_min;
+  38              		.loc 1 33 5 is_stmt 1 view .LVU3
+  34:modules/motor/HTmotor/HT04.c ****     return (uint16_t)((x - offset) * ((float)((1 << bits) - 1)) / span);
+  39              		.loc 1 34 5 view .LVU4
+  40              		.loc 1 34 26 is_stmt 0 view .LVU5
+  41 0004 30EE600A 		vsub.f32	s0, s0, s1
+  42              	.LVL2:
+  43              		.loc 1 34 50 view .LVU6
+  44 0008 0123     		movs	r3, #1
+  45 000a 8340     		lsls	r3, r3, r0
+  46              		.loc 1 34 59 view .LVU7
+  47 000c 013B     		subs	r3, r3, #1
+  48              		.loc 1 34 39 view .LVU8
+  49 000e 07EE903A 		vmov	s15, r3	@ int
+  50 0012 F8EEE77A 		vcvt.f32.s32	s15, s15
+  51              		.loc 1 34 36 view .LVU9
+  52 0016 20EE270A 		vmul.f32	s0, s0, s15
+  53              		.loc 1 34 65 view .LVU10
+  54 001a C0EE017A 		vdiv.f32	s15, s0, s2
+  55              		.loc 1 34 12 view .LVU11
+  56 001e FCEEE77A 		vcvt.u32.f32	s15, s15
+  35:modules/motor/HTmotor/HT04.c **** }
+  57              		.loc 1 35 1 view .LVU12
+  58 0022 17EE903A 		vmov	r3, s15	@ int
+  59 0026 98B2     		uxth	r0, r3
+  60              	.LVL3:
+  61              		.loc 1 35 1 view .LVU13
+  62 0028 7047     		bx	lr
+  63              		.cfi_endproc
+  64              	.LFE277:
+  66              		.section	.text.uint_to_float,"ax",%progbits
+  67              		.align	1
+  68              		.syntax unified
+  69              		.thumb
+  70              		.thumb_func
+  72              	uint_to_float:
+  73              	.LVL4:
+  74              	.LFB278:
+  36:modules/motor/HTmotor/HT04.c **** static float uint_to_float(int x_int, float x_min, float x_max, int bits)
+  37:modules/motor/HTmotor/HT04.c **** {
+  75              		.loc 1 37 1 is_stmt 1 view -0
+  76              		.cfi_startproc
+  77              		@ args = 0, pretend = 0, frame = 0
+  78              		@ frame_needed = 0, uses_anonymous_args = 0
+  79              		@ link register save eliminated.
+  80              		.loc 1 37 1 is_stmt 0 view .LVU15
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccUIS2Ws.s 			page 3
+
+
+  81 0000 07EE900A 		vmov	s15, r0	@ int
+  38:modules/motor/HTmotor/HT04.c ****     float span = x_max - x_min;
+  82              		.loc 1 38 5 is_stmt 1 view .LVU16
+  83              		.loc 1 38 11 is_stmt 0 view .LVU17
+  84 0004 70EEC00A 		vsub.f32	s1, s1, s0
+  85              	.LVL5:
+  39:modules/motor/HTmotor/HT04.c ****     float offset = x_min;
+  86              		.loc 1 39 5 is_stmt 1 view .LVU18
+  40:modules/motor/HTmotor/HT04.c ****     return ((float)x_int) * span / ((float)((1 << bits) - 1)) + offset;
+  87              		.loc 1 40 5 view .LVU19
+  88              		.loc 1 40 13 is_stmt 0 view .LVU20
+  89 0008 F8EEE77A 		vcvt.f32.s32	s15, s15
+  90              		.loc 1 40 27 view .LVU21
+  91 000c 27EEA07A 		vmul.f32	s14, s15, s1
+  92              		.loc 1 40 48 view .LVU22
+  93 0010 0123     		movs	r3, #1
+  94 0012 8B40     		lsls	r3, r3, r1
+  95              		.loc 1 40 57 view .LVU23
+  96 0014 013B     		subs	r3, r3, #1
+  97              		.loc 1 40 37 view .LVU24
+  98 0016 07EE903A 		vmov	s15, r3	@ int
+  99 001a F8EEE77A 		vcvt.f32.s32	s15, s15
+ 100              		.loc 1 40 34 view .LVU25
+ 101 001e C7EE276A 		vdiv.f32	s13, s14, s15
+  41:modules/motor/HTmotor/HT04.c **** }
+ 102              		.loc 1 41 1 view .LVU26
+ 103 0022 36EE800A 		vadd.f32	s0, s13, s0
+ 104              	.LVL6:
+ 105              		.loc 1 41 1 view .LVU27
+ 106 0026 7047     		bx	lr
+ 107              		.cfi_endproc
+ 108              	.LFE278:
+ 110              		.section	.text.HTMotorSetMode,"ax",%progbits
+ 111              		.align	1
+ 112              		.syntax unified
+ 113              		.thumb
+ 114              		.thumb_func
+ 116              	HTMotorSetMode:
+ 117              	.LVL7:
+ 118              	.LFB276:
+  23:modules/motor/HTmotor/HT04.c ****     memset(motor->motor_can_instace->tx_buff, 0xff, 7);  // 发送电机指令的时候前面7bytes
+ 119              		.loc 1 23 1 is_stmt 1 view -0
+ 120              		.cfi_startproc
+ 121              		@ args = 0, pretend = 0, frame = 0
+ 122              		@ frame_needed = 0, uses_anonymous_args = 0
+  23:modules/motor/HTmotor/HT04.c ****     memset(motor->motor_can_instace->tx_buff, 0xff, 7);  // 发送电机指令的时候前面7bytes
+ 123              		.loc 1 23 1 is_stmt 0 view .LVU29
+ 124 0000 10B5     		push	{r4, lr}
+ 125              	.LCFI0:
+ 126              		.cfi_def_cfa_offset 8
+ 127              		.cfi_offset 4, -8
+ 128              		.cfi_offset 14, -4
+ 129 0002 0C46     		mov	r4, r1
+  24:modules/motor/HTmotor/HT04.c ****     motor->motor_can_instace->tx_buff[7] = (uint8_t)cmd; // 最后一位是命令id
+ 130              		.loc 1 24 5 is_stmt 1 view .LVU30
+  24:modules/motor/HTmotor/HT04.c ****     motor->motor_can_instace->tx_buff[7] = (uint8_t)cmd; // 最后一位是命令id
+ 131              		.loc 1 24 17 is_stmt 0 view .LVU31
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccUIS2Ws.s 			page 4
+
+
+ 132 0004 D1F8B831 		ldr	r3, [r1, #440]
+  24:modules/motor/HTmotor/HT04.c ****     motor->motor_can_instace->tx_buff[7] = (uint8_t)cmd; // 最后一位是命令id
+ 133              		.loc 1 24 5 view .LVU32
+ 134 0008 4FF0FF32 		mov	r2, #-1
+ 135 000c 5A62     		str	r2, [r3, #36]	@ unaligned
+ 136 000e C3F82720 		str	r2, [r3, #39]	@ unaligned
+  25:modules/motor/HTmotor/HT04.c ****     CANTransmit(motor->motor_can_instace, 1);
+ 137              		.loc 1 25 5 is_stmt 1 view .LVU33
+  25:modules/motor/HTmotor/HT04.c ****     CANTransmit(motor->motor_can_instace, 1);
+ 138              		.loc 1 25 10 is_stmt 0 view .LVU34
+ 139 0012 D1F8B831 		ldr	r3, [r1, #440]
+  25:modules/motor/HTmotor/HT04.c ****     CANTransmit(motor->motor_can_instace, 1);
+ 140              		.loc 1 25 42 view .LVU35
+ 141 0016 83F82B00 		strb	r0, [r3, #43]
+  26:modules/motor/HTmotor/HT04.c ****     memcpy(motor->motor_can_instace->tx_buff, zero_buff, 6);
+ 142              		.loc 1 26 5 is_stmt 1 view .LVU36
+ 143 001a B7EE000A 		vmov.f32	s0, #1.0e+0
+ 144 001e D1F8B801 		ldr	r0, [r1, #440]
+ 145              	.LVL8:
+  26:modules/motor/HTmotor/HT04.c ****     memcpy(motor->motor_can_instace->tx_buff, zero_buff, 6);
+ 146              		.loc 1 26 5 is_stmt 0 view .LVU37
+ 147 0022 FFF7FEFF 		bl	CANTransmit
+ 148              	.LVL9:
+  27:modules/motor/HTmotor/HT04.c **** }
+ 149              		.loc 1 27 5 is_stmt 1 view .LVU38
+  27:modules/motor/HTmotor/HT04.c **** }
+ 150              		.loc 1 27 17 is_stmt 0 view .LVU39
+ 151 0026 D4F8B831 		ldr	r3, [r4, #440]
+  27:modules/motor/HTmotor/HT04.c **** }
+ 152              		.loc 1 27 5 view .LVU40
+ 153 002a 034A     		ldr	r2, .L5
+ 154 002c 1068     		ldr	r0, [r2]
+ 155 002e 5862     		str	r0, [r3, #36]	@ unaligned
+ 156 0030 9288     		ldrh	r2, [r2, #4]	@ unaligned
+ 157 0032 1A85     		strh	r2, [r3, #40]	@ unaligned
+  28:modules/motor/HTmotor/HT04.c **** /* 两个用于将uint值和float值进行映射的函数,在设定发送值和解析反馈值时�
+ 158              		.loc 1 28 1 view .LVU41
+ 159 0034 10BD     		pop	{r4, pc}
+ 160              	.LVL10:
+ 161              	.L6:
+  28:modules/motor/HTmotor/HT04.c **** /* 两个用于将uint值和float值进行映射的函数,在设定发送值和解析反馈值时�
+ 162              		.loc 1 28 1 view .LVU42
+ 163 0036 00BF     		.align	2
+ 164              	.L5:
+ 165 0038 00000000 		.word	zero_buff
+ 166              		.cfi_endproc
+ 167              	.LFE276:
+ 169              		.section	.text.HTMotorLostCallback,"ax",%progbits
+ 170              		.align	1
+ 171              		.syntax unified
+ 172              		.thumb
+ 173              		.thumb_func
+ 175              	HTMotorLostCallback:
+ 176              	.LVL11:
+ 177              	.LFB280:
+  42:modules/motor/HTmotor/HT04.c **** 
+  43:modules/motor/HTmotor/HT04.c **** /**
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccUIS2Ws.s 			page 5
+
+
+  44:modules/motor/HTmotor/HT04.c ****  * @brief 解析电机反馈值
+  45:modules/motor/HTmotor/HT04.c ****  *
+  46:modules/motor/HTmotor/HT04.c ****  * @param motor_can 收到
+  47:modules/motor/HTmotor/HT04.c ****  */
+  48:modules/motor/HTmotor/HT04.c **** static void HTMotorDecode(CANInstance *motor_can)
+  49:modules/motor/HTmotor/HT04.c **** {
+  50:modules/motor/HTmotor/HT04.c ****     uint16_t tmp; // 用于暂存解析值,稍后转换成float数据,避免多次创建临时变�
+  51:modules/motor/HTmotor/HT04.c ****     uint8_t const *rxbuff = motor_can->rx_buff;
+  52:modules/motor/HTmotor/HT04.c ****     HTMotorInstance *motor = (HTMotorInstance *)motor_can->id;
+  53:modules/motor/HTmotor/HT04.c ****     HTMotor_Measure_t *measure = &(motor->measure); // 将can实例中保存的id转换成电机实
+  54:modules/motor/HTmotor/HT04.c **** 
+  55:modules/motor/HTmotor/HT04.c ****     DaemonReload(motor->motor_daemon);
+  56:modules/motor/HTmotor/HT04.c ****     measure->feed_dt = DWT_GetDeltaT(&measure->feed_cnt);
+  57:modules/motor/HTmotor/HT04.c **** 
+  58:modules/motor/HTmotor/HT04.c ****     measure->last_angle = measure->total_angle;
+  59:modules/motor/HTmotor/HT04.c ****     tmp = (uint16_t)((rxbuff[1] << 8) | rxbuff[2]);
+  60:modules/motor/HTmotor/HT04.c ****     measure->total_angle = uint_to_float(tmp, P_MIN, P_MAX, 16);
+  61:modules/motor/HTmotor/HT04.c **** 
+  62:modules/motor/HTmotor/HT04.c ****     tmp = (uint16_t)(rxbuff[3] << 4) | (rxbuff[4] >> 4);
+  63:modules/motor/HTmotor/HT04.c ****     measure->speed_rads = AverageFilter((uint_to_float(tmp, V_MIN, V_MAX, 12) - HT_SPEED_BIAS), mea
+  64:modules/motor/HTmotor/HT04.c **** 
+  65:modules/motor/HTmotor/HT04.c ****     tmp = (uint16_t)(((rxbuff[4] & 0x0f) << 8) | rxbuff[5]);
+  66:modules/motor/HTmotor/HT04.c ****     measure->real_current = CURRENT_SMOOTH_COEF * uint_to_float(tmp, T_MIN, T_MAX, 12) +
+  67:modules/motor/HTmotor/HT04.c ****                             (1 - CURRENT_SMOOTH_COEF) * measure->real_current;
+  68:modules/motor/HTmotor/HT04.c **** }
+  69:modules/motor/HTmotor/HT04.c **** 
+  70:modules/motor/HTmotor/HT04.c **** static void HTMotorLostCallback(void *motor_ptr)
+  71:modules/motor/HTmotor/HT04.c **** {
+ 178              		.loc 1 71 1 is_stmt 1 view -0
+ 179              		.cfi_startproc
+ 180              		@ args = 0, pretend = 0, frame = 0
+ 181              		@ frame_needed = 0, uses_anonymous_args = 0
+ 182              		.loc 1 71 1 is_stmt 0 view .LVU44
+ 183 0000 08B5     		push	{r3, lr}
+ 184              	.LCFI1:
+ 185              		.cfi_def_cfa_offset 8
+ 186              		.cfi_offset 3, -8
+ 187              		.cfi_offset 14, -4
+ 188 0002 0146     		mov	r1, r0
+  72:modules/motor/HTmotor/HT04.c ****     HTMotorInstance *motor = (HTMotorInstance *)motor_ptr;
+ 189              		.loc 1 72 5 is_stmt 1 view .LVU45
+ 190              	.LVL12:
+  73:modules/motor/HTmotor/HT04.c ****     LOGWARNING("[ht_motor] motor %d lost\n", motor->motor_can_instace->tx_id);
+ 191              		.loc 1 73 78 view .LVU46
+  74:modules/motor/HTmotor/HT04.c ****     if (++motor->lost_cnt % 10 != 0)
+ 192              		.loc 1 74 5 view .LVU47
+ 193              		.loc 1 74 16 is_stmt 0 view .LVU48
+ 194 0004 D0F8C021 		ldr	r2, [r0, #448]
+ 195              		.loc 1 74 9 view .LVU49
+ 196 0008 0132     		adds	r2, r2, #1
+ 197              		.loc 1 74 8 view .LVU50
+ 198 000a C0F8C021 		str	r2, [r0, #448]
+ 199              		.loc 1 74 27 view .LVU51
+ 200 000e 074B     		ldr	r3, .L11
+ 201 0010 A3FB0203 		umull	r0, r3, r3, r2
+ 202              	.LVL13:
+ 203              		.loc 1 74 27 view .LVU52
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccUIS2Ws.s 			page 6
+
+
+ 204 0014 DB08     		lsrs	r3, r3, #3
+ 205 0016 03EB8303 		add	r3, r3, r3, lsl #2
+ 206              		.loc 1 74 8 view .LVU53
+ 207 001a B2EB430F 		cmp	r2, r3, lsl #1
+ 208 001e 00D1     		bne	.L10
+ 209              	.LVL14:
+ 210              	.L7:
+  75:modules/motor/HTmotor/HT04.c ****         HTMotorSetMode(CMD_MOTOR_MODE, motor); // 尝试重新让电机进入控制模式
+  76:modules/motor/HTmotor/HT04.c **** }
+ 211              		.loc 1 76 1 view .LVU54
+ 212 0020 08BD     		pop	{r3, pc}
+ 213              	.LVL15:
+ 214              	.L10:
+  75:modules/motor/HTmotor/HT04.c ****         HTMotorSetMode(CMD_MOTOR_MODE, motor); // 尝试重新让电机进入控制模式
+ 215              		.loc 1 75 9 is_stmt 1 view .LVU55
+ 216 0022 FC20     		movs	r0, #252
+ 217 0024 FFF7FEFF 		bl	HTMotorSetMode
+ 218              	.LVL16:
+ 219              		.loc 1 76 1 is_stmt 0 view .LVU56
+ 220 0028 FAE7     		b	.L7
+ 221              	.L12:
+ 222 002a 00BF     		.align	2
+ 223              	.L11:
+ 224 002c CDCCCCCC 		.word	-858993459
+ 225              		.cfi_endproc
+ 226              	.LFE280:
+ 228              		.section	.text.HTMotorDecode,"ax",%progbits
+ 229              		.align	1
+ 230              		.syntax unified
+ 231              		.thumb
+ 232              		.thumb_func
+ 234              	HTMotorDecode:
+ 235              	.LVL17:
+ 236              	.LFB279:
+  49:modules/motor/HTmotor/HT04.c ****     uint16_t tmp; // 用于暂存解析值,稍后转换成float数据,避免多次创建临时变�
+ 237              		.loc 1 49 1 is_stmt 1 view -0
+ 238              		.cfi_startproc
+ 239              		@ args = 0, pretend = 0, frame = 0
+ 240              		@ frame_needed = 0, uses_anonymous_args = 0
+  49:modules/motor/HTmotor/HT04.c ****     uint16_t tmp; // 用于暂存解析值,稍后转换成float数据,避免多次创建临时变�
+ 241              		.loc 1 49 1 is_stmt 0 view .LVU58
+ 242 0000 70B5     		push	{r4, r5, r6, lr}
+ 243              	.LCFI2:
+ 244              		.cfi_def_cfa_offset 16
+ 245              		.cfi_offset 4, -16
+ 246              		.cfi_offset 5, -12
+ 247              		.cfi_offset 6, -8
+ 248              		.cfi_offset 14, -4
+ 249 0002 0546     		mov	r5, r0
+  50:modules/motor/HTmotor/HT04.c ****     uint8_t const *rxbuff = motor_can->rx_buff;
+ 250              		.loc 1 50 5 is_stmt 1 view .LVU59
+  51:modules/motor/HTmotor/HT04.c ****     HTMotorInstance *motor = (HTMotorInstance *)motor_can->id;
+ 251              		.loc 1 51 5 view .LVU60
+ 252              	.LVL18:
+  52:modules/motor/HTmotor/HT04.c ****     HTMotor_Measure_t *measure = &(motor->measure); // 将can实例中保存的id转换成电机实
+ 253              		.loc 1 52 5 view .LVU61
+  52:modules/motor/HTmotor/HT04.c ****     HTMotor_Measure_t *measure = &(motor->measure); // 将can实例中保存的id转换成电机实
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccUIS2Ws.s 			page 7
+
+
+ 254              		.loc 1 52 22 is_stmt 0 view .LVU62
+ 255 0004 D0F84140 		ldr	r4, [r0, #65]	@ unaligned
+ 256              	.LVL19:
+  53:modules/motor/HTmotor/HT04.c **** 
+ 257              		.loc 1 53 5 is_stmt 1 view .LVU63
+  55:modules/motor/HTmotor/HT04.c ****     measure->feed_dt = DWT_GetDeltaT(&measure->feed_cnt);
+ 258              		.loc 1 55 5 view .LVU64
+ 259 0008 D4F8BC01 		ldr	r0, [r4, #444]
+ 260              	.LVL20:
+  55:modules/motor/HTmotor/HT04.c ****     measure->feed_dt = DWT_GetDeltaT(&measure->feed_cnt);
+ 261              		.loc 1 55 5 is_stmt 0 view .LVU65
+ 262 000c FFF7FEFF 		bl	DaemonReload
+ 263              	.LVL21:
+  56:modules/motor/HTmotor/HT04.c **** 
+ 264              		.loc 1 56 5 is_stmt 1 view .LVU66
+  56:modules/motor/HTmotor/HT04.c **** 
+ 265              		.loc 1 56 24 is_stmt 0 view .LVU67
+ 266 0010 04F12800 		add	r0, r4, #40
+ 267 0014 FFF7FEFF 		bl	DWT_GetDeltaT
+ 268              	.LVL22:
+  56:modules/motor/HTmotor/HT04.c **** 
+ 269              		.loc 1 56 22 discriminator 1 view .LVU68
+ 270 0018 84ED090A 		vstr.32	s0, [r4, #36]
+  58:modules/motor/HTmotor/HT04.c ****     tmp = (uint16_t)((rxbuff[1] << 8) | rxbuff[2]);
+ 271              		.loc 1 58 5 is_stmt 1 view .LVU69
+  58:modules/motor/HTmotor/HT04.c ****     tmp = (uint16_t)((rxbuff[1] << 8) | rxbuff[2]);
+ 272              		.loc 1 58 34 is_stmt 0 view .LVU70
+ 273 001c 2368     		ldr	r3, [r4]	@ float
+  58:modules/motor/HTmotor/HT04.c ****     tmp = (uint16_t)((rxbuff[1] << 8) | rxbuff[2]);
+ 274              		.loc 1 58 25 view .LVU71
+ 275 001e 6360     		str	r3, [r4, #4]	@ float
+  59:modules/motor/HTmotor/HT04.c ****     measure->total_angle = uint_to_float(tmp, P_MIN, P_MAX, 16);
+ 276              		.loc 1 59 5 is_stmt 1 view .LVU72
+  59:modules/motor/HTmotor/HT04.c ****     measure->total_angle = uint_to_float(tmp, P_MIN, P_MAX, 16);
+ 277              		.loc 1 59 29 is_stmt 0 view .LVU73
+ 278 0020 95F82D00 		ldrb	r0, [r5, #45]	@ zero_extendqisi2
+  59:modules/motor/HTmotor/HT04.c ****     measure->total_angle = uint_to_float(tmp, P_MIN, P_MAX, 16);
+ 279              		.loc 1 59 47 view .LVU74
+ 280 0024 95F82E30 		ldrb	r3, [r5, #46]	@ zero_extendqisi2
+ 281              	.LVL23:
+  60:modules/motor/HTmotor/HT04.c **** 
+ 282              		.loc 1 60 5 is_stmt 1 view .LVU75
+  60:modules/motor/HTmotor/HT04.c **** 
+ 283              		.loc 1 60 28 is_stmt 0 view .LVU76
+ 284 0028 1021     		movs	r1, #16
+ 285 002a DFED210A 		vldr.32	s1, .L15
+ 286 002e 9FED210A 		vldr.32	s0, .L15+4
+ 287 0032 43EA0020 		orr	r0, r3, r0, lsl #8
+ 288              	.LVL24:
+  60:modules/motor/HTmotor/HT04.c **** 
+ 289              		.loc 1 60 28 view .LVU77
+ 290 0036 FFF7FEFF 		bl	uint_to_float
+ 291              	.LVL25:
+  60:modules/motor/HTmotor/HT04.c **** 
+ 292              		.loc 1 60 26 discriminator 1 view .LVU78
+ 293 003a 2646     		mov	r6, r4
+ 294 003c 0C36     		adds	r6, r6, #12
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccUIS2Ws.s 			page 8
+
+
+ 295 003e 84ED000A 		vstr.32	s0, [r4]
+  62:modules/motor/HTmotor/HT04.c ****     measure->speed_rads = AverageFilter((uint_to_float(tmp, V_MIN, V_MAX, 12) - HT_SPEED_BIAS), mea
+ 296              		.loc 1 62 5 is_stmt 1 view .LVU79
+  62:modules/motor/HTmotor/HT04.c ****     measure->speed_rads = AverageFilter((uint_to_float(tmp, V_MIN, V_MAX, 12) - HT_SPEED_BIAS), mea
+ 297              		.loc 1 62 28 is_stmt 0 view .LVU80
+ 298 0042 95F82F00 		ldrb	r0, [r5, #47]	@ zero_extendqisi2
+  62:modules/motor/HTmotor/HT04.c ****     measure->speed_rads = AverageFilter((uint_to_float(tmp, V_MIN, V_MAX, 12) - HT_SPEED_BIAS), mea
+ 299              		.loc 1 62 47 view .LVU81
+ 300 0046 95F83030 		ldrb	r3, [r5, #48]	@ zero_extendqisi2
+  62:modules/motor/HTmotor/HT04.c ****     measure->speed_rads = AverageFilter((uint_to_float(tmp, V_MIN, V_MAX, 12) - HT_SPEED_BIAS), mea
+ 301              		.loc 1 62 38 view .LVU82
+ 302 004a 1B09     		lsrs	r3, r3, #4
+ 303              	.LVL26:
+  63:modules/motor/HTmotor/HT04.c **** 
+ 304              		.loc 1 63 5 is_stmt 1 view .LVU83
+  63:modules/motor/HTmotor/HT04.c **** 
+ 305              		.loc 1 63 42 is_stmt 0 view .LVU84
+ 306 004c 0C21     		movs	r1, #12
+ 307 004e DFED1A0A 		vldr.32	s1, .L15+8
+ 308 0052 9FED1A0A 		vldr.32	s0, .L15+12
+ 309 0056 43EA0010 		orr	r0, r3, r0, lsl #4
+ 310              	.LVL27:
+  63:modules/motor/HTmotor/HT04.c **** 
+ 311              		.loc 1 63 42 view .LVU85
+ 312 005a FFF7FEFF 		bl	uint_to_float
+ 313              	.LVL28:
+  63:modules/motor/HTmotor/HT04.c **** 
+ 314              		.loc 1 63 27 discriminator 1 view .LVU86
+ 315 005e 0521     		movs	r1, #5
+ 316 0060 3046     		mov	r0, r6
+ 317 0062 DFED177A 		vldr.32	s15, .L15+16
+ 318 0066 30EE270A 		vadd.f32	s0, s0, s15
+ 319 006a FFF7FEFF 		bl	AverageFilter
+ 320              	.LVL29:
+  63:modules/motor/HTmotor/HT04.c **** 
+ 321              		.loc 1 63 25 discriminator 2 view .LVU87
+ 322 006e 84ED020A 		vstr.32	s0, [r4, #8]
+  65:modules/motor/HTmotor/HT04.c ****     measure->real_current = CURRENT_SMOOTH_COEF * uint_to_float(tmp, T_MIN, T_MAX, 12) +
+ 323              		.loc 1 65 5 is_stmt 1 view .LVU88
+  65:modules/motor/HTmotor/HT04.c ****     measure->real_current = CURRENT_SMOOTH_COEF * uint_to_float(tmp, T_MIN, T_MAX, 12) +
+ 324              		.loc 1 65 30 is_stmt 0 view .LVU89
+ 325 0072 95F83030 		ldrb	r3, [r5, #48]	@ zero_extendqisi2
+  65:modules/motor/HTmotor/HT04.c ****     measure->real_current = CURRENT_SMOOTH_COEF * uint_to_float(tmp, T_MIN, T_MAX, 12) +
+ 326              		.loc 1 65 56 view .LVU90
+ 327 0076 95F83100 		ldrb	r0, [r5, #49]	@ zero_extendqisi2
+  65:modules/motor/HTmotor/HT04.c ****     measure->real_current = CURRENT_SMOOTH_COEF * uint_to_float(tmp, T_MIN, T_MAX, 12) +
+ 328              		.loc 1 65 48 view .LVU91
+ 329 007a 1B02     		lsls	r3, r3, #8
+ 330 007c 03F47063 		and	r3, r3, #3840
+ 331              	.LVL30:
+  66:modules/motor/HTmotor/HT04.c ****                             (1 - CURRENT_SMOOTH_COEF) * measure->real_current;
+ 332              		.loc 1 66 5 is_stmt 1 view .LVU92
+  66:modules/motor/HTmotor/HT04.c ****                             (1 - CURRENT_SMOOTH_COEF) * measure->real_current;
+ 333              		.loc 1 66 51 is_stmt 0 view .LVU93
+ 334 0080 0C21     		movs	r1, #12
+ 335 0082 F3EE020A 		vmov.f32	s1, #1.8e+1
+ 336 0086 BBEE020A 		vmov.f32	s0, #-1.8e+1
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccUIS2Ws.s 			page 9
+
+
+ 337 008a 1843     		orrs	r0, r0, r3
+ 338              	.LVL31:
+  66:modules/motor/HTmotor/HT04.c ****                             (1 - CURRENT_SMOOTH_COEF) * measure->real_current;
+ 339              		.loc 1 66 51 view .LVU94
+ 340 008c FFF7FEFF 		bl	uint_to_float
+ 341              	.LVL32:
+  66:modules/motor/HTmotor/HT04.c ****                             (1 - CURRENT_SMOOTH_COEF) * measure->real_current;
+ 342              		.loc 1 66 49 discriminator 1 view .LVU95
+ 343 0090 DFED0C7A 		vldr.32	s15, .L15+20
+ 344 0094 20EE270A 		vmul.f32	s0, s0, s15
+  67:modules/motor/HTmotor/HT04.c **** }
+ 345              		.loc 1 67 64 view .LVU96
+ 346 0098 D4ED087A 		vldr.32	s15, [r4, #32]
+  67:modules/motor/HTmotor/HT04.c **** }
+ 347              		.loc 1 67 55 view .LVU97
+ 348 009c 9FED0A7A 		vldr.32	s14, .L15+24
+ 349 00a0 67EE877A 		vmul.f32	s15, s15, s14
+  66:modules/motor/HTmotor/HT04.c ****                             (1 - CURRENT_SMOOTH_COEF) * measure->real_current;
+ 350              		.loc 1 66 88 view .LVU98
+ 351 00a4 30EE270A 		vadd.f32	s0, s0, s15
+  66:modules/motor/HTmotor/HT04.c ****                             (1 - CURRENT_SMOOTH_COEF) * measure->real_current;
+ 352              		.loc 1 66 27 view .LVU99
+ 353 00a8 84ED080A 		vstr.32	s0, [r4, #32]
+  68:modules/motor/HTmotor/HT04.c **** 
+ 354              		.loc 1 68 1 view .LVU100
+ 355 00ac 70BD     		pop	{r4, r5, r6, pc}
+ 356              	.LVL33:
+ 357              	.L16:
+  68:modules/motor/HTmotor/HT04.c **** 
+ 358              		.loc 1 68 1 view .LVU101
+ 359 00ae 00BF     		.align	2
+ 360              	.L15:
+ 361 00b0 0000BF42 		.word	1119813632
+ 362 00b4 0000BFC2 		.word	-1027670016
+ 363 00b8 00003442 		.word	1110704128
+ 364 00bc 000034C2 		.word	-1036779520
+ 365 00c0 0010343C 		.word	1010044928
+ 366 00c4 6666663F 		.word	1063675494
+ 367 00c8 D0CCCC3D 		.word	1036831952
+ 368              		.cfi_endproc
+ 369              	.LFE279:
+ 371              		.section	.text.HTMotorTask,"ax",%progbits
+ 372              		.align	1
+ 373              		.global	HTMotorTask
+ 374              		.syntax unified
+ 375              		.thumb
+ 376              		.thumb_func
+ 378              	HTMotorTask:
+ 379              	.LVL34:
+ 380              	.LFB284:
+  77:modules/motor/HTmotor/HT04.c **** 
+  78:modules/motor/HTmotor/HT04.c **** /* 海泰电机一生黑,什么垃圾协议! */
+  79:modules/motor/HTmotor/HT04.c **** void HTMotorCalibEncoder(HTMotorInstance *motor)
+  80:modules/motor/HTmotor/HT04.c **** {
+  81:modules/motor/HTmotor/HT04.c ****     uint16_t p, v, kp, kd, t;
+  82:modules/motor/HTmotor/HT04.c ****     p = float_to_uint(0, P_MIN, P_MAX, 16);
+  83:modules/motor/HTmotor/HT04.c ****     v = float_to_uint(0, V_MIN, V_MAX, 12);
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccUIS2Ws.s 			page 10
+
+
+  84:modules/motor/HTmotor/HT04.c ****     kp = float_to_uint(0, KP_MIN, KP_MAX, 12);
+  85:modules/motor/HTmotor/HT04.c ****     kd = float_to_uint(0, KD_MIN, KD_MAX, 12);
+  86:modules/motor/HTmotor/HT04.c ****     t = float_to_uint(0, T_MIN, T_MAX, 12);
+  87:modules/motor/HTmotor/HT04.c **** 
+  88:modules/motor/HTmotor/HT04.c ****     uint8_t *buf = motor->motor_can_instace->tx_buff;
+  89:modules/motor/HTmotor/HT04.c ****     buf[0] = p >> 8;
+  90:modules/motor/HTmotor/HT04.c ****     buf[1] = p & 0xFF;
+  91:modules/motor/HTmotor/HT04.c ****     buf[2] = v >> 4;
+  92:modules/motor/HTmotor/HT04.c ****     buf[3] = ((v & 0xF) << 4) | (kp >> 8);
+  93:modules/motor/HTmotor/HT04.c ****     buf[4] = kp & 0xFF;
+  94:modules/motor/HTmotor/HT04.c ****     buf[5] = kd >> 4;
+  95:modules/motor/HTmotor/HT04.c ****     buf[6] = ((kd & 0xF) << 4) | (t >> 8);
+  96:modules/motor/HTmotor/HT04.c ****     buf[7] = t & 0xff;
+  97:modules/motor/HTmotor/HT04.c ****     memcpy(zero_buff, buf, 6); // 初始化的时候至少调用一次,故将其他指令为0时发
+  98:modules/motor/HTmotor/HT04.c ****     CANTransmit(motor->motor_can_instace, 1);
+  99:modules/motor/HTmotor/HT04.c ****     DWT_Delay(0.005);
+ 100:modules/motor/HTmotor/HT04.c ****     HTMotorSetMode(CMD_ZERO_POSITION, motor); // sb 玩意校准完了编码器也不为0
+ 101:modules/motor/HTmotor/HT04.c ****     DWT_Delay(0.005);
+ 102:modules/motor/HTmotor/HT04.c ****     // HTMotorSetMode(CMD_MOTOR_MODE, motor);
+ 103:modules/motor/HTmotor/HT04.c **** }
+ 104:modules/motor/HTmotor/HT04.c **** 
+ 105:modules/motor/HTmotor/HT04.c **** HTMotorInstance *HTMotorInit(Motor_Init_Config_s *config)
+ 106:modules/motor/HTmotor/HT04.c **** {
+ 107:modules/motor/HTmotor/HT04.c ****     HTMotorInstance *motor = (HTMotorInstance *)malloc(sizeof(HTMotorInstance));
+ 108:modules/motor/HTmotor/HT04.c ****     memset(motor, 0, sizeof(HTMotorInstance));
+ 109:modules/motor/HTmotor/HT04.c **** 
+ 110:modules/motor/HTmotor/HT04.c ****     motor->motor_settings = config->controller_setting_init_config;
+ 111:modules/motor/HTmotor/HT04.c ****     PIDInit(&motor->current_PID, &config->controller_param_init_config.current_PID);
+ 112:modules/motor/HTmotor/HT04.c ****     PIDInit(&motor->speed_PID, &config->controller_param_init_config.speed_PID);
+ 113:modules/motor/HTmotor/HT04.c ****     PIDInit(&motor->angle_PID, &config->controller_param_init_config.angle_PID);
+ 114:modules/motor/HTmotor/HT04.c ****     motor->other_angle_feedback_ptr = config->controller_param_init_config.other_angle_feedback_ptr
+ 115:modules/motor/HTmotor/HT04.c ****     motor->other_speed_feedback_ptr = config->controller_param_init_config.other_speed_feedback_ptr
+ 116:modules/motor/HTmotor/HT04.c **** 
+ 117:modules/motor/HTmotor/HT04.c ****     config->can_init_config.can_module_callback = HTMotorDecode;
+ 118:modules/motor/HTmotor/HT04.c ****     config->can_init_config.id = motor;
+ 119:modules/motor/HTmotor/HT04.c ****     motor->motor_can_instace = CANRegister(&config->can_init_config);
+ 120:modules/motor/HTmotor/HT04.c **** 
+ 121:modules/motor/HTmotor/HT04.c ****     Daemon_Init_Config_s conf = {
+ 122:modules/motor/HTmotor/HT04.c ****         .callback = HTMotorLostCallback,
+ 123:modules/motor/HTmotor/HT04.c ****         .owner_id = motor,
+ 124:modules/motor/HTmotor/HT04.c ****         .reload_count = 5, // 50ms
+ 125:modules/motor/HTmotor/HT04.c ****     };
+ 126:modules/motor/HTmotor/HT04.c ****     motor->motor_daemon = DaemonRegister(&conf);
+ 127:modules/motor/HTmotor/HT04.c **** 
+ 128:modules/motor/HTmotor/HT04.c ****     HTMotorEnable(motor);
+ 129:modules/motor/HTmotor/HT04.c ****     HTMotorSetMode(CMD_MOTOR_MODE, motor); // 确保电机已经上电并执行电机模式
+ 130:modules/motor/HTmotor/HT04.c ****     DWT_Delay(0.05f);
+ 131:modules/motor/HTmotor/HT04.c ****     HTMotorCalibEncoder(motor); // 将当前编码器位置作为零位
+ 132:modules/motor/HTmotor/HT04.c ****     DWT_Delay(0.05f);           // 保证下一个电机发送时CAN是空闲的,注意应用在初
+ 133:modules/motor/HTmotor/HT04.c ****     ht_motor_instance[idx++] = motor;
+ 134:modules/motor/HTmotor/HT04.c ****     return motor;
+ 135:modules/motor/HTmotor/HT04.c **** }
+ 136:modules/motor/HTmotor/HT04.c **** 
+ 137:modules/motor/HTmotor/HT04.c **** void HTMotorSetRef(HTMotorInstance *motor, float ref)
+ 138:modules/motor/HTmotor/HT04.c **** {
+ 139:modules/motor/HTmotor/HT04.c ****     motor->pid_ref = ref;
+ 140:modules/motor/HTmotor/HT04.c **** }
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccUIS2Ws.s 			page 11
+
+
+ 141:modules/motor/HTmotor/HT04.c **** 
+ 142:modules/motor/HTmotor/HT04.c **** /**
+ 143:modules/motor/HTmotor/HT04.c ****  * @brief 为了避免总线堵塞,为每个电机创建一个发送任务
+ 144:modules/motor/HTmotor/HT04.c ****  * @param argument 传入的电机指针
+ 145:modules/motor/HTmotor/HT04.c ****  */
+ 146:modules/motor/HTmotor/HT04.c **** __attribute__((noreturn)) void HTMotorTask(void const *argument)
+ 147:modules/motor/HTmotor/HT04.c **** {
+ 381              		.loc 1 147 1 is_stmt 1 view -0
+ 382              		.cfi_startproc
+ 383              		@ Volatile: function does not return.
+ 384              		@ args = 0, pretend = 0, frame = 0
+ 385              		@ frame_needed = 0, uses_anonymous_args = 0
+ 386              		.loc 1 147 1 is_stmt 0 view .LVU103
+ 387 0000 08B5     		push	{r3, lr}
+ 388              	.LCFI3:
+ 389              		.cfi_def_cfa_offset 8
+ 390              		.cfi_offset 3, -8
+ 391              		.cfi_offset 14, -4
+ 392 0002 0446     		mov	r4, r0
+ 148:modules/motor/HTmotor/HT04.c ****     float set, pid_measure, pid_ref;
+ 393              		.loc 1 148 5 is_stmt 1 view .LVU104
+ 149:modules/motor/HTmotor/HT04.c ****     HTMotorInstance *motor = (HTMotorInstance *)argument;
+ 394              		.loc 1 149 5 view .LVU105
+ 395              	.LVL35:
+ 150:modules/motor/HTmotor/HT04.c ****     HTMotor_Measure_t *measure = &motor->measure;
+ 396              		.loc 1 150 5 view .LVU106
+ 151:modules/motor/HTmotor/HT04.c ****     Motor_Control_Setting_s *setting = &motor->motor_settings;
+ 397              		.loc 1 151 5 view .LVU107
+ 152:modules/motor/HTmotor/HT04.c ****     CANInstance *motor_can = motor->motor_can_instace;
+ 398              		.loc 1 152 5 view .LVU108
+ 399              		.loc 1 152 18 is_stmt 0 view .LVU109
+ 400 0004 D0F8B851 		ldr	r5, [r0, #440]
+ 401              	.LVL36:
+ 402              		.loc 1 152 18 view .LVU110
+ 403 0008 48E0     		b	.L31
+ 404              	.LVL37:
+ 405              	.L36:
+ 153:modules/motor/HTmotor/HT04.c ****     uint16_t tmp;
+ 154:modules/motor/HTmotor/HT04.c **** 
+ 155:modules/motor/HTmotor/HT04.c ****     while (1)
+ 156:modules/motor/HTmotor/HT04.c ****     {
+ 157:modules/motor/HTmotor/HT04.c ****         pid_ref = motor->pid_ref;
+ 158:modules/motor/HTmotor/HT04.c ****         if (setting->motor_reverse_flag == MOTOR_DIRECTION_REVERSE)
+ 159:modules/motor/HTmotor/HT04.c ****             pid_ref *= -1;
+ 406              		.loc 1 159 13 is_stmt 1 view .LVU111
+ 407              		.loc 1 159 21 is_stmt 0 view .LVU112
+ 408 000a B1EE400A 		vneg.f32	s0, s0
+ 409              	.LVL38:
+ 410              		.loc 1 159 21 view .LVU113
+ 411 000e 4BE0     		b	.L18
+ 412              	.L37:
+ 160:modules/motor/HTmotor/HT04.c **** 
+ 161:modules/motor/HTmotor/HT04.c ****         if ((setting->close_loop_type & ANGLE_LOOP) && setting->outer_loop_type == ANGLE_LOOP)
+ 162:modules/motor/HTmotor/HT04.c ****         {
+ 163:modules/motor/HTmotor/HT04.c ****             if (setting->angle_feedback_source == OTHER_FEED)
+ 413              		.loc 1 163 13 is_stmt 1 view .LVU114
+ 414              		.loc 1 163 24 is_stmt 0 view .LVU115
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccUIS2Ws.s 			page 12
+
+
+ 415 0010 94F83030 		ldrb	r3, [r4, #48]	@ zero_extendqisi2
+ 416              		.loc 1 163 16 view .LVU116
+ 417 0014 012B     		cmp	r3, #1
+ 418 0016 0CD0     		beq	.L35
+ 164:modules/motor/HTmotor/HT04.c ****                 pid_measure = *motor->other_angle_feedback_ptr;
+ 165:modules/motor/HTmotor/HT04.c ****             else
+ 166:modules/motor/HTmotor/HT04.c ****                 pid_measure = measure->total_angle;
+ 419              		.loc 1 166 17 is_stmt 1 view .LVU117
+ 420              		.loc 1 166 29 is_stmt 0 view .LVU118
+ 421 0018 94ED007A 		vldr.32	s14, [r4]
+ 422              	.LVL39:
+ 423              	.L21:
+ 167:modules/motor/HTmotor/HT04.c ****             // measure单位是rad,ref是角度,统一到angle下计算,方便建模
+ 168:modules/motor/HTmotor/HT04.c ****             pid_ref = PIDCalculate(&motor->angle_PID, pid_measure * RAD_2_DEGREE, pid_ref);
+ 424              		.loc 1 168 13 is_stmt 1 view .LVU119
+ 425              		.loc 1 168 23 is_stmt 0 view .LVU120
+ 426 001c F0EE400A 		vmov.f32	s1, s0
+ 427 0020 9FED490A 		vldr.32	s0, .L40
+ 428              	.LVL40:
+ 429              		.loc 1 168 23 view .LVU121
+ 430 0024 27EE000A 		vmul.f32	s0, s14, s0
+ 431 0028 04F59470 		add	r0, r4, #296
+ 432 002c FFF7FEFF 		bl	PIDCalculate
+ 433              	.LVL41:
+ 434              		.loc 1 168 23 view .LVU122
+ 435 0030 43E0     		b	.L19
+ 436              	.LVL42:
+ 437              	.L35:
+ 164:modules/motor/HTmotor/HT04.c ****                 pid_measure = *motor->other_angle_feedback_ptr;
+ 438              		.loc 1 164 17 is_stmt 1 view .LVU123
+ 164:modules/motor/HTmotor/HT04.c ****                 pid_measure = *motor->other_angle_feedback_ptr;
+ 439              		.loc 1 164 37 is_stmt 0 view .LVU124
+ 440 0032 D4F8A031 		ldr	r3, [r4, #416]
+ 164:modules/motor/HTmotor/HT04.c ****                 pid_measure = *motor->other_angle_feedback_ptr;
+ 441              		.loc 1 164 29 view .LVU125
+ 442 0036 93ED007A 		vldr.32	s14, [r3]
+ 443              	.LVL43:
+ 164:modules/motor/HTmotor/HT04.c ****                 pid_measure = *motor->other_angle_feedback_ptr;
+ 444              		.loc 1 164 29 view .LVU126
+ 445 003a EFE7     		b	.L21
+ 446              	.LVL44:
+ 447              	.L38:
+ 169:modules/motor/HTmotor/HT04.c ****         }
+ 170:modules/motor/HTmotor/HT04.c **** 
+ 171:modules/motor/HTmotor/HT04.c ****         if ((setting->close_loop_type & SPEED_LOOP) && setting->outer_loop_type & (ANGLE_LOOP | SPE
+ 172:modules/motor/HTmotor/HT04.c ****         {
+ 173:modules/motor/HTmotor/HT04.c ****             if (setting->feedforward_flag & SPEED_FEEDFORWARD)
+ 174:modules/motor/HTmotor/HT04.c ****                 pid_ref += *motor->speed_feedforward_ptr;
+ 175:modules/motor/HTmotor/HT04.c **** 
+ 176:modules/motor/HTmotor/HT04.c ****             if (setting->angle_feedback_source == OTHER_FEED)
+ 177:modules/motor/HTmotor/HT04.c ****                 pid_measure = *motor->other_speed_feedback_ptr;
+ 448              		.loc 1 177 17 is_stmt 1 view .LVU127
+ 449              		.loc 1 177 37 is_stmt 0 view .LVU128
+ 450 003c D4F8A431 		ldr	r3, [r4, #420]
+ 451              		.loc 1 177 29 view .LVU129
+ 452 0040 93ED007A 		vldr.32	s14, [r3]
+ 453              	.LVL45:
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccUIS2Ws.s 			page 13
+
+
+ 454              		.loc 1 177 29 view .LVU130
+ 455 0044 54E0     		b	.L25
+ 456              	.LVL46:
+ 457              	.L39:
+ 178:modules/motor/HTmotor/HT04.c ****             else
+ 179:modules/motor/HTmotor/HT04.c ****                 pid_measure = measure->speed_rads;
+ 180:modules/motor/HTmotor/HT04.c ****             // measure单位是rad / s ,ref是angle per sec,统一到angle下计算
+ 181:modules/motor/HTmotor/HT04.c ****             pid_ref = PIDCalculate(&motor->speed_PID, pid_measure * RAD_2_DEGREE, pid_ref);
+ 182:modules/motor/HTmotor/HT04.c ****         }
+ 183:modules/motor/HTmotor/HT04.c **** 
+ 184:modules/motor/HTmotor/HT04.c ****         if (setting->feedforward_flag & CURRENT_FEEDFORWARD)
+ 185:modules/motor/HTmotor/HT04.c ****             pid_ref += *motor->current_feedforward_ptr;
+ 186:modules/motor/HTmotor/HT04.c ****         if (setting->close_loop_type & CURRENT_LOOP)
+ 187:modules/motor/HTmotor/HT04.c ****         {
+ 188:modules/motor/HTmotor/HT04.c ****             pid_ref = PIDCalculate(&motor->current_PID, measure->real_current, pid_ref);
+ 458              		.loc 1 188 13 is_stmt 1 view .LVU131
+ 459              		.loc 1 188 23 is_stmt 0 view .LVU132
+ 460 0046 F0EE400A 		vmov.f32	s1, s0
+ 461 004a 94ED080A 		vldr.32	s0, [r4, #32]
+ 462              	.LVL47:
+ 463              		.loc 1 188 23 view .LVU133
+ 464 004e 04F13800 		add	r0, r4, #56
+ 465 0052 FFF7FEFF 		bl	PIDCalculate
+ 466              	.LVL48:
+ 467              		.loc 1 188 23 view .LVU134
+ 468 0056 65E0     		b	.L27
+ 469              	.LVL49:
+ 470              	.L32:
+ 189:modules/motor/HTmotor/HT04.c ****         }
+ 190:modules/motor/HTmotor/HT04.c **** 
+ 191:modules/motor/HTmotor/HT04.c ****         set = pid_ref;
+ 192:modules/motor/HTmotor/HT04.c **** 
+ 193:modules/motor/HTmotor/HT04.c ****         LIMIT_MIN_MAX(set, T_MIN, T_MAX);
+ 471              		.loc 1 193 9 discriminator 1 view .LVU135
+ 472 0058 BBEE020A 		vmov.f32	s0, #-1.8e+1
+ 473              	.LVL50:
+ 474              	.L28:
+ 194:modules/motor/HTmotor/HT04.c ****         tmp = float_to_uint(set, T_MIN, T_MAX, 12);
+ 475              		.loc 1 194 9 is_stmt 1 view .LVU136
+ 476              		.loc 1 194 15 is_stmt 0 view .LVU137
+ 477 005c 0C20     		movs	r0, #12
+ 478 005e B3EE021A 		vmov.f32	s2, #1.8e+1
+ 479 0062 FBEE020A 		vmov.f32	s1, #-1.8e+1
+ 480 0066 FFF7FEFF 		bl	float_to_uint
+ 481              	.LVL51:
+ 195:modules/motor/HTmotor/HT04.c ****         if (motor->stop_flag == MOTOR_STOP)
+ 482              		.loc 1 195 9 is_stmt 1 view .LVU138
+ 483              		.loc 1 195 18 is_stmt 0 view .LVU139
+ 484 006a 94F8B431 		ldrb	r3, [r4, #436]	@ zero_extendqisi2
+ 485              		.loc 1 195 12 view .LVU140
+ 486 006e 43B9     		cbnz	r3, .L30
+ 196:modules/motor/HTmotor/HT04.c ****             tmp = float_to_uint(0, T_MIN, T_MAX, 12);
+ 487              		.loc 1 196 13 is_stmt 1 view .LVU141
+ 488              		.loc 1 196 19 is_stmt 0 view .LVU142
+ 489 0070 0C20     		movs	r0, #12
+ 490              	.LVL52:
+ 491              		.loc 1 196 19 view .LVU143
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccUIS2Ws.s 			page 14
+
+
+ 492 0072 B3EE021A 		vmov.f32	s2, #1.8e+1
+ 493 0076 FBEE020A 		vmov.f32	s1, #-1.8e+1
+ 494 007a 9FED340A 		vldr.32	s0, .L40+4
+ 495 007e FFF7FEFF 		bl	float_to_uint
+ 496              	.LVL53:
+ 497              	.L30:
+ 197:modules/motor/HTmotor/HT04.c ****         motor_can->tx_buff[6] = (tmp >> 8);
+ 498              		.loc 1 197 9 is_stmt 1 view .LVU144
+ 499              		.loc 1 197 31 is_stmt 0 view .LVU145
+ 500 0082 030A     		lsrs	r3, r0, #8
+ 501 0084 85F82A30 		strb	r3, [r5, #42]
+ 198:modules/motor/HTmotor/HT04.c ****         motor_can->tx_buff[7] = tmp & 0xff;
+ 502              		.loc 1 198 9 is_stmt 1 view .LVU146
+ 503              		.loc 1 198 31 is_stmt 0 view .LVU147
+ 504 0088 85F82B00 		strb	r0, [r5, #43]
+ 199:modules/motor/HTmotor/HT04.c **** 
+ 200:modules/motor/HTmotor/HT04.c ****         CANTransmit(motor_can, 0.5);
+ 505              		.loc 1 200 9 is_stmt 1 view .LVU148
+ 506 008c B6EE000A 		vmov.f32	s0, #5.0e-1
+ 507 0090 2846     		mov	r0, r5
+ 508              	.LVL54:
+ 509              		.loc 1 200 9 is_stmt 0 view .LVU149
+ 510 0092 FFF7FEFF 		bl	CANTransmit
+ 511              	.LVL55:
+ 201:modules/motor/HTmotor/HT04.c **** 
+ 202:modules/motor/HTmotor/HT04.c ****         osDelay(1);
+ 512              		.loc 1 202 9 is_stmt 1 view .LVU150
+ 513 0096 0120     		movs	r0, #1
+ 514 0098 FFF7FEFF 		bl	osDelay
+ 515              	.LVL56:
+ 155:modules/motor/HTmotor/HT04.c ****     {
+ 516              		.loc 1 155 11 view .LVU151
+ 517              	.L31:
+ 153:modules/motor/HTmotor/HT04.c **** 
+ 518              		.loc 1 153 5 view .LVU152
+ 155:modules/motor/HTmotor/HT04.c ****     {
+ 519              		.loc 1 155 5 view .LVU153
+ 157:modules/motor/HTmotor/HT04.c ****         if (setting->motor_reverse_flag == MOTOR_DIRECTION_REVERSE)
+ 520              		.loc 1 157 9 view .LVU154
+ 157:modules/motor/HTmotor/HT04.c ****         if (setting->motor_reverse_flag == MOTOR_DIRECTION_REVERSE)
+ 521              		.loc 1 157 17 is_stmt 0 view .LVU155
+ 522 009c 94ED6C0A 		vldr.32	s0, [r4, #432]
+ 523              	.LVL57:
+ 158:modules/motor/HTmotor/HT04.c ****             pid_ref *= -1;
+ 524              		.loc 1 158 9 is_stmt 1 view .LVU156
+ 158:modules/motor/HTmotor/HT04.c ****             pid_ref *= -1;
+ 525              		.loc 1 158 20 is_stmt 0 view .LVU157
+ 526 00a0 94F82E30 		ldrb	r3, [r4, #46]	@ zero_extendqisi2
+ 158:modules/motor/HTmotor/HT04.c ****             pid_ref *= -1;
+ 527              		.loc 1 158 12 view .LVU158
+ 528 00a4 012B     		cmp	r3, #1
+ 529 00a6 B0D0     		beq	.L36
+ 530              	.L18:
+ 161:modules/motor/HTmotor/HT04.c ****         {
+ 531              		.loc 1 161 9 is_stmt 1 view .LVU159
+ 161:modules/motor/HTmotor/HT04.c ****         {
+ 532              		.loc 1 161 21 is_stmt 0 view .LVU160
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccUIS2Ws.s 			page 15
+
+
+ 533 00a8 94F82D30 		ldrb	r3, [r4, #45]	@ zero_extendqisi2
+ 161:modules/motor/HTmotor/HT04.c ****         {
+ 534              		.loc 1 161 12 view .LVU161
+ 535 00ac 13F0040F 		tst	r3, #4
+ 536 00b0 03D0     		beq	.L19
+ 161:modules/motor/HTmotor/HT04.c ****         {
+ 537              		.loc 1 161 63 discriminator 1 view .LVU162
+ 538 00b2 94F82C30 		ldrb	r3, [r4, #44]	@ zero_extendqisi2
+ 161:modules/motor/HTmotor/HT04.c ****         {
+ 539              		.loc 1 161 53 discriminator 1 view .LVU163
+ 540 00b6 042B     		cmp	r3, #4
+ 541 00b8 AAD0     		beq	.L37
+ 542              	.L19:
+ 171:modules/motor/HTmotor/HT04.c ****         {
+ 543              		.loc 1 171 9 is_stmt 1 view .LVU164
+ 171:modules/motor/HTmotor/HT04.c ****         {
+ 544              		.loc 1 171 21 is_stmt 0 view .LVU165
+ 545 00ba 94F82D30 		ldrb	r3, [r4, #45]	@ zero_extendqisi2
+ 171:modules/motor/HTmotor/HT04.c ****         {
+ 546              		.loc 1 171 12 view .LVU166
+ 547 00be 13F0020F 		tst	r3, #2
+ 548 00c2 1FD0     		beq	.L22
+ 171:modules/motor/HTmotor/HT04.c ****         {
+ 549              		.loc 1 171 63 discriminator 1 view .LVU167
+ 550 00c4 94F82C30 		ldrb	r3, [r4, #44]	@ zero_extendqisi2
+ 171:modules/motor/HTmotor/HT04.c ****         {
+ 551              		.loc 1 171 53 discriminator 1 view .LVU168
+ 552 00c8 13F0060F 		tst	r3, #6
+ 553 00cc 1AD0     		beq	.L22
+ 173:modules/motor/HTmotor/HT04.c ****                 pid_ref += *motor->speed_feedforward_ptr;
+ 554              		.loc 1 173 13 is_stmt 1 view .LVU169
+ 173:modules/motor/HTmotor/HT04.c ****                 pid_ref += *motor->speed_feedforward_ptr;
+ 555              		.loc 1 173 24 is_stmt 0 view .LVU170
+ 556 00ce 94F83230 		ldrb	r3, [r4, #50]	@ zero_extendqisi2
+ 173:modules/motor/HTmotor/HT04.c ****                 pid_ref += *motor->speed_feedforward_ptr;
+ 557              		.loc 1 173 16 view .LVU171
+ 558 00d2 13F0020F 		tst	r3, #2
+ 559 00d6 05D0     		beq	.L23
+ 174:modules/motor/HTmotor/HT04.c **** 
+ 560              		.loc 1 174 17 is_stmt 1 view .LVU172
+ 174:modules/motor/HTmotor/HT04.c **** 
+ 561              		.loc 1 174 34 is_stmt 0 view .LVU173
+ 562 00d8 D4F8A831 		ldr	r3, [r4, #424]
+ 174:modules/motor/HTmotor/HT04.c **** 
+ 563              		.loc 1 174 28 view .LVU174
+ 564 00dc D3ED007A 		vldr.32	s15, [r3]
+ 174:modules/motor/HTmotor/HT04.c **** 
+ 565              		.loc 1 174 25 view .LVU175
+ 566 00e0 30EE270A 		vadd.f32	s0, s0, s15
+ 567              	.LVL58:
+ 568              	.L23:
+ 176:modules/motor/HTmotor/HT04.c ****                 pid_measure = *motor->other_speed_feedback_ptr;
+ 569              		.loc 1 176 13 is_stmt 1 view .LVU176
+ 176:modules/motor/HTmotor/HT04.c ****                 pid_measure = *motor->other_speed_feedback_ptr;
+ 570              		.loc 1 176 24 is_stmt 0 view .LVU177
+ 571 00e4 94F83030 		ldrb	r3, [r4, #48]	@ zero_extendqisi2
+ 176:modules/motor/HTmotor/HT04.c ****                 pid_measure = *motor->other_speed_feedback_ptr;
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccUIS2Ws.s 			page 16
+
+
+ 572              		.loc 1 176 16 view .LVU178
+ 573 00e8 012B     		cmp	r3, #1
+ 574 00ea A7D0     		beq	.L38
+ 179:modules/motor/HTmotor/HT04.c ****             // measure单位是rad / s ,ref是angle per sec,统一到angle下计算
+ 575              		.loc 1 179 17 is_stmt 1 view .LVU179
+ 179:modules/motor/HTmotor/HT04.c ****             // measure单位是rad / s ,ref是angle per sec,统一到angle下计算
+ 576              		.loc 1 179 29 is_stmt 0 view .LVU180
+ 577 00ec 94ED027A 		vldr.32	s14, [r4, #8]
+ 578              	.LVL59:
+ 579              	.L25:
+ 181:modules/motor/HTmotor/HT04.c ****         }
+ 580              		.loc 1 181 13 is_stmt 1 view .LVU181
+ 181:modules/motor/HTmotor/HT04.c ****         }
+ 581              		.loc 1 181 23 is_stmt 0 view .LVU182
+ 582 00f0 F0EE400A 		vmov.f32	s1, s0
+ 583 00f4 9FED140A 		vldr.32	s0, .L40
+ 584              	.LVL60:
+ 181:modules/motor/HTmotor/HT04.c ****         }
+ 585              		.loc 1 181 23 view .LVU183
+ 586 00f8 27EE000A 		vmul.f32	s0, s14, s0
+ 587 00fc 04F1B000 		add	r0, r4, #176
+ 588 0100 FFF7FEFF 		bl	PIDCalculate
+ 589              	.LVL61:
+ 590              	.L22:
+ 184:modules/motor/HTmotor/HT04.c ****             pid_ref += *motor->current_feedforward_ptr;
+ 591              		.loc 1 184 9 is_stmt 1 view .LVU184
+ 184:modules/motor/HTmotor/HT04.c ****             pid_ref += *motor->current_feedforward_ptr;
+ 592              		.loc 1 184 20 is_stmt 0 view .LVU185
+ 593 0104 94F83230 		ldrb	r3, [r4, #50]	@ zero_extendqisi2
+ 184:modules/motor/HTmotor/HT04.c ****             pid_ref += *motor->current_feedforward_ptr;
+ 594              		.loc 1 184 12 view .LVU186
+ 595 0108 13F0010F 		tst	r3, #1
+ 596 010c 05D0     		beq	.L26
+ 185:modules/motor/HTmotor/HT04.c ****         if (setting->close_loop_type & CURRENT_LOOP)
+ 597              		.loc 1 185 13 is_stmt 1 view .LVU187
+ 185:modules/motor/HTmotor/HT04.c ****         if (setting->close_loop_type & CURRENT_LOOP)
+ 598              		.loc 1 185 30 is_stmt 0 view .LVU188
+ 599 010e D4F8AC31 		ldr	r3, [r4, #428]
+ 185:modules/motor/HTmotor/HT04.c ****         if (setting->close_loop_type & CURRENT_LOOP)
+ 600              		.loc 1 185 24 view .LVU189
+ 601 0112 D3ED007A 		vldr.32	s15, [r3]
+ 185:modules/motor/HTmotor/HT04.c ****         if (setting->close_loop_type & CURRENT_LOOP)
+ 602              		.loc 1 185 21 view .LVU190
+ 603 0116 30EE270A 		vadd.f32	s0, s0, s15
+ 604              	.LVL62:
+ 605              	.L26:
+ 186:modules/motor/HTmotor/HT04.c ****         {
+ 606              		.loc 1 186 9 is_stmt 1 view .LVU191
+ 186:modules/motor/HTmotor/HT04.c ****         {
+ 607              		.loc 1 186 20 is_stmt 0 view .LVU192
+ 608 011a 94F82D30 		ldrb	r3, [r4, #45]	@ zero_extendqisi2
+ 186:modules/motor/HTmotor/HT04.c ****         {
+ 609              		.loc 1 186 12 view .LVU193
+ 610 011e 13F0010F 		tst	r3, #1
+ 611 0122 90D1     		bne	.L39
+ 612              	.L27:
+ 191:modules/motor/HTmotor/HT04.c **** 
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccUIS2Ws.s 			page 17
+
+
+ 613              		.loc 1 191 9 is_stmt 1 view .LVU194
+ 614              	.LVL63:
+ 193:modules/motor/HTmotor/HT04.c ****         tmp = float_to_uint(set, T_MIN, T_MAX, 12);
+ 615              		.loc 1 193 9 view .LVU195
+ 616 0124 FBEE027A 		vmov.f32	s15, #-1.8e+1
+ 617 0128 B4EEE70A 		vcmpe.f32	s0, s15
+ 618 012c F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 619 0130 92D9     		bls	.L32
+ 193:modules/motor/HTmotor/HT04.c ****         tmp = float_to_uint(set, T_MIN, T_MAX, 12);
+ 620              		.loc 1 193 9 is_stmt 0 discriminator 2 view .LVU196
+ 621 0132 F3EE027A 		vmov.f32	s15, #1.8e+1
+ 622 0136 B4EEE70A 		vcmpe.f32	s0, s15
+ 623 013a F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 624 013e 8DDB     		blt	.L28
+ 193:modules/motor/HTmotor/HT04.c ****         tmp = float_to_uint(set, T_MIN, T_MAX, 12);
+ 625              		.loc 1 193 9 discriminator 4 view .LVU197
+ 626 0140 B0EE670A 		vmov.f32	s0, s15
+ 627              	.LVL64:
+ 193:modules/motor/HTmotor/HT04.c ****         tmp = float_to_uint(set, T_MIN, T_MAX, 12);
+ 628              		.loc 1 193 9 discriminator 4 view .LVU198
+ 629 0144 8AE7     		b	.L28
+ 630              	.L41:
+ 631 0146 00BF     		.align	2
+ 632              	.L40:
+ 633 0148 E12E6542 		.word	1113927393
+ 634 014c 00000000 		.word	0
+ 635              		.cfi_endproc
+ 636              	.LFE284:
+ 638              		.section	.text.HTMotorCalibEncoder,"ax",%progbits
+ 639              		.align	1
+ 640              		.global	HTMotorCalibEncoder
+ 641              		.syntax unified
+ 642              		.thumb
+ 643              		.thumb_func
+ 645              	HTMotorCalibEncoder:
+ 646              	.LVL65:
+ 647              	.LFB281:
+  80:modules/motor/HTmotor/HT04.c ****     uint16_t p, v, kp, kd, t;
+ 648              		.loc 1 80 1 is_stmt 1 view -0
+ 649              		.cfi_startproc
+ 650              		@ args = 0, pretend = 0, frame = 0
+ 651              		@ frame_needed = 0, uses_anonymous_args = 0
+  80:modules/motor/HTmotor/HT04.c ****     uint16_t p, v, kp, kd, t;
+ 652              		.loc 1 80 1 is_stmt 0 view .LVU200
+ 653 0000 2DE9F041 		push	{r4, r5, r6, r7, r8, lr}
+ 654              	.LCFI4:
+ 655              		.cfi_def_cfa_offset 24
+ 656              		.cfi_offset 4, -24
+ 657              		.cfi_offset 5, -20
+ 658              		.cfi_offset 6, -16
+ 659              		.cfi_offset 7, -12
+ 660              		.cfi_offset 8, -8
+ 661              		.cfi_offset 14, -4
+ 662 0004 2DED028B 		vpush.64	{d8}
+ 663              	.LCFI5:
+ 664              		.cfi_def_cfa_offset 32
+ 665              		.cfi_offset 80, -32
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccUIS2Ws.s 			page 18
+
+
+ 666              		.cfi_offset 81, -28
+ 667 0008 0446     		mov	r4, r0
+  81:modules/motor/HTmotor/HT04.c ****     p = float_to_uint(0, P_MIN, P_MAX, 16);
+ 668              		.loc 1 81 5 is_stmt 1 view .LVU201
+  82:modules/motor/HTmotor/HT04.c ****     v = float_to_uint(0, V_MIN, V_MAX, 12);
+ 669              		.loc 1 82 5 view .LVU202
+  82:modules/motor/HTmotor/HT04.c ****     v = float_to_uint(0, V_MIN, V_MAX, 12);
+ 670              		.loc 1 82 9 is_stmt 0 view .LVU203
+ 671 000a 9FED368A 		vldr.32	s16, .L44
+ 672 000e 1020     		movs	r0, #16
+ 673              	.LVL66:
+  82:modules/motor/HTmotor/HT04.c ****     v = float_to_uint(0, V_MIN, V_MAX, 12);
+ 674              		.loc 1 82 9 view .LVU204
+ 675 0010 9FED351A 		vldr.32	s2, .L44+4
+ 676 0014 DFED350A 		vldr.32	s1, .L44+8
+ 677 0018 B0EE480A 		vmov.f32	s0, s16
+ 678 001c FFF7FEFF 		bl	float_to_uint
+ 679              	.LVL67:
+ 680 0020 8046     		mov	r8, r0
+ 681              	.LVL68:
+  83:modules/motor/HTmotor/HT04.c ****     kp = float_to_uint(0, KP_MIN, KP_MAX, 12);
+ 682              		.loc 1 83 5 is_stmt 1 view .LVU205
+  83:modules/motor/HTmotor/HT04.c ****     kp = float_to_uint(0, KP_MIN, KP_MAX, 12);
+ 683              		.loc 1 83 9 is_stmt 0 view .LVU206
+ 684 0022 0C20     		movs	r0, #12
+ 685 0024 9FED321A 		vldr.32	s2, .L44+12
+ 686 0028 DFED320A 		vldr.32	s1, .L44+16
+ 687 002c B0EE480A 		vmov.f32	s0, s16
+ 688 0030 FFF7FEFF 		bl	float_to_uint
+ 689              	.LVL69:
+ 690 0034 0746     		mov	r7, r0
+ 691              	.LVL70:
+  84:modules/motor/HTmotor/HT04.c ****     kd = float_to_uint(0, KD_MIN, KD_MAX, 12);
+ 692              		.loc 1 84 5 is_stmt 1 view .LVU207
+  84:modules/motor/HTmotor/HT04.c ****     kd = float_to_uint(0, KD_MIN, KD_MAX, 12);
+ 693              		.loc 1 84 10 is_stmt 0 view .LVU208
+ 694 0036 0C20     		movs	r0, #12
+ 695 0038 9FED2F1A 		vldr.32	s2, .L44+20
+ 696 003c F0EE480A 		vmov.f32	s1, s16
+ 697 0040 B0EE480A 		vmov.f32	s0, s16
+ 698 0044 FFF7FEFF 		bl	float_to_uint
+ 699              	.LVL71:
+ 700 0048 0646     		mov	r6, r0
+ 701              	.LVL72:
+  85:modules/motor/HTmotor/HT04.c ****     t = float_to_uint(0, T_MIN, T_MAX, 12);
+ 702              		.loc 1 85 5 is_stmt 1 view .LVU209
+  85:modules/motor/HTmotor/HT04.c ****     t = float_to_uint(0, T_MIN, T_MAX, 12);
+ 703              		.loc 1 85 10 is_stmt 0 view .LVU210
+ 704 004a 0C20     		movs	r0, #12
+ 705 004c B1EE041A 		vmov.f32	s2, #5.0e+0
+ 706 0050 F0EE480A 		vmov.f32	s1, s16
+ 707 0054 B0EE480A 		vmov.f32	s0, s16
+ 708 0058 FFF7FEFF 		bl	float_to_uint
+ 709              	.LVL73:
+ 710 005c 0546     		mov	r5, r0
+ 711              	.LVL74:
+  86:modules/motor/HTmotor/HT04.c **** 
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccUIS2Ws.s 			page 19
+
+
+ 712              		.loc 1 86 5 is_stmt 1 view .LVU211
+  86:modules/motor/HTmotor/HT04.c **** 
+ 713              		.loc 1 86 9 is_stmt 0 view .LVU212
+ 714 005e 0C20     		movs	r0, #12
+ 715 0060 B3EE021A 		vmov.f32	s2, #1.8e+1
+ 716 0064 FBEE020A 		vmov.f32	s1, #-1.8e+1
+ 717 0068 B0EE480A 		vmov.f32	s0, s16
+ 718 006c FFF7FEFF 		bl	float_to_uint
+ 719              	.LVL75:
+  88:modules/motor/HTmotor/HT04.c ****     buf[0] = p >> 8;
+ 720              		.loc 1 88 5 is_stmt 1 view .LVU213
+  88:modules/motor/HTmotor/HT04.c ****     buf[0] = p >> 8;
+ 721              		.loc 1 88 25 is_stmt 0 view .LVU214
+ 722 0070 D4F8B831 		ldr	r3, [r4, #440]
+ 723              	.LVL76:
+  89:modules/motor/HTmotor/HT04.c ****     buf[1] = p & 0xFF;
+ 724              		.loc 1 89 5 is_stmt 1 view .LVU215
+  89:modules/motor/HTmotor/HT04.c ****     buf[1] = p & 0xFF;
+ 725              		.loc 1 89 12 is_stmt 0 view .LVU216
+ 726 0074 4FEA1821 		lsr	r1, r8, #8
+ 727 0078 83F82410 		strb	r1, [r3, #36]
+  90:modules/motor/HTmotor/HT04.c ****     buf[2] = v >> 4;
+ 728              		.loc 1 90 5 is_stmt 1 view .LVU217
+  90:modules/motor/HTmotor/HT04.c ****     buf[2] = v >> 4;
+ 729              		.loc 1 90 12 is_stmt 0 view .LVU218
+ 730 007c 83F82580 		strb	r8, [r3, #37]
+  91:modules/motor/HTmotor/HT04.c ****     buf[3] = ((v & 0xF) << 4) | (kp >> 8);
+ 731              		.loc 1 91 5 is_stmt 1 view .LVU219
+  91:modules/motor/HTmotor/HT04.c ****     buf[3] = ((v & 0xF) << 4) | (kp >> 8);
+ 732              		.loc 1 91 12 is_stmt 0 view .LVU220
+ 733 0080 3909     		lsrs	r1, r7, #4
+ 734 0082 83F82610 		strb	r1, [r3, #38]
+  92:modules/motor/HTmotor/HT04.c ****     buf[4] = kp & 0xFF;
+ 735              		.loc 1 92 5 is_stmt 1 view .LVU221
+  92:modules/motor/HTmotor/HT04.c ****     buf[4] = kp & 0xFF;
+ 736              		.loc 1 92 31 is_stmt 0 view .LVU222
+ 737 0086 310A     		lsrs	r1, r6, #8
+ 738 0088 41EA0711 		orr	r1, r1, r7, lsl #4
+  92:modules/motor/HTmotor/HT04.c ****     buf[4] = kp & 0xFF;
+ 739              		.loc 1 92 12 view .LVU223
+ 740 008c 83F82710 		strb	r1, [r3, #39]
+  93:modules/motor/HTmotor/HT04.c ****     buf[5] = kd >> 4;
+ 741              		.loc 1 93 5 is_stmt 1 view .LVU224
+  93:modules/motor/HTmotor/HT04.c ****     buf[5] = kd >> 4;
+ 742              		.loc 1 93 12 is_stmt 0 view .LVU225
+ 743 0090 83F82860 		strb	r6, [r3, #40]
+  94:modules/motor/HTmotor/HT04.c ****     buf[6] = ((kd & 0xF) << 4) | (t >> 8);
+ 744              		.loc 1 94 5 is_stmt 1 view .LVU226
+  94:modules/motor/HTmotor/HT04.c ****     buf[6] = ((kd & 0xF) << 4) | (t >> 8);
+ 745              		.loc 1 94 12 is_stmt 0 view .LVU227
+ 746 0094 2909     		lsrs	r1, r5, #4
+ 747 0096 83F82910 		strb	r1, [r3, #41]
+  95:modules/motor/HTmotor/HT04.c ****     buf[7] = t & 0xff;
+ 748              		.loc 1 95 5 is_stmt 1 view .LVU228
+  95:modules/motor/HTmotor/HT04.c ****     buf[7] = t & 0xff;
+ 749              		.loc 1 95 32 is_stmt 0 view .LVU229
+ 750 009a 010A     		lsrs	r1, r0, #8
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccUIS2Ws.s 			page 20
+
+
+ 751 009c 41EA0511 		orr	r1, r1, r5, lsl #4
+  95:modules/motor/HTmotor/HT04.c ****     buf[7] = t & 0xff;
+ 752              		.loc 1 95 12 view .LVU230
+ 753 00a0 83F82A10 		strb	r1, [r3, #42]
+  96:modules/motor/HTmotor/HT04.c ****     memcpy(zero_buff, buf, 6); // 初始化的时候至少调用一次,故将其他指令为0时发
+ 754              		.loc 1 96 5 is_stmt 1 view .LVU231
+  96:modules/motor/HTmotor/HT04.c ****     memcpy(zero_buff, buf, 6); // 初始化的时候至少调用一次,故将其他指令为0时发
+ 755              		.loc 1 96 12 is_stmt 0 view .LVU232
+ 756 00a4 83F82B00 		strb	r0, [r3, #43]
+  97:modules/motor/HTmotor/HT04.c ****     CANTransmit(motor->motor_can_instace, 1);
+ 757              		.loc 1 97 5 is_stmt 1 view .LVU233
+ 758 00a8 144A     		ldr	r2, .L44+24
+ 759 00aa 586A     		ldr	r0, [r3, #36]	@ unaligned
+ 760              	.LVL77:
+  97:modules/motor/HTmotor/HT04.c ****     CANTransmit(motor->motor_can_instace, 1);
+ 761              		.loc 1 97 5 is_stmt 0 view .LVU234
+ 762 00ac 1060     		str	r0, [r2]
+ 763 00ae 1B8D     		ldrh	r3, [r3, #40]	@ unaligned
+ 764              	.LVL78:
+  97:modules/motor/HTmotor/HT04.c ****     CANTransmit(motor->motor_can_instace, 1);
+ 765              		.loc 1 97 5 view .LVU235
+ 766 00b0 9380     		strh	r3, [r2, #4]	@ unaligned
+  98:modules/motor/HTmotor/HT04.c ****     DWT_Delay(0.005);
+ 767              		.loc 1 98 5 is_stmt 1 view .LVU236
+ 768 00b2 B7EE000A 		vmov.f32	s0, #1.0e+0
+ 769 00b6 D4F8B801 		ldr	r0, [r4, #440]
+ 770 00ba FFF7FEFF 		bl	CANTransmit
+ 771              	.LVL79:
+  99:modules/motor/HTmotor/HT04.c ****     HTMotorSetMode(CMD_ZERO_POSITION, motor); // sb 玩意校准完了编码器也不为0
+ 772              		.loc 1 99 5 view .LVU237
+ 773 00be 9FED108A 		vldr.32	s16, .L44+28
+ 774 00c2 B0EE480A 		vmov.f32	s0, s16
+ 775 00c6 FFF7FEFF 		bl	DWT_Delay
+ 776              	.LVL80:
+ 100:modules/motor/HTmotor/HT04.c ****     DWT_Delay(0.005);
+ 777              		.loc 1 100 5 view .LVU238
+ 778 00ca 2146     		mov	r1, r4
+ 779 00cc FE20     		movs	r0, #254
+ 780 00ce FFF7FEFF 		bl	HTMotorSetMode
+ 781              	.LVL81:
+ 101:modules/motor/HTmotor/HT04.c ****     // HTMotorSetMode(CMD_MOTOR_MODE, motor);
+ 782              		.loc 1 101 5 view .LVU239
+ 783 00d2 B0EE480A 		vmov.f32	s0, s16
+ 784 00d6 FFF7FEFF 		bl	DWT_Delay
+ 785              	.LVL82:
+ 103:modules/motor/HTmotor/HT04.c **** 
+ 786              		.loc 1 103 1 is_stmt 0 view .LVU240
+ 787 00da BDEC028B 		vldm	sp!, {d8}
+ 788              	.LCFI6:
+ 789              		.cfi_restore 80
+ 790              		.cfi_restore 81
+ 791              		.cfi_def_cfa_offset 24
+ 792 00de BDE8F081 		pop	{r4, r5, r6, r7, r8, pc}
+ 793              	.LVL83:
+ 794              	.L45:
+ 103:modules/motor/HTmotor/HT04.c **** 
+ 795              		.loc 1 103 1 view .LVU241
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccUIS2Ws.s 			page 21
+
+
+ 796 00e2 00BF     		.align	2
+ 797              	.L44:
+ 798 00e4 00000000 		.word	0
+ 799 00e8 0000BF42 		.word	1119813632
+ 800 00ec 0000BFC2 		.word	-1027670016
+ 801 00f0 00003442 		.word	1110704128
+ 802 00f4 000034C2 		.word	-1036779520
+ 803 00f8 0000FA43 		.word	1140457472
+ 804 00fc 00000000 		.word	zero_buff
+ 805 0100 0AD7A33B 		.word	1000593162
+ 806              		.cfi_endproc
+ 807              	.LFE281:
+ 809              		.section	.text.HTMotorSetRef,"ax",%progbits
+ 810              		.align	1
+ 811              		.global	HTMotorSetRef
+ 812              		.syntax unified
+ 813              		.thumb
+ 814              		.thumb_func
+ 816              	HTMotorSetRef:
+ 817              	.LVL84:
+ 818              	.LFB283:
+ 138:modules/motor/HTmotor/HT04.c ****     motor->pid_ref = ref;
+ 819              		.loc 1 138 1 is_stmt 1 view -0
+ 820              		.cfi_startproc
+ 821              		@ args = 0, pretend = 0, frame = 0
+ 822              		@ frame_needed = 0, uses_anonymous_args = 0
+ 823              		@ link register save eliminated.
+ 139:modules/motor/HTmotor/HT04.c **** }
+ 824              		.loc 1 139 5 view .LVU243
+ 139:modules/motor/HTmotor/HT04.c **** }
+ 825              		.loc 1 139 20 is_stmt 0 view .LVU244
+ 826 0000 80ED6C0A 		vstr.32	s0, [r0, #432]
+ 140:modules/motor/HTmotor/HT04.c **** 
+ 827              		.loc 1 140 1 view .LVU245
+ 828 0004 7047     		bx	lr
+ 829              		.cfi_endproc
+ 830              	.LFE283:
+ 832              		.section	.text.HTMotorControlInit,"ax",%progbits
+ 833              		.align	1
+ 834              		.global	HTMotorControlInit
+ 835              		.syntax unified
+ 836              		.thumb
+ 837              		.thumb_func
+ 839              	HTMotorControlInit:
+ 840              	.LFB285:
+ 203:modules/motor/HTmotor/HT04.c ****     }
+ 204:modules/motor/HTmotor/HT04.c **** }
+ 205:modules/motor/HTmotor/HT04.c **** 
+ 206:modules/motor/HTmotor/HT04.c **** void HTMotorControlInit()
+ 207:modules/motor/HTmotor/HT04.c **** {
+ 841              		.loc 1 207 1 is_stmt 1 view -0
+ 842              		.cfi_startproc
+ 843              		@ args = 0, pretend = 0, frame = 40
+ 844              		@ frame_needed = 0, uses_anonymous_args = 0
+ 845 0000 30B5     		push	{r4, r5, lr}
+ 846              	.LCFI7:
+ 847              		.cfi_def_cfa_offset 12
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccUIS2Ws.s 			page 22
+
+
+ 848              		.cfi_offset 4, -12
+ 849              		.cfi_offset 5, -8
+ 850              		.cfi_offset 14, -4
+ 851 0002 8BB0     		sub	sp, sp, #44
+ 852              	.LCFI8:
+ 853              		.cfi_def_cfa_offset 56
+ 208:modules/motor/HTmotor/HT04.c ****     char ht_task_name[5] = "ht";
+ 854              		.loc 1 208 5 view .LVU247
+ 855              		.loc 1 208 10 is_stmt 0 view .LVU248
+ 856 0004 47F26843 		movw	r3, #29800
+ 857 0008 0893     		str	r3, [sp, #32]
+ 858 000a 0023     		movs	r3, #0
+ 859 000c 8DF82430 		strb	r3, [sp, #36]
+ 209:modules/motor/HTmotor/HT04.c ****     // 遍历所有电机实例,创建任务
+ 210:modules/motor/HTmotor/HT04.c ****     if (!idx)
+ 860              		.loc 1 210 5 is_stmt 1 view .LVU249
+ 861              		.loc 1 210 9 is_stmt 0 view .LVU250
+ 862 0010 154B     		ldr	r3, .L53
+ 863 0012 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 864              		.loc 1 210 8 view .LVU251
+ 865 0014 2BB3     		cbz	r3, .L47
+ 866              	.LBB2:
+ 211:modules/motor/HTmotor/HT04.c ****         return;
+ 212:modules/motor/HTmotor/HT04.c ****     for (size_t i = 0; i < idx; i++)
+ 867              		.loc 1 212 17 view .LVU252
+ 868 0016 0025     		movs	r5, #0
+ 869 0018 1FE0     		b	.L48
+ 870              	.LVL85:
+ 871              	.L50:
+ 872              	.LBB3:
+ 213:modules/motor/HTmotor/HT04.c ****     {
+ 214:modules/motor/HTmotor/HT04.c ****         char ht_id_buff[2] = {0};
+ 873              		.loc 1 214 9 is_stmt 1 view .LVU253
+ 874              		.loc 1 214 14 is_stmt 0 view .LVU254
+ 875 001a 0023     		movs	r3, #0
+ 876 001c ADF80030 		strh	r3, [sp]	@ movhi
+ 215:modules/motor/HTmotor/HT04.c ****         __itoa(i, ht_id_buff, 10);
+ 877              		.loc 1 215 9 is_stmt 1 view .LVU255
+ 878 0020 0A22     		movs	r2, #10
+ 879 0022 6946     		mov	r1, sp
+ 880 0024 2846     		mov	r0, r5
+ 881 0026 FFF7FEFF 		bl	__itoa
+ 882              	.LVL86:
+ 216:modules/motor/HTmotor/HT04.c ****         strcat(ht_task_name, ht_id_buff); // 似乎没什么吊用,osthreaddef会把第一个变量
+ 883              		.loc 1 216 9 view .LVU256
+ 884 002a 6946     		mov	r1, sp
+ 885 002c 08A8     		add	r0, sp, #32
+ 886 002e FFF7FEFF 		bl	strcat
+ 887              	.LVL87:
+ 217:modules/motor/HTmotor/HT04.c ****         // @todo 还需要一个更优雅的方案来区分不同的电机任务
+ 218:modules/motor/HTmotor/HT04.c ****         osThreadDef(ht_task_name, HTMotorTask, osPriorityNormal, 0, 128);
+ 888              		.loc 1 218 9 view .LVU257
+ 889 0032 0DF1040C 		add	ip, sp, #4
+ 890 0036 0D4C     		ldr	r4, .L53+4
+ 891 0038 0FCC     		ldmia	r4!, {r0, r1, r2, r3}
+ 892 003a ACE80F00 		stmia	ip!, {r0, r1, r2, r3}
+ 893 003e 94E80700 		ldm	r4, {r0, r1, r2}
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccUIS2Ws.s 			page 23
+
+
+ 894 0042 8CE80700 		stm	ip, {r0, r1, r2}
+ 219:modules/motor/HTmotor/HT04.c ****         ht_task_handle[i] = osThreadCreate(osThread(ht_task_name), ht_motor_instance[i]);
+ 895              		.loc 1 219 9 view .LVU258
+ 896              		.loc 1 219 29 is_stmt 0 view .LVU259
+ 897 0046 0A4B     		ldr	r3, .L53+8
+ 898 0048 53F82510 		ldr	r1, [r3, r5, lsl #2]
+ 899 004c 01A8     		add	r0, sp, #4
+ 900 004e FFF7FEFF 		bl	osThreadCreate
+ 901              	.LVL88:
+ 902              		.loc 1 219 27 discriminator 1 view .LVU260
+ 903 0052 084B     		ldr	r3, .L53+12
+ 904 0054 43F82500 		str	r0, [r3, r5, lsl #2]
+ 905              	.LBE3:
+ 212:modules/motor/HTmotor/HT04.c ****     {
+ 906              		.loc 1 212 34 is_stmt 1 discriminator 3 view .LVU261
+ 907 0058 0135     		adds	r5, r5, #1
+ 908              	.LVL89:
+ 909              	.L48:
+ 212:modules/motor/HTmotor/HT04.c ****     {
+ 910              		.loc 1 212 26 discriminator 1 view .LVU262
+ 911 005a 034B     		ldr	r3, .L53
+ 912 005c 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 913 005e AB42     		cmp	r3, r5
+ 914 0060 DBD8     		bhi	.L50
+ 915              	.LVL90:
+ 916              	.L47:
+ 212:modules/motor/HTmotor/HT04.c ****     {
+ 917              		.loc 1 212 26 is_stmt 0 discriminator 1 view .LVU263
+ 918              	.LBE2:
+ 220:modules/motor/HTmotor/HT04.c ****     }
+ 221:modules/motor/HTmotor/HT04.c **** }
+ 919              		.loc 1 221 1 view .LVU264
+ 920 0062 0BB0     		add	sp, sp, #44
+ 921              	.LCFI9:
+ 922              		.cfi_def_cfa_offset 12
+ 923              		@ sp needed
+ 924 0064 30BD     		pop	{r4, r5, pc}
+ 925              	.L54:
+ 926 0066 00BF     		.align	2
+ 927              	.L53:
+ 928 0068 00000000 		.word	idx
+ 929 006c 00000000 		.word	.LANCHOR0
+ 930 0070 00000000 		.word	ht_motor_instance
+ 931 0074 00000000 		.word	ht_task_handle
+ 932              		.cfi_endproc
+ 933              	.LFE285:
+ 935              		.section	.text.HTMotorStop,"ax",%progbits
+ 936              		.align	1
+ 937              		.global	HTMotorStop
+ 938              		.syntax unified
+ 939              		.thumb
+ 940              		.thumb_func
+ 942              	HTMotorStop:
+ 943              	.LVL91:
+ 944              	.LFB286:
+ 222:modules/motor/HTmotor/HT04.c **** 
+ 223:modules/motor/HTmotor/HT04.c **** void HTMotorStop(HTMotorInstance *motor)
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccUIS2Ws.s 			page 24
+
+
+ 224:modules/motor/HTmotor/HT04.c **** {
+ 945              		.loc 1 224 1 is_stmt 1 view -0
+ 946              		.cfi_startproc
+ 947              		@ args = 0, pretend = 0, frame = 0
+ 948              		@ frame_needed = 0, uses_anonymous_args = 0
+ 949              		@ link register save eliminated.
+ 225:modules/motor/HTmotor/HT04.c ****     motor->stop_flag = MOTOR_STOP;
+ 950              		.loc 1 225 5 view .LVU266
+ 951              		.loc 1 225 22 is_stmt 0 view .LVU267
+ 952 0000 0023     		movs	r3, #0
+ 953 0002 80F8B431 		strb	r3, [r0, #436]
+ 226:modules/motor/HTmotor/HT04.c **** }
+ 954              		.loc 1 226 1 view .LVU268
+ 955 0006 7047     		bx	lr
+ 956              		.cfi_endproc
+ 957              	.LFE286:
+ 959              		.section	.text.HTMotorEnable,"ax",%progbits
+ 960              		.align	1
+ 961              		.global	HTMotorEnable
+ 962              		.syntax unified
+ 963              		.thumb
+ 964              		.thumb_func
+ 966              	HTMotorEnable:
+ 967              	.LVL92:
+ 968              	.LFB287:
+ 227:modules/motor/HTmotor/HT04.c **** 
+ 228:modules/motor/HTmotor/HT04.c **** void HTMotorEnable(HTMotorInstance *motor)
+ 229:modules/motor/HTmotor/HT04.c **** {
+ 969              		.loc 1 229 1 is_stmt 1 view -0
+ 970              		.cfi_startproc
+ 971              		@ args = 0, pretend = 0, frame = 0
+ 972              		@ frame_needed = 0, uses_anonymous_args = 0
+ 973              		@ link register save eliminated.
+ 230:modules/motor/HTmotor/HT04.c ****     motor->stop_flag = MOTOR_ENALBED;
+ 974              		.loc 1 230 5 view .LVU270
+ 975              		.loc 1 230 22 is_stmt 0 view .LVU271
+ 976 0000 0123     		movs	r3, #1
+ 977 0002 80F8B431 		strb	r3, [r0, #436]
+ 231:modules/motor/HTmotor/HT04.c **** }
+ 978              		.loc 1 231 1 view .LVU272
+ 979 0006 7047     		bx	lr
+ 980              		.cfi_endproc
+ 981              	.LFE287:
+ 983              		.section	.text.HTMotorInit,"ax",%progbits
+ 984              		.align	1
+ 985              		.global	HTMotorInit
+ 986              		.syntax unified
+ 987              		.thumb
+ 988              		.thumb_func
+ 990              	HTMotorInit:
+ 991              	.LVL93:
+ 992              	.LFB282:
+ 106:modules/motor/HTmotor/HT04.c ****     HTMotorInstance *motor = (HTMotorInstance *)malloc(sizeof(HTMotorInstance));
+ 993              		.loc 1 106 1 is_stmt 1 view -0
+ 994              		.cfi_startproc
+ 995              		@ args = 0, pretend = 0, frame = 16
+ 996              		@ frame_needed = 0, uses_anonymous_args = 0
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccUIS2Ws.s 			page 25
+
+
+ 106:modules/motor/HTmotor/HT04.c ****     HTMotorInstance *motor = (HTMotorInstance *)malloc(sizeof(HTMotorInstance));
+ 997              		.loc 1 106 1 is_stmt 0 view .LVU274
+ 998 0000 30B5     		push	{r4, r5, lr}
+ 999              	.LCFI10:
+ 1000              		.cfi_def_cfa_offset 12
+ 1001              		.cfi_offset 4, -12
+ 1002              		.cfi_offset 5, -8
+ 1003              		.cfi_offset 14, -4
+ 1004 0002 2DED028B 		vpush.64	{d8}
+ 1005              	.LCFI11:
+ 1006              		.cfi_def_cfa_offset 20
+ 1007              		.cfi_offset 80, -20
+ 1008              		.cfi_offset 81, -16
+ 1009 0006 85B0     		sub	sp, sp, #20
+ 1010              	.LCFI12:
+ 1011              		.cfi_def_cfa_offset 40
+ 1012 0008 0546     		mov	r5, r0
+ 107:modules/motor/HTmotor/HT04.c ****     memset(motor, 0, sizeof(HTMotorInstance));
+ 1013              		.loc 1 107 5 is_stmt 1 view .LVU275
+ 107:modules/motor/HTmotor/HT04.c ****     memset(motor, 0, sizeof(HTMotorInstance));
+ 1014              		.loc 1 107 49 is_stmt 0 view .LVU276
+ 1015 000a 4FF4E470 		mov	r0, #456
+ 1016              	.LVL94:
+ 107:modules/motor/HTmotor/HT04.c ****     memset(motor, 0, sizeof(HTMotorInstance));
+ 1017              		.loc 1 107 49 view .LVU277
+ 1018 000e FFF7FEFF 		bl	malloc
+ 1019              	.LVL95:
+ 1020 0012 0446     		mov	r4, r0
+ 1021              	.LVL96:
+ 108:modules/motor/HTmotor/HT04.c **** 
+ 1022              		.loc 1 108 5 is_stmt 1 view .LVU278
+ 1023 0014 4FF4E472 		mov	r2, #456
+ 1024 0018 0021     		movs	r1, #0
+ 1025 001a FFF7FEFF 		bl	memset
+ 1026              	.LVL97:
+ 110:modules/motor/HTmotor/HT04.c ****     PIDInit(&motor->current_PID, &config->controller_param_init_config.current_PID);
+ 1027              		.loc 1 110 5 view .LVU279
+ 110:modules/motor/HTmotor/HT04.c ****     PIDInit(&motor->current_PID, &config->controller_param_init_config.current_PID);
+ 1028              		.loc 1 110 27 is_stmt 0 view .LVU280
+ 1029 001e 04F12C03 		add	r3, r4, #44
+ 1030 0022 05F19402 		add	r2, r5, #148
+ 1031 0026 92E80300 		ldm	r2, {r0, r1}
+ 1032 002a 83E80300 		stm	r3, {r0, r1}
+ 111:modules/motor/HTmotor/HT04.c ****     PIDInit(&motor->speed_PID, &config->controller_param_init_config.speed_PID);
+ 1033              		.loc 1 111 5 is_stmt 1 view .LVU281
+ 1034 002e 05F11001 		add	r1, r5, #16
+ 1035 0032 04F13800 		add	r0, r4, #56
+ 1036 0036 FFF7FEFF 		bl	PIDInit
+ 1037              	.LVL98:
+ 112:modules/motor/HTmotor/HT04.c ****     PIDInit(&motor->angle_PID, &config->controller_param_init_config.angle_PID);
+ 1038              		.loc 1 112 5 view .LVU282
+ 1039 003a 05F13C01 		add	r1, r5, #60
+ 1040 003e 04F1B000 		add	r0, r4, #176
+ 1041 0042 FFF7FEFF 		bl	PIDInit
+ 1042              	.LVL99:
+ 113:modules/motor/HTmotor/HT04.c ****     motor->other_angle_feedback_ptr = config->controller_param_init_config.other_angle_feedback_ptr
+ 1043              		.loc 1 113 5 view .LVU283
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccUIS2Ws.s 			page 26
+
+
+ 1044 0046 05F16801 		add	r1, r5, #104
+ 1045 004a 04F59470 		add	r0, r4, #296
+ 1046 004e FFF7FEFF 		bl	PIDInit
+ 1047              	.LVL100:
+ 114:modules/motor/HTmotor/HT04.c ****     motor->other_speed_feedback_ptr = config->controller_param_init_config.other_speed_feedback_ptr
+ 1048              		.loc 1 114 5 view .LVU284
+ 114:modules/motor/HTmotor/HT04.c ****     motor->other_speed_feedback_ptr = config->controller_param_init_config.other_speed_feedback_ptr
+ 1049              		.loc 1 114 75 is_stmt 0 view .LVU285
+ 1050 0052 2B68     		ldr	r3, [r5]
+ 114:modules/motor/HTmotor/HT04.c ****     motor->other_speed_feedback_ptr = config->controller_param_init_config.other_speed_feedback_ptr
+ 1051              		.loc 1 114 37 view .LVU286
+ 1052 0054 C4F8A031 		str	r3, [r4, #416]
+ 115:modules/motor/HTmotor/HT04.c **** 
+ 1053              		.loc 1 115 5 is_stmt 1 view .LVU287
+ 115:modules/motor/HTmotor/HT04.c **** 
+ 1054              		.loc 1 115 75 is_stmt 0 view .LVU288
+ 1055 0058 6B68     		ldr	r3, [r5, #4]
+ 115:modules/motor/HTmotor/HT04.c **** 
+ 1056              		.loc 1 115 37 view .LVU289
+ 1057 005a C4F8A431 		str	r3, [r4, #420]
+ 117:modules/motor/HTmotor/HT04.c ****     config->can_init_config.id = motor;
+ 1058              		.loc 1 117 5 is_stmt 1 view .LVU290
+ 117:modules/motor/HTmotor/HT04.c ****     config->can_init_config.id = motor;
+ 1059              		.loc 1 117 49 is_stmt 0 view .LVU291
+ 1060 005e 1D4B     		ldr	r3, .L59
+ 1061 0060 C5F8B430 		str	r3, [r5, #180]
+ 118:modules/motor/HTmotor/HT04.c ****     motor->motor_can_instace = CANRegister(&config->can_init_config);
+ 1062              		.loc 1 118 5 is_stmt 1 view .LVU292
+ 118:modules/motor/HTmotor/HT04.c ****     motor->motor_can_instace = CANRegister(&config->can_init_config);
+ 1063              		.loc 1 118 32 is_stmt 0 view .LVU293
+ 1064 0064 C5F8B840 		str	r4, [r5, #184]
+ 119:modules/motor/HTmotor/HT04.c **** 
+ 1065              		.loc 1 119 5 is_stmt 1 view .LVU294
+ 119:modules/motor/HTmotor/HT04.c **** 
+ 1066              		.loc 1 119 32 is_stmt 0 view .LVU295
+ 1067 0068 05F1A000 		add	r0, r5, #160
+ 1068 006c FFF7FEFF 		bl	CANRegister
+ 1069              	.LVL101:
+ 119:modules/motor/HTmotor/HT04.c **** 
+ 1070              		.loc 1 119 30 discriminator 1 view .LVU296
+ 1071 0070 C4F8B801 		str	r0, [r4, #440]
+ 121:modules/motor/HTmotor/HT04.c ****         .callback = HTMotorLostCallback,
+ 1072              		.loc 1 121 5 is_stmt 1 view .LVU297
+ 121:modules/motor/HTmotor/HT04.c ****         .callback = HTMotorLostCallback,
+ 1073              		.loc 1 121 26 is_stmt 0 view .LVU298
+ 1074 0074 0023     		movs	r3, #0
+ 1075 0076 0193     		str	r3, [sp, #4]
+ 1076 0078 0293     		str	r3, [sp, #8]
+ 1077 007a 0393     		str	r3, [sp, #12]
+ 1078 007c 0523     		movs	r3, #5
+ 1079 007e ADF80430 		strh	r3, [sp, #4]	@ movhi
+ 1080 0082 154B     		ldr	r3, .L59+4
+ 1081 0084 0293     		str	r3, [sp, #8]
+ 1082 0086 0394     		str	r4, [sp, #12]
+ 126:modules/motor/HTmotor/HT04.c **** 
+ 1083              		.loc 1 126 5 is_stmt 1 view .LVU299
+ 126:modules/motor/HTmotor/HT04.c **** 
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccUIS2Ws.s 			page 27
+
+
+ 1084              		.loc 1 126 27 is_stmt 0 view .LVU300
+ 1085 0088 01A8     		add	r0, sp, #4
+ 1086 008a FFF7FEFF 		bl	DaemonRegister
+ 1087              	.LVL102:
+ 126:modules/motor/HTmotor/HT04.c **** 
+ 1088              		.loc 1 126 25 discriminator 1 view .LVU301
+ 1089 008e C4F8BC01 		str	r0, [r4, #444]
+ 128:modules/motor/HTmotor/HT04.c ****     HTMotorSetMode(CMD_MOTOR_MODE, motor); // 确保电机已经上电并执行电机模式
+ 1090              		.loc 1 128 5 is_stmt 1 view .LVU302
+ 1091 0092 2046     		mov	r0, r4
+ 1092 0094 FFF7FEFF 		bl	HTMotorEnable
+ 1093              	.LVL103:
+ 129:modules/motor/HTmotor/HT04.c ****     DWT_Delay(0.05f);
+ 1094              		.loc 1 129 5 view .LVU303
+ 1095 0098 2146     		mov	r1, r4
+ 1096 009a FC20     		movs	r0, #252
+ 1097 009c FFF7FEFF 		bl	HTMotorSetMode
+ 1098              	.LVL104:
+ 130:modules/motor/HTmotor/HT04.c ****     HTMotorCalibEncoder(motor); // 将当前编码器位置作为零位
+ 1099              		.loc 1 130 5 view .LVU304
+ 1100 00a0 9FED0E8A 		vldr.32	s16, .L59+8
+ 1101 00a4 B0EE480A 		vmov.f32	s0, s16
+ 1102 00a8 FFF7FEFF 		bl	DWT_Delay
+ 1103              	.LVL105:
+ 131:modules/motor/HTmotor/HT04.c ****     DWT_Delay(0.05f);           // 保证下一个电机发送时CAN是空闲的,注意应用在初
+ 1104              		.loc 1 131 5 view .LVU305
+ 1105 00ac 2046     		mov	r0, r4
+ 1106 00ae FFF7FEFF 		bl	HTMotorCalibEncoder
+ 1107              	.LVL106:
+ 132:modules/motor/HTmotor/HT04.c ****     ht_motor_instance[idx++] = motor;
+ 1108              		.loc 1 132 5 view .LVU306
+ 1109 00b2 B0EE480A 		vmov.f32	s0, s16
+ 1110 00b6 FFF7FEFF 		bl	DWT_Delay
+ 1111              	.LVL107:
+ 133:modules/motor/HTmotor/HT04.c ****     return motor;
+ 1112              		.loc 1 133 5 view .LVU307
+ 133:modules/motor/HTmotor/HT04.c ****     return motor;
+ 1113              		.loc 1 133 26 is_stmt 0 view .LVU308
+ 1114 00ba 094A     		ldr	r2, .L59+12
+ 1115 00bc 1378     		ldrb	r3, [r2]	@ zero_extendqisi2
+ 1116 00be 591C     		adds	r1, r3, #1
+ 1117 00c0 1170     		strb	r1, [r2]
+ 133:modules/motor/HTmotor/HT04.c ****     return motor;
+ 1118              		.loc 1 133 30 view .LVU309
+ 1119 00c2 084A     		ldr	r2, .L59+16
+ 1120 00c4 42F82340 		str	r4, [r2, r3, lsl #2]
+ 134:modules/motor/HTmotor/HT04.c **** }
+ 1121              		.loc 1 134 5 is_stmt 1 view .LVU310
+ 135:modules/motor/HTmotor/HT04.c **** 
+ 1122              		.loc 1 135 1 is_stmt 0 view .LVU311
+ 1123 00c8 2046     		mov	r0, r4
+ 1124 00ca 05B0     		add	sp, sp, #20
+ 1125              	.LCFI13:
+ 1126              		.cfi_def_cfa_offset 20
+ 1127              		@ sp needed
+ 1128 00cc BDEC028B 		vldm	sp!, {d8}
+ 1129              	.LCFI14:
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccUIS2Ws.s 			page 28
+
+
+ 1130              		.cfi_restore 80
+ 1131              		.cfi_restore 81
+ 1132              		.cfi_def_cfa_offset 12
+ 1133 00d0 30BD     		pop	{r4, r5, pc}
+ 1134              	.LVL108:
+ 1135              	.L60:
+ 135:modules/motor/HTmotor/HT04.c **** 
+ 1136              		.loc 1 135 1 view .LVU312
+ 1137 00d2 00BF     		.align	2
+ 1138              	.L59:
+ 1139 00d4 00000000 		.word	HTMotorDecode
+ 1140 00d8 00000000 		.word	HTMotorLostCallback
+ 1141 00dc CDCC4C3D 		.word	1028443341
+ 1142 00e0 00000000 		.word	idx
+ 1143 00e4 00000000 		.word	ht_motor_instance
+ 1144              		.cfi_endproc
+ 1145              	.LFE282:
+ 1147              		.section	.text.HTMotorOuterLoop,"ax",%progbits
+ 1148              		.align	1
+ 1149              		.global	HTMotorOuterLoop
+ 1150              		.syntax unified
+ 1151              		.thumb
+ 1152              		.thumb_func
+ 1154              	HTMotorOuterLoop:
+ 1155              	.LVL109:
+ 1156              	.LFB288:
+ 232:modules/motor/HTmotor/HT04.c **** 
+ 233:modules/motor/HTmotor/HT04.c **** void HTMotorOuterLoop(HTMotorInstance *motor, Closeloop_Type_e type)
+ 234:modules/motor/HTmotor/HT04.c **** {
+ 1157              		.loc 1 234 1 is_stmt 1 view -0
+ 1158              		.cfi_startproc
+ 1159              		@ args = 0, pretend = 0, frame = 0
+ 1160              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1161              		@ link register save eliminated.
+ 235:modules/motor/HTmotor/HT04.c ****     motor->motor_settings.outer_loop_type = type;
+ 1162              		.loc 1 235 5 view .LVU314
+ 1163              		.loc 1 235 43 is_stmt 0 view .LVU315
+ 1164 0000 80F82C10 		strb	r1, [r0, #44]
+ 236:modules/motor/HTmotor/HT04.c **** }
+ 1165              		.loc 1 236 1 view .LVU316
+ 1166 0004 7047     		bx	lr
+ 1167              		.cfi_endproc
+ 1168              	.LFE288:
+ 1170              		.section	.rodata.str1.4,"aMS",%progbits,1
+ 1171              		.align	2
+ 1172              	.LC0:
+ 1173 0000 68745F74 		.ascii	"ht_task_name\000"
+ 1173      61736B5F 
+ 1173      6E616D65 
+ 1173      00
+ 1174              		.section	.bss.zero_buff,"aw",%nobits
+ 1175              		.align	2
+ 1178              	zero_buff:
+ 1179 0000 00000000 		.space	6
+ 1179      0000
+ 1180              		.section	.bss.ht_task_handle,"aw",%nobits
+ 1181              		.align	2
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccUIS2Ws.s 			page 29
+
+
+ 1184              	ht_task_handle:
+ 1185 0000 00000000 		.space	16
+ 1185      00000000 
+ 1185      00000000 
+ 1185      00000000 
+ 1186              		.section	.bss.ht_motor_instance,"aw",%nobits
+ 1187              		.align	2
+ 1190              	ht_motor_instance:
+ 1191 0000 00000000 		.space	16
+ 1191      00000000 
+ 1191      00000000 
+ 1191      00000000 
+ 1192              		.section	.bss.idx,"aw",%nobits
+ 1195              	idx:
+ 1196 0000 00       		.space	1
+ 1197              		.section	.rodata
+ 1198              		.align	2
+ 1199              		.set	.LANCHOR0,. + 0
+ 1200              	.LC2:
+ 1201 0000 00000000 		.word	.LC0
+ 1202 0004 00000000 		.word	HTMotorTask
+ 1203 0008 0000     		.short	0
+ 1204 000a 0000     		.space	2
+ 1205 000c 00000000 		.word	0
+ 1206 0010 80000000 		.word	128
+ 1207 0014 00000000 		.word	0
+ 1208 0018 00000000 		.word	0
+ 1209              		.text
+ 1210              	.Letext0:
+ 1211              		.file 2 "D:/msys2/mingw64/arm-none-eabi/include/machine/_default_types.h"
+ 1212              		.file 3 "D:/msys2/mingw64/arm-none-eabi/include/sys/_stdint.h"
+ 1213              		.file 4 "Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f407xx.h"
+ 1214              		.file 5 "Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f4xx.h"
+ 1215              		.file 6 "D:/msys2/mingw64/lib/gcc/arm-none-eabi/13.3.0/include/stddef.h"
+ 1216              		.file 7 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_can.h"
+ 1217              		.file 8 "bsp/can/bsp_can.h"
+ 1218              		.file 9 "modules/algorithm/controller.h"
+ 1219              		.file 10 "modules/motor/motor_def.h"
+ 1220              		.file 11 "modules/daemon/daemon.h"
+ 1221              		.file 12 "modules/motor/HTmotor/HT04.h"
+ 1222              		.file 13 "Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F/portmacro.h"
+ 1223              		.file 14 "Middlewares/Third_Party/FreeRTOS/Source/include/FreeRTOS.h"
+ 1224              		.file 15 "Middlewares/Third_Party/FreeRTOS/Source/include/task.h"
+ 1225              		.file 16 "Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.h"
+ 1226              		.file 17 "D:/msys2/mingw64/arm-none-eabi/include/string.h"
+ 1227              		.file 18 "D:/msys2/mingw64/arm-none-eabi/include/stdlib.h"
+ 1228              		.file 19 "modules/algorithm/user_lib.h"
+ 1229              		.file 20 "bsp/dwt/bsp_dwt.h"
+ 1230              		.file 21 "<built-in>"
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccUIS2Ws.s 			page 30
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 HT04.c
+C:\Users\lenovo\AppData\Local\Temp\ccUIS2Ws.s:21     .text.float_to_uint:00000000 $t
+C:\Users\lenovo\AppData\Local\Temp\ccUIS2Ws.s:26     .text.float_to_uint:00000000 float_to_uint
+C:\Users\lenovo\AppData\Local\Temp\ccUIS2Ws.s:67     .text.uint_to_float:00000000 $t
+C:\Users\lenovo\AppData\Local\Temp\ccUIS2Ws.s:72     .text.uint_to_float:00000000 uint_to_float
+C:\Users\lenovo\AppData\Local\Temp\ccUIS2Ws.s:111    .text.HTMotorSetMode:00000000 $t
+C:\Users\lenovo\AppData\Local\Temp\ccUIS2Ws.s:116    .text.HTMotorSetMode:00000000 HTMotorSetMode
+C:\Users\lenovo\AppData\Local\Temp\ccUIS2Ws.s:165    .text.HTMotorSetMode:00000038 $d
+C:\Users\lenovo\AppData\Local\Temp\ccUIS2Ws.s:1178   .bss.zero_buff:00000000 zero_buff
+C:\Users\lenovo\AppData\Local\Temp\ccUIS2Ws.s:170    .text.HTMotorLostCallback:00000000 $t
+C:\Users\lenovo\AppData\Local\Temp\ccUIS2Ws.s:175    .text.HTMotorLostCallback:00000000 HTMotorLostCallback
+C:\Users\lenovo\AppData\Local\Temp\ccUIS2Ws.s:224    .text.HTMotorLostCallback:0000002c $d
+C:\Users\lenovo\AppData\Local\Temp\ccUIS2Ws.s:229    .text.HTMotorDecode:00000000 $t
+C:\Users\lenovo\AppData\Local\Temp\ccUIS2Ws.s:234    .text.HTMotorDecode:00000000 HTMotorDecode
+C:\Users\lenovo\AppData\Local\Temp\ccUIS2Ws.s:361    .text.HTMotorDecode:000000b0 $d
+C:\Users\lenovo\AppData\Local\Temp\ccUIS2Ws.s:372    .text.HTMotorTask:00000000 $t
+C:\Users\lenovo\AppData\Local\Temp\ccUIS2Ws.s:378    .text.HTMotorTask:00000000 HTMotorTask
+C:\Users\lenovo\AppData\Local\Temp\ccUIS2Ws.s:633    .text.HTMotorTask:00000148 $d
+C:\Users\lenovo\AppData\Local\Temp\ccUIS2Ws.s:639    .text.HTMotorCalibEncoder:00000000 $t
+C:\Users\lenovo\AppData\Local\Temp\ccUIS2Ws.s:645    .text.HTMotorCalibEncoder:00000000 HTMotorCalibEncoder
+C:\Users\lenovo\AppData\Local\Temp\ccUIS2Ws.s:798    .text.HTMotorCalibEncoder:000000e4 $d
+C:\Users\lenovo\AppData\Local\Temp\ccUIS2Ws.s:810    .text.HTMotorSetRef:00000000 $t
+C:\Users\lenovo\AppData\Local\Temp\ccUIS2Ws.s:816    .text.HTMotorSetRef:00000000 HTMotorSetRef
+C:\Users\lenovo\AppData\Local\Temp\ccUIS2Ws.s:833    .text.HTMotorControlInit:00000000 $t
+C:\Users\lenovo\AppData\Local\Temp\ccUIS2Ws.s:839    .text.HTMotorControlInit:00000000 HTMotorControlInit
+C:\Users\lenovo\AppData\Local\Temp\ccUIS2Ws.s:928    .text.HTMotorControlInit:00000068 $d
+C:\Users\lenovo\AppData\Local\Temp\ccUIS2Ws.s:1195   .bss.idx:00000000 idx
+C:\Users\lenovo\AppData\Local\Temp\ccUIS2Ws.s:1190   .bss.ht_motor_instance:00000000 ht_motor_instance
+C:\Users\lenovo\AppData\Local\Temp\ccUIS2Ws.s:1184   .bss.ht_task_handle:00000000 ht_task_handle
+C:\Users\lenovo\AppData\Local\Temp\ccUIS2Ws.s:936    .text.HTMotorStop:00000000 $t
+C:\Users\lenovo\AppData\Local\Temp\ccUIS2Ws.s:942    .text.HTMotorStop:00000000 HTMotorStop
+C:\Users\lenovo\AppData\Local\Temp\ccUIS2Ws.s:960    .text.HTMotorEnable:00000000 $t
+C:\Users\lenovo\AppData\Local\Temp\ccUIS2Ws.s:966    .text.HTMotorEnable:00000000 HTMotorEnable
+C:\Users\lenovo\AppData\Local\Temp\ccUIS2Ws.s:984    .text.HTMotorInit:00000000 $t
+C:\Users\lenovo\AppData\Local\Temp\ccUIS2Ws.s:990    .text.HTMotorInit:00000000 HTMotorInit
+C:\Users\lenovo\AppData\Local\Temp\ccUIS2Ws.s:1139   .text.HTMotorInit:000000d4 $d
+C:\Users\lenovo\AppData\Local\Temp\ccUIS2Ws.s:1148   .text.HTMotorOuterLoop:00000000 $t
+C:\Users\lenovo\AppData\Local\Temp\ccUIS2Ws.s:1154   .text.HTMotorOuterLoop:00000000 HTMotorOuterLoop
+C:\Users\lenovo\AppData\Local\Temp\ccUIS2Ws.s:1171   .rodata.str1.4:00000000 $d
+C:\Users\lenovo\AppData\Local\Temp\ccUIS2Ws.s:1175   .bss.zero_buff:00000000 $d
+C:\Users\lenovo\AppData\Local\Temp\ccUIS2Ws.s:1181   .bss.ht_task_handle:00000000 $d
+C:\Users\lenovo\AppData\Local\Temp\ccUIS2Ws.s:1187   .bss.ht_motor_instance:00000000 $d
+C:\Users\lenovo\AppData\Local\Temp\ccUIS2Ws.s:1196   .bss.idx:00000000 $d
+C:\Users\lenovo\AppData\Local\Temp\ccUIS2Ws.s:1198   .rodata:00000000 $d
+
+UNDEFINED SYMBOLS
+CANTransmit
+DaemonReload
+DWT_GetDeltaT
+AverageFilter
+PIDCalculate
+osDelay
+DWT_Delay
+__itoa
+strcat
+osThreadCreate
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccUIS2Ws.s 			page 31
+
+
+malloc
+memset
+PIDInit
+CANRegister
+DaemonRegister

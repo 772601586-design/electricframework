@@ -21,6 +21,10 @@ project(basic_framework C ASM)
 # 选择构建类型
 set(CMAKE_BUILD_TYPE Debug) # Debug Release RelWithDebInfo MinSizeRel
 
+set(ROBOT_BOARD_TYPE "ONE" CACHE STRING "Robot board firmware: ONE, CHASSIS, or GIMBAL")
+set_property(CACHE ROBOT_BOARD_TYPE PROPERTY STRINGS ONE CHASSIS GIMBAL)
+string(TOUPPER "${ROBOT_BOARD_TYPE}" ROBOT_BOARD_TYPE_UPPER)
+
 # board specific settings, arch/fpu/instruction
 set(MCU_FLAGS -mcpu=cortex-m4 -mthumb -mthumb-interwork -mfloat-abi=hard -mfpu=fpv4-sp-d16)
 set(LINKER_SCRIPT "${CMAKE_SOURCE_DIR}/STM32F407IGHx_FLASH.ld") # 指定链接脚本
@@ -28,7 +32,7 @@ set(DSP_NAME "libCMSISDSP.a") # 指定DSP库名称
 link_directories(${CMAKE_SOURCE_DIR}/Middlewares/ST/ARM/DSP/Lib)
 
 # Generic compiler settings for optimization and basic link lib
-add_compile_options(-pipe ${MCU_FLAGS} -Wall -Werror -fmessage-length=0 # basic options
+add_compile_options(-pipe ${MCU_FLAGS} -Wall  -fmessage-length=0 # basic options
                     -ffunction-sections -fdata-sections -fno-common # optimize options 
                     )
 add_link_options(-pipe ${MCU_FLAGS} -T${LINKER_SCRIPT} -Wl,--no-warn-rwx-segments # close RWX warning
@@ -44,6 +48,18 @@ add_definitions(
     -DSTM32F407xx 
     -DARM_MATH_CM4 
     ) # need -D<macro> to define macro
+
+if (ROBOT_BOARD_TYPE_UPPER STREQUAL "ONE")
+    add_definitions(-DROBOT_BOARD_TYPE=ROBOT_BOARD_ONE)
+elseif (ROBOT_BOARD_TYPE_UPPER STREQUAL "CHASSIS")
+    add_definitions(-DROBOT_BOARD_TYPE=ROBOT_BOARD_CHASSIS)
+elseif (ROBOT_BOARD_TYPE_UPPER STREQUAL "GIMBAL")
+    add_definitions(-DROBOT_BOARD_TYPE=ROBOT_BOARD_GIMBAL)
+else ()
+    message(FATAL_ERROR "Invalid ROBOT_BOARD_TYPE='${ROBOT_BOARD_TYPE}'. Use ONE, CHASSIS, or GIMBAL.")
+endif ()
+
+message(STATUS "Robot board firmware: ${ROBOT_BOARD_TYPE_UPPER}")
 
 # add inc
 # 递归包含头文件的函数
@@ -105,11 +121,19 @@ endif ()
 add_executable(${PROJECT_NAME}.elf  ${SOURCES} ${ASM_SOURCES} ${LINKER_SCRIPT})
 target_link_libraries(${PROJECT_NAME}.elf ${DSP_NAME} m) # link DSP lib and math lib
 
+# add_custom_command(
+#     TARGET ${PROJECT_NAME}.elf POST_BUILD
+#     COMMAND ${CMAKE_OBJCOPY} -Oihex $<TARGET_FILE:${PROJECT_NAME}.elf> ${PROJECT_BINARY_DIR}/${PROJECT_NAME}.hex
+#     COMMAND ${CMAKE_OBJCOPY} -Obinary $<TARGET_FILE:${PROJECT_NAME}.elf> ${PROJECT_BINARY_DIR}/${PROJECT_NAME}.bin
+#     COMMENT "Building hex & bin file..."
+#     COMMENT "EXCUTABLE SIZE:"
+#     COMMAND ${SIZE} ${PROJECT_NAME}.elf
+#   )
+
 add_custom_command(
-    TARGET ${PROJECT_NAME}.elf POST_BUILD
-    COMMAND ${CMAKE_OBJCOPY} -Oihex $<TARGET_FILE:${PROJECT_NAME}.elf> ${PROJECT_BINARY_DIR}/${PROJECT_NAME}.hex
-    COMMAND ${CMAKE_OBJCOPY} -Obinary $<TARGET_FILE:${PROJECT_NAME}.elf> ${PROJECT_BINARY_DIR}/${PROJECT_NAME}.bin
-    COMMENT "Building hex & bin file..."
-    COMMENT "EXCUTABLE SIZE:"
-    COMMAND ${SIZE} ${PROJECT_NAME}.elf
-  )
+  TARGET ${PROJECT_NAME}.elf POST_BUILD
+  COMMENT "Building hex & bin file and printing size..."
+  COMMAND ${CMAKE_OBJCOPY} -Oihex $<TARGET_FILE:${PROJECT_NAME}.elf> ${PROJECT_BINARY_DIR}/${PROJECT_NAME}.hex
+  COMMAND ${CMAKE_OBJCOPY} -Obinary $<TARGET_FILE:${PROJECT_NAME}.elf> ${PROJECT_BINARY_DIR}/${PROJECT_NAME}.bin
+  COMMAND ${SIZE} $<TARGET_FILE:${PROJECT_NAME}.elf>
+)

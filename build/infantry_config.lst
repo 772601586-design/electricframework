@@ -1,0 +1,2638 @@
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccopmDN6.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"infantry_config.c"
+  16              		.text
+  17              	.Ltext0:
+  18              		.cfi_sections	.debug_frame
+  19              		.file 1 "application/config/infantry_robot/infantry_config.c"
+  20              		.section	.text.InfantryConfigInit,"ax",%progbits
+  21              		.align	1
+  22              		.global	InfantryConfigInit
+  23              		.syntax unified
+  24              		.thumb
+  25              		.thumb_func
+  27              	InfantryConfigInit:
+  28              	.LVL0:
+  29              	.LFB276:
+   1:application/config/infantry_robot/infantry_config.c **** #include "infantry_config.h"
+   2:application/config/infantry_robot/infantry_config.c **** 
+   3:application/config/infantry_robot/infantry_config.c **** Robot_Config_s *InfantryConfigInit(uint8_t robot_id) 
+   4:application/config/infantry_robot/infantry_config.c **** {
+  30              		.loc 1 4 1 view -0
+  31              		.cfi_startproc
+  32              		@ args = 0, pretend = 0, frame = 0
+  33              		@ frame_needed = 0, uses_anonymous_args = 0
+  34              		@ link register save eliminated.
+   5:application/config/infantry_robot/infantry_config.c ****     switch (robot_id)
+  35              		.loc 1 5 5 view .LVU1
+  36 0000 0328     		cmp	r0, #3
+  37 0002 02D0     		beq	.L3
+  38 0004 0428     		cmp	r0, #4
+  39 0006 02D0     		beq	.L4
+  40              	.LVL1:
+   6:application/config/infantry_robot/infantry_config.c ****     {
+   7:application/config/infantry_robot/infantry_config.c ****     /*******************************************************三号步兵***************************
+   8:application/config/infantry_robot/infantry_config.c ****     case INFANTRY_ROBOT_3:
+   9:application/config/infantry_robot/infantry_config.c ****         static Robot_Config_s infantry_config_3 = { 
+  10:application/config/infantry_robot/infantry_config.c ****             .chassis_param = {
+  11:application/config/infantry_robot/infantry_config.c ****                 .chassis_motor_id[MOTOR_LF] = 1,
+  12:application/config/infantry_robot/infantry_config.c ****                 .chassis_motor_id[MOTOR_RF] = 2,
+  13:application/config/infantry_robot/infantry_config.c ****                 .chassis_motor_id[MOTOR_RB] = 3,
+  14:application/config/infantry_robot/infantry_config.c ****                 .chassis_motor_id[MOTOR_LB] = 4,
+  15:application/config/infantry_robot/infantry_config.c **** 
+  16:application/config/infantry_robot/infantry_config.c ****                 .wheel_type = MECANUM_WHEEL,
+  17:application/config/infantry_robot/infantry_config.c ****                 .wheel_measure = {
+  18:application/config/infantry_robot/infantry_config.c ****                     .center_gimbal_offset_x = 0.0,
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccopmDN6.s 			page 2
+
+
+  19:application/config/infantry_robot/infantry_config.c ****                     .center_gimbal_offset_y = 0.0,
+  20:application/config/infantry_robot/infantry_config.c ****                     .wheel_base = 370,
+  21:application/config/infantry_robot/infantry_config.c ****                     .track_width = 420,
+  22:application/config/infantry_robot/infantry_config.c ****                     .radius_wheel = 75,
+  23:application/config/infantry_robot/infantry_config.c ****                     .reduction_ratio_wheel = 19.0,
+  24:application/config/infantry_robot/infantry_config.c ****                 },
+  25:application/config/infantry_robot/infantry_config.c **** 
+  26:application/config/infantry_robot/infantry_config.c ****                 .chassis_motor_config = {
+  27:application/config/infantry_robot/infantry_config.c ****                     .can_init_config.can_handle = &hcan1,
+  28:application/config/infantry_robot/infantry_config.c ****                     .controller_param_init_config = {
+  29:application/config/infantry_robot/infantry_config.c ****                         .speed_PID = {
+  30:application/config/infantry_robot/infantry_config.c ****                             .Kp = 5.0,
+  31:application/config/infantry_robot/infantry_config.c ****                             .Ki = 1.0,
+  32:application/config/infantry_robot/infantry_config.c ****                             .Kd = 0.0, 
+  33:application/config/infantry_robot/infantry_config.c ****                             .IntegralLimit = 3000,
+  34:application/config/infantry_robot/infantry_config.c ****                             .Improve = PID_Trapezoid_Intergral | PID_Integral_Limit | PID_Derivativ
+  35:application/config/infantry_robot/infantry_config.c ****                             .MaxOut = 12000,
+  36:application/config/infantry_robot/infantry_config.c ****                         },
+  37:application/config/infantry_robot/infantry_config.c ****                         .current_PID = {
+  38:application/config/infantry_robot/infantry_config.c ****                             .Kp = 0.5, 
+  39:application/config/infantry_robot/infantry_config.c ****                             .Ki = 0.0,   
+  40:application/config/infantry_robot/infantry_config.c ****                             .Kd = 0.0,
+  41:application/config/infantry_robot/infantry_config.c ****                             .IntegralLimit = 3000,
+  42:application/config/infantry_robot/infantry_config.c ****                             .Improve = PID_Trapezoid_Intergral | PID_Integral_Limit | PID_Derivativ
+  43:application/config/infantry_robot/infantry_config.c ****                             .MaxOut = 15000,
+  44:application/config/infantry_robot/infantry_config.c ****                         },
+  45:application/config/infantry_robot/infantry_config.c ****                     },   
+  46:application/config/infantry_robot/infantry_config.c ****                     .controller_setting_init_config = {
+  47:application/config/infantry_robot/infantry_config.c ****                         .angle_feedback_source = MOTOR_FEED,
+  48:application/config/infantry_robot/infantry_config.c ****                         .speed_feedback_source = MOTOR_FEED,
+  49:application/config/infantry_robot/infantry_config.c ****                         .outer_loop_type = SPEED_LOOP,
+  50:application/config/infantry_robot/infantry_config.c ****                         .close_loop_type = CURRENT_LOOP | SPEED_LOOP,
+  51:application/config/infantry_robot/infantry_config.c ****                     },
+  52:application/config/infantry_robot/infantry_config.c ****                     .motor_type = M3508,             
+  53:application/config/infantry_robot/infantry_config.c ****                 }
+  54:application/config/infantry_robot/infantry_config.c ****             },
+  55:application/config/infantry_robot/infantry_config.c **** 
+  56:application/config/infantry_robot/infantry_config.c **** 
+  57:application/config/infantry_robot/infantry_config.c ****             .gimbal_param = {
+  58:application/config/infantry_robot/infantry_config.c ****                 .gimbal_type = SINGLE_GIMBAL,
+  59:application/config/infantry_robot/infantry_config.c ****                 .gimbal_offset = {
+  60:application/config/infantry_robot/infantry_config.c ****                     .yaw_offset = 2640,
+  61:application/config/infantry_robot/infantry_config.c ****                     .pitch_min_angle = -18.0f,
+  62:application/config/infantry_robot/infantry_config.c ****                     .pitch_max_angle = 35.0f,
+  63:application/config/infantry_robot/infantry_config.c ****                 },
+  64:application/config/infantry_robot/infantry_config.c **** 
+  65:application/config/infantry_robot/infantry_config.c ****                 .yaw_motor_config = {
+  66:application/config/infantry_robot/infantry_config.c ****                     .can_init_config = {
+  67:application/config/infantry_robot/infantry_config.c ****                         .can_handle = &hcan1,
+  68:application/config/infantry_robot/infantry_config.c ****                         .tx_id = 1,
+  69:application/config/infantry_robot/infantry_config.c ****                     },
+  70:application/config/infantry_robot/infantry_config.c ****                     .controller_param_init_config = {
+  71:application/config/infantry_robot/infantry_config.c ****                         .angle_PID = {
+  72:application/config/infantry_robot/infantry_config.c ****                             .Kp = 8.0,
+  73:application/config/infantry_robot/infantry_config.c ****                             .Ki = 0.0, 
+  74:application/config/infantry_robot/infantry_config.c ****                             .Kd = 0.4, 
+  75:application/config/infantry_robot/infantry_config.c ****                             .DeadBand = 0.1,
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccopmDN6.s 			page 3
+
+
+  76:application/config/infantry_robot/infantry_config.c ****                             .Improve = PID_Trapezoid_Intergral | PID_Integral_Limit | PID_Derivativ
+  77:application/config/infantry_robot/infantry_config.c ****                             .IntegralLimit = 100,
+  78:application/config/infantry_robot/infantry_config.c ****                             .MaxOut = 500,
+  79:application/config/infantry_robot/infantry_config.c ****                         },
+  80:application/config/infantry_robot/infantry_config.c ****                         .speed_PID = {
+  81:application/config/infantry_robot/infantry_config.c ****                             .Kp = 150.0, 
+  82:application/config/infantry_robot/infantry_config.c ****                             .Ki = 0.0, 
+  83:application/config/infantry_robot/infantry_config.c ****                             .Kd = 0.0, 
+  84:application/config/infantry_robot/infantry_config.c ****                             .Improve = PID_Trapezoid_Intergral | PID_Integral_Limit | PID_Derivativ
+  85:application/config/infantry_robot/infantry_config.c ****                             .IntegralLimit = 3000,
+  86:application/config/infantry_robot/infantry_config.c ****                             .MaxOut = 20000,
+  87:application/config/infantry_robot/infantry_config.c ****                         },
+  88:application/config/infantry_robot/infantry_config.c ****                     },
+  89:application/config/infantry_robot/infantry_config.c ****                     .controller_setting_init_config = {
+  90:application/config/infantry_robot/infantry_config.c ****                         .angle_feedback_source = OTHER_FEED,
+  91:application/config/infantry_robot/infantry_config.c ****                         .speed_feedback_source = OTHER_FEED,
+  92:application/config/infantry_robot/infantry_config.c ****                         .outer_loop_type = ANGLE_LOOP,
+  93:application/config/infantry_robot/infantry_config.c ****                         .close_loop_type = ANGLE_LOOP | SPEED_LOOP,
+  94:application/config/infantry_robot/infantry_config.c ****                         .motor_reverse_flag = MOTOR_DIRECTION_NORMAL,
+  95:application/config/infantry_robot/infantry_config.c ****                         .feedback_reverse_flag = FEEDBACK_DIRECTION_NORMAL,
+  96:application/config/infantry_robot/infantry_config.c ****                     },
+  97:application/config/infantry_robot/infantry_config.c ****                     .motor_type = GM6020
+  98:application/config/infantry_robot/infantry_config.c ****                 },        
+  99:application/config/infantry_robot/infantry_config.c **** 
+ 100:application/config/infantry_robot/infantry_config.c ****                 .pitch_motor_config = {
+ 101:application/config/infantry_robot/infantry_config.c ****                     .can_init_config = {
+ 102:application/config/infantry_robot/infantry_config.c ****                         .can_handle = &hcan2,
+ 103:application/config/infantry_robot/infantry_config.c ****                         .tx_id = 2,
+ 104:application/config/infantry_robot/infantry_config.c ****                     },
+ 105:application/config/infantry_robot/infantry_config.c ****                     .controller_param_init_config = {
+ 106:application/config/infantry_robot/infantry_config.c ****                         .angle_PID = {
+ 107:application/config/infantry_robot/infantry_config.c ****                             .Kp = 15.0,//15
+ 108:application/config/infantry_robot/infantry_config.c ****                             .Ki = 0.0, 
+ 109:application/config/infantry_robot/infantry_config.c ****                             .Kd = 0.4, //0.4
+ 110:application/config/infantry_robot/infantry_config.c ****                             .DeadBand = 0.1,
+ 111:application/config/infantry_robot/infantry_config.c ****                             .Improve = PID_Trapezoid_Intergral | PID_Integral_Limit | PID_Derivativ
+ 112:application/config/infantry_robot/infantry_config.c ****                             .IntegralLimit = 100,
+ 113:application/config/infantry_robot/infantry_config.c ****                             .MaxOut = 500,
+ 114:application/config/infantry_robot/infantry_config.c ****                         },
+ 115:application/config/infantry_robot/infantry_config.c ****                         .speed_PID = {
+ 116:application/config/infantry_robot/infantry_config.c ****                             .Kp = 12.0, 
+ 117:application/config/infantry_robot/infantry_config.c ****                             .Ki = 0.0, 
+ 118:application/config/infantry_robot/infantry_config.c ****                             .Kd = 0.0,
+ 119:application/config/infantry_robot/infantry_config.c ****                             .Improve = PID_Trapezoid_Intergral | PID_Integral_Limit | PID_Derivativ
+ 120:application/config/infantry_robot/infantry_config.c ****                             .IntegralLimit = 2500,
+ 121:application/config/infantry_robot/infantry_config.c ****                             .MaxOut = 20000,
+ 122:application/config/infantry_robot/infantry_config.c ****                         },
+ 123:application/config/infantry_robot/infantry_config.c ****                     },
+ 124:application/config/infantry_robot/infantry_config.c ****                     .controller_setting_init_config = {
+ 125:application/config/infantry_robot/infantry_config.c ****                         .angle_feedback_source = OTHER_FEED,
+ 126:application/config/infantry_robot/infantry_config.c ****                         .speed_feedback_source = OTHER_FEED,
+ 127:application/config/infantry_robot/infantry_config.c ****                         .outer_loop_type = ANGLE_LOOP,
+ 128:application/config/infantry_robot/infantry_config.c ****                         .close_loop_type = ANGLE_LOOP | SPEED_LOOP,
+ 129:application/config/infantry_robot/infantry_config.c ****                         .motor_reverse_flag = MOTOR_DIRECTION_REVERSE,
+ 130:application/config/infantry_robot/infantry_config.c ****                         .feedback_reverse_flag = FEEDBACK_DIRECTION_NORMAL,
+ 131:application/config/infantry_robot/infantry_config.c ****                     },
+ 132:application/config/infantry_robot/infantry_config.c ****                     .motor_type = GM6020
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccopmDN6.s 			page 4
+
+
+ 133:application/config/infantry_robot/infantry_config.c ****                 }                
+ 134:application/config/infantry_robot/infantry_config.c ****             },
+ 135:application/config/infantry_robot/infantry_config.c **** 
+ 136:application/config/infantry_robot/infantry_config.c ****             .shoot_param = {
+ 137:application/config/infantry_robot/infantry_config.c ****                 .friction_motor_id[MOTOR_LF] = 4,
+ 138:application/config/infantry_robot/infantry_config.c ****                 .friction_motor_id[MOTOR_RF] = 1,
+ 139:application/config/infantry_robot/infantry_config.c ****                 .friction_motor_reverse_flag[MOTOR_LF] = MOTOR_DIRECTION_REVERSE,
+ 140:application/config/infantry_robot/infantry_config.c ****                 .friction_motor_reverse_flag[MOTOR_RF] = MOTOR_DIRECTION_NORMAL,    
+ 141:application/config/infantry_robot/infantry_config.c **** 
+ 142:application/config/infantry_robot/infantry_config.c ****                 .shoot_type = DUAL_SHOOT,
+ 143:application/config/infantry_robot/infantry_config.c ****                 .friction_motor_config = {
+ 144:application/config/infantry_robot/infantry_config.c ****                     .can_init_config = {
+ 145:application/config/infantry_robot/infantry_config.c ****                         .can_handle = &hcan2,
+ 146:application/config/infantry_robot/infantry_config.c ****                     },
+ 147:application/config/infantry_robot/infantry_config.c ****                     .controller_param_init_config = {
+ 148:application/config/infantry_robot/infantry_config.c ****                         .speed_PID = {
+ 149:application/config/infantry_robot/infantry_config.c ****                             .Kp = 10.0, 
+ 150:application/config/infantry_robot/infantry_config.c ****                             .Ki = 1.0, 
+ 151:application/config/infantry_robot/infantry_config.c ****                             .Kd = 0.0,
+ 152:application/config/infantry_robot/infantry_config.c ****                             .Improve = PID_Integral_Limit,
+ 153:application/config/infantry_robot/infantry_config.c ****                             .IntegralLimit = 10000,
+ 154:application/config/infantry_robot/infantry_config.c ****                             .MaxOut = 25000,
+ 155:application/config/infantry_robot/infantry_config.c ****                         },
+ 156:application/config/infantry_robot/infantry_config.c ****                         .current_PID = {
+ 157:application/config/infantry_robot/infantry_config.c ****                             .Kp = 0.4, 
+ 158:application/config/infantry_robot/infantry_config.c ****                             .Ki = 0.0, 
+ 159:application/config/infantry_robot/infantry_config.c ****                             .Kd = 0.0,
+ 160:application/config/infantry_robot/infantry_config.c ****                             .Improve = PID_Integral_Limit,
+ 161:application/config/infantry_robot/infantry_config.c ****                             .IntegralLimit = 10000,
+ 162:application/config/infantry_robot/infantry_config.c ****                             .MaxOut = 15000,
+ 163:application/config/infantry_robot/infantry_config.c ****                         },
+ 164:application/config/infantry_robot/infantry_config.c ****                     },
+ 165:application/config/infantry_robot/infantry_config.c ****                     .controller_setting_init_config = {
+ 166:application/config/infantry_robot/infantry_config.c ****                         .angle_feedback_source = MOTOR_FEED,
+ 167:application/config/infantry_robot/infantry_config.c ****                         .speed_feedback_source = MOTOR_FEED,
+ 168:application/config/infantry_robot/infantry_config.c ****                         .outer_loop_type = SPEED_LOOP,
+ 169:application/config/infantry_robot/infantry_config.c ****                         .close_loop_type = SPEED_LOOP | CURRENT_LOOP,
+ 170:application/config/infantry_robot/infantry_config.c ****                         .motor_reverse_flag = MOTOR_DIRECTION_REVERSE,
+ 171:application/config/infantry_robot/infantry_config.c ****                     },
+ 172:application/config/infantry_robot/infantry_config.c ****                     .motor_type = M3508
+ 173:application/config/infantry_robot/infantry_config.c ****                 },
+ 174:application/config/infantry_robot/infantry_config.c **** 
+ 175:application/config/infantry_robot/infantry_config.c ****                 .loader_motor_config = {
+ 176:application/config/infantry_robot/infantry_config.c ****                     .can_init_config = {
+ 177:application/config/infantry_robot/infantry_config.c ****                         .can_handle = &hcan2,
+ 178:application/config/infantry_robot/infantry_config.c ****                         .tx_id = 7,
+ 179:application/config/infantry_robot/infantry_config.c ****                     },
+ 180:application/config/infantry_robot/infantry_config.c ****                     .controller_param_init_config = {
+ 181:application/config/infantry_robot/infantry_config.c ****                         .angle_PID = {
+ 182:application/config/infantry_robot/infantry_config.c ****                             // 如果启用位置环来控制发弹,需要较大的I值保证输出
+ 183:application/config/infantry_robot/infantry_config.c ****                             .Kp = 15.0, 
+ 184:application/config/infantry_robot/infantry_config.c ****                             .Ki = 1.0,
+ 185:application/config/infantry_robot/infantry_config.c ****                             .Kd = 0.0,
+ 186:application/config/infantry_robot/infantry_config.c ****                             .MaxOut = 5000, 
+ 187:application/config/infantry_robot/infantry_config.c ****                         },
+ 188:application/config/infantry_robot/infantry_config.c ****                         .speed_PID = {
+ 189:application/config/infantry_robot/infantry_config.c ****                             .Kp = 3.0, 
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccopmDN6.s 			page 5
+
+
+ 190:application/config/infantry_robot/infantry_config.c ****                             .Ki = 0.0, 
+ 191:application/config/infantry_robot/infantry_config.c ****                             .Kd = 0.0,
+ 192:application/config/infantry_robot/infantry_config.c ****                             .Improve = PID_Integral_Limit,
+ 193:application/config/infantry_robot/infantry_config.c ****                             .IntegralLimit = 8000,
+ 194:application/config/infantry_robot/infantry_config.c ****                             .MaxOut = 8000,
+ 195:application/config/infantry_robot/infantry_config.c ****                         },
+ 196:application/config/infantry_robot/infantry_config.c ****                         .current_PID = {
+ 197:application/config/infantry_robot/infantry_config.c ****                             .Kp = 0.4, 
+ 198:application/config/infantry_robot/infantry_config.c ****                             .Ki = 0.0, 
+ 199:application/config/infantry_robot/infantry_config.c ****                             .Kd = 0.0,
+ 200:application/config/infantry_robot/infantry_config.c ****                             .Improve = PID_Integral_Limit,
+ 201:application/config/infantry_robot/infantry_config.c ****                             .IntegralLimit = 5000,
+ 202:application/config/infantry_robot/infantry_config.c ****                             .MaxOut = 5000,
+ 203:application/config/infantry_robot/infantry_config.c ****                         },
+ 204:application/config/infantry_robot/infantry_config.c ****                     },
+ 205:application/config/infantry_robot/infantry_config.c ****                     .controller_setting_init_config = {
+ 206:application/config/infantry_robot/infantry_config.c ****                         .angle_feedback_source = MOTOR_FEED, 
+ 207:application/config/infantry_robot/infantry_config.c ****                         .speed_feedback_source = MOTOR_FEED,
+ 208:application/config/infantry_robot/infantry_config.c ****                         .outer_loop_type = SPEED_LOOP, // 初始化成SPEED_LOOP,让拨盘停在原
+ 209:application/config/infantry_robot/infantry_config.c ****                         .close_loop_type = ANGLE_LOOP | SPEED_LOOP,
+ 210:application/config/infantry_robot/infantry_config.c ****                         .motor_reverse_flag = MOTOR_DIRECTION_NORMAL,
+ 211:application/config/infantry_robot/infantry_config.c ****                     },
+ 212:application/config/infantry_robot/infantry_config.c ****                     .motor_type = M2006 // 英雄使用M3508
+ 213:application/config/infantry_robot/infantry_config.c ****                 }
+ 214:application/config/infantry_robot/infantry_config.c ****             }
+ 215:application/config/infantry_robot/infantry_config.c ****         };
+ 216:application/config/infantry_robot/infantry_config.c ****         return &infantry_config_3;
+ 217:application/config/infantry_robot/infantry_config.c ****         break;
+ 218:application/config/infantry_robot/infantry_config.c ****     /*******************************************************四号步兵***************************
+ 219:application/config/infantry_robot/infantry_config.c ****     case INFANTRY_ROBOT_4:
+ 220:application/config/infantry_robot/infantry_config.c ****         static Robot_Config_s infantry_config_5 = { 
+ 221:application/config/infantry_robot/infantry_config.c ****             .chassis_param = {
+ 222:application/config/infantry_robot/infantry_config.c ****                 .chassis_motor_id[MOTOR_LF] = 3,  
+ 223:application/config/infantry_robot/infantry_config.c ****                 .chassis_motor_id[MOTOR_RF] = 2,  
+ 224:application/config/infantry_robot/infantry_config.c ****                 .chassis_motor_id[MOTOR_RB] = 1, 
+ 225:application/config/infantry_robot/infantry_config.c ****                 .chassis_motor_id[MOTOR_LB] = 4, 
+ 226:application/config/infantry_robot/infantry_config.c **** 
+ 227:application/config/infantry_robot/infantry_config.c ****                 .wheel_type = MECANUM_WHEEL,
+ 228:application/config/infantry_robot/infantry_config.c ****                 .wheel_measure = {
+ 229:application/config/infantry_robot/infantry_config.c ****                     .center_gimbal_offset_x = 0.0,
+ 230:application/config/infantry_robot/infantry_config.c ****                     .center_gimbal_offset_y = 0.0,
+ 231:application/config/infantry_robot/infantry_config.c ****                     .wheel_base = 370,
+ 232:application/config/infantry_robot/infantry_config.c ****                     .track_width = 420,
+ 233:application/config/infantry_robot/infantry_config.c ****                     .radius_wheel = 75,
+ 234:application/config/infantry_robot/infantry_config.c ****                     .reduction_ratio_wheel = 19.0,
+ 235:application/config/infantry_robot/infantry_config.c ****                 },
+ 236:application/config/infantry_robot/infantry_config.c **** 
+ 237:application/config/infantry_robot/infantry_config.c ****                 .chassis_motor_config = {
+ 238:application/config/infantry_robot/infantry_config.c ****                     .can_init_config.can_handle = &hcan1,
+ 239:application/config/infantry_robot/infantry_config.c ****                     .controller_param_init_config = {
+ 240:application/config/infantry_robot/infantry_config.c ****                         .speed_PID = {
+ 241:application/config/infantry_robot/infantry_config.c ****                             .Kp = 5.0,
+ 242:application/config/infantry_robot/infantry_config.c ****                             .Ki = 1.0,
+ 243:application/config/infantry_robot/infantry_config.c ****                             .Kd = 0.0, 
+ 244:application/config/infantry_robot/infantry_config.c ****                             .IntegralLimit = 3000,
+ 245:application/config/infantry_robot/infantry_config.c ****                             .Improve = PID_Trapezoid_Intergral | PID_Integral_Limit | PID_Derivativ
+ 246:application/config/infantry_robot/infantry_config.c ****                             .MaxOut = 12000,
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccopmDN6.s 			page 6
+
+
+ 247:application/config/infantry_robot/infantry_config.c ****                         },
+ 248:application/config/infantry_robot/infantry_config.c ****                         .current_PID = {
+ 249:application/config/infantry_robot/infantry_config.c ****                             .Kp = 0.5, 
+ 250:application/config/infantry_robot/infantry_config.c ****                             .Ki = 0.0,   
+ 251:application/config/infantry_robot/infantry_config.c ****                             .Kd = 0.0,
+ 252:application/config/infantry_robot/infantry_config.c ****                             .IntegralLimit = 3000,
+ 253:application/config/infantry_robot/infantry_config.c ****                             .Improve = PID_Trapezoid_Intergral | PID_Integral_Limit | PID_Derivativ
+ 254:application/config/infantry_robot/infantry_config.c ****                             .MaxOut = 15000,
+ 255:application/config/infantry_robot/infantry_config.c ****                         },
+ 256:application/config/infantry_robot/infantry_config.c ****                     },   
+ 257:application/config/infantry_robot/infantry_config.c ****                     .controller_setting_init_config = {
+ 258:application/config/infantry_robot/infantry_config.c ****                         .angle_feedback_source = MOTOR_FEED,
+ 259:application/config/infantry_robot/infantry_config.c ****                         .speed_feedback_source = MOTOR_FEED,
+ 260:application/config/infantry_robot/infantry_config.c ****                         .outer_loop_type = SPEED_LOOP,
+ 261:application/config/infantry_robot/infantry_config.c ****                         .close_loop_type = CURRENT_LOOP | SPEED_LOOP,
+ 262:application/config/infantry_robot/infantry_config.c ****                     },
+ 263:application/config/infantry_robot/infantry_config.c ****                     .motor_type = M3508,             
+ 264:application/config/infantry_robot/infantry_config.c ****                 }
+ 265:application/config/infantry_robot/infantry_config.c ****             },
+ 266:application/config/infantry_robot/infantry_config.c **** 
+ 267:application/config/infantry_robot/infantry_config.c **** 
+ 268:application/config/infantry_robot/infantry_config.c ****             .gimbal_param = {
+ 269:application/config/infantry_robot/infantry_config.c ****                 .gimbal_type = SINGLE_GIMBAL,
+ 270:application/config/infantry_robot/infantry_config.c ****                 .gimbal_offset = {
+ 271:application/config/infantry_robot/infantry_config.c ****                     .yaw_offset = 5932,
+ 272:application/config/infantry_robot/infantry_config.c ****                     .pitch_min_angle = -40.0f,
+ 273:application/config/infantry_robot/infantry_config.c ****                     .pitch_max_angle = 15.0f,
+ 274:application/config/infantry_robot/infantry_config.c ****                 },
+ 275:application/config/infantry_robot/infantry_config.c **** 
+ 276:application/config/infantry_robot/infantry_config.c ****                 .yaw_motor_config = {
+ 277:application/config/infantry_robot/infantry_config.c ****                     .can_init_config = {
+ 278:application/config/infantry_robot/infantry_config.c ****                         .can_handle = &hcan1,
+ 279:application/config/infantry_robot/infantry_config.c ****                         .tx_id = 1,
+ 280:application/config/infantry_robot/infantry_config.c ****                     },
+ 281:application/config/infantry_robot/infantry_config.c ****                     .controller_param_init_config = {
+ 282:application/config/infantry_robot/infantry_config.c ****                         .angle_PID = {
+ 283:application/config/infantry_robot/infantry_config.c ****                             .Kp = 15.0,
+ 284:application/config/infantry_robot/infantry_config.c ****                             .Ki = 0.0, 
+ 285:application/config/infantry_robot/infantry_config.c ****                             .Kd = 0.7, 
+ 286:application/config/infantry_robot/infantry_config.c ****                             .DeadBand = 0.1,
+ 287:application/config/infantry_robot/infantry_config.c ****                             .Improve = PID_Trapezoid_Intergral | PID_Integral_Limit | PID_Derivativ
+ 288:application/config/infantry_robot/infantry_config.c ****                             .IntegralLimit = 100,
+ 289:application/config/infantry_robot/infantry_config.c ****                             .MaxOut = 500,
+ 290:application/config/infantry_robot/infantry_config.c ****                         },
+ 291:application/config/infantry_robot/infantry_config.c ****                         .speed_PID = {
+ 292:application/config/infantry_robot/infantry_config.c ****                             .Kp = 300.0, 
+ 293:application/config/infantry_robot/infantry_config.c ****                             .Ki = 150.0, 
+ 294:application/config/infantry_robot/infantry_config.c ****                             .Kd = 0.0,
+ 295:application/config/infantry_robot/infantry_config.c ****                             .Improve = PID_Trapezoid_Intergral | PID_Integral_Limit | PID_Derivativ
+ 296:application/config/infantry_robot/infantry_config.c ****                             .IntegralLimit = 3000,
+ 297:application/config/infantry_robot/infantry_config.c ****                             .MaxOut = 20000,
+ 298:application/config/infantry_robot/infantry_config.c ****                         },
+ 299:application/config/infantry_robot/infantry_config.c ****                     },
+ 300:application/config/infantry_robot/infantry_config.c ****                     .controller_setting_init_config = {
+ 301:application/config/infantry_robot/infantry_config.c ****                         .angle_feedback_source = OTHER_FEED,
+ 302:application/config/infantry_robot/infantry_config.c ****                         .speed_feedback_source = OTHER_FEED,
+ 303:application/config/infantry_robot/infantry_config.c ****                         .outer_loop_type = ANGLE_LOOP,
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccopmDN6.s 			page 7
+
+
+ 304:application/config/infantry_robot/infantry_config.c ****                         .close_loop_type = ANGLE_LOOP | SPEED_LOOP,
+ 305:application/config/infantry_robot/infantry_config.c ****                         .motor_reverse_flag = MOTOR_DIRECTION_REVERSE,
+ 306:application/config/infantry_robot/infantry_config.c ****                         .feedback_reverse_flag = FEEDBACK_DIRECTION_NORMAL,
+ 307:application/config/infantry_robot/infantry_config.c ****                     },
+ 308:application/config/infantry_robot/infantry_config.c ****                     .motor_type = GM6020
+ 309:application/config/infantry_robot/infantry_config.c ****                 },        
+ 310:application/config/infantry_robot/infantry_config.c **** 
+ 311:application/config/infantry_robot/infantry_config.c ****                 .pitch_motor_config = {
+ 312:application/config/infantry_robot/infantry_config.c ****                     .can_init_config = {
+ 313:application/config/infantry_robot/infantry_config.c ****                         .can_handle = &hcan2,
+ 314:application/config/infantry_robot/infantry_config.c ****                         .tx_id = 2,
+ 315:application/config/infantry_robot/infantry_config.c ****                     },
+ 316:application/config/infantry_robot/infantry_config.c ****                     .controller_param_init_config = {
+ 317:application/config/infantry_robot/infantry_config.c ****                         .angle_PID = {
+ 318:application/config/infantry_robot/infantry_config.c ****                             .Kp = 20.0,
+ 319:application/config/infantry_robot/infantry_config.c ****                             .Ki = 0.0, 
+ 320:application/config/infantry_robot/infantry_config.c ****                             .Kd = 0.4, 
+ 321:application/config/infantry_robot/infantry_config.c ****                             .Improve = PID_Trapezoid_Intergral | PID_Integral_Limit | PID_Derivativ
+ 322:application/config/infantry_robot/infantry_config.c ****                             .IntegralLimit = 100,
+ 323:application/config/infantry_robot/infantry_config.c ****                             .MaxOut = 500,
+ 324:application/config/infantry_robot/infantry_config.c ****                         },
+ 325:application/config/infantry_robot/infantry_config.c ****                         .speed_PID = {
+ 326:application/config/infantry_robot/infantry_config.c ****                             .Kp = 200.0, 
+ 327:application/config/infantry_robot/infantry_config.c ****                             .Ki = 100.0, 
+ 328:application/config/infantry_robot/infantry_config.c ****                             .Kd = 0.0,
+ 329:application/config/infantry_robot/infantry_config.c ****                             .Improve = PID_Trapezoid_Intergral | PID_Integral_Limit | PID_Derivativ
+ 330:application/config/infantry_robot/infantry_config.c ****                             .IntegralLimit = 2500,
+ 331:application/config/infantry_robot/infantry_config.c ****                             .MaxOut = 20000,
+ 332:application/config/infantry_robot/infantry_config.c ****                         },
+ 333:application/config/infantry_robot/infantry_config.c ****                     },
+ 334:application/config/infantry_robot/infantry_config.c ****                     .controller_setting_init_config = {
+ 335:application/config/infantry_robot/infantry_config.c ****                         .angle_feedback_source = OTHER_FEED,
+ 336:application/config/infantry_robot/infantry_config.c ****                         .speed_feedback_source = OTHER_FEED,
+ 337:application/config/infantry_robot/infantry_config.c ****                         .outer_loop_type = ANGLE_LOOP,
+ 338:application/config/infantry_robot/infantry_config.c ****                         .close_loop_type = ANGLE_LOOP | SPEED_LOOP,
+ 339:application/config/infantry_robot/infantry_config.c ****                         .motor_reverse_flag = MOTOR_DIRECTION_NORMAL,
+ 340:application/config/infantry_robot/infantry_config.c ****                         .feedback_reverse_flag = FEEDBACK_DIRECTION_REVERSE,
+ 341:application/config/infantry_robot/infantry_config.c ****                     },
+ 342:application/config/infantry_robot/infantry_config.c ****                     .motor_type = GM6020
+ 343:application/config/infantry_robot/infantry_config.c ****                 }                
+ 344:application/config/infantry_robot/infantry_config.c ****             },
+ 345:application/config/infantry_robot/infantry_config.c **** 
+ 346:application/config/infantry_robot/infantry_config.c ****             .shoot_param = {
+ 347:application/config/infantry_robot/infantry_config.c ****                 .friction_motor_id[MOTOR_LF] = 3,
+ 348:application/config/infantry_robot/infantry_config.c ****                 .friction_motor_id[MOTOR_RF] = 4,
+ 349:application/config/infantry_robot/infantry_config.c **** 
+ 350:application/config/infantry_robot/infantry_config.c ****                 .friction_motor_reverse_flag[MOTOR_LF] = MOTOR_DIRECTION_REVERSE,
+ 351:application/config/infantry_robot/infantry_config.c ****                 .friction_motor_reverse_flag[MOTOR_RF] = MOTOR_DIRECTION_NORMAL,    
+ 352:application/config/infantry_robot/infantry_config.c ****                 .shoot_type = DUAL_SHOOT,
+ 353:application/config/infantry_robot/infantry_config.c ****                 .friction_motor_config = {
+ 354:application/config/infantry_robot/infantry_config.c ****                     .can_init_config = {
+ 355:application/config/infantry_robot/infantry_config.c ****                         .can_handle = &hcan2,
+ 356:application/config/infantry_robot/infantry_config.c ****                     },
+ 357:application/config/infantry_robot/infantry_config.c ****                     .controller_param_init_config = {
+ 358:application/config/infantry_robot/infantry_config.c ****                         .speed_PID = {
+ 359:application/config/infantry_robot/infantry_config.c ****                             .Kp = 15.0, 
+ 360:application/config/infantry_robot/infantry_config.c ****                             .Ki = 1.0, 
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccopmDN6.s 			page 8
+
+
+ 361:application/config/infantry_robot/infantry_config.c ****                             .Kd = 0.0,
+ 362:application/config/infantry_robot/infantry_config.c ****                             .Improve = PID_Integral_Limit,
+ 363:application/config/infantry_robot/infantry_config.c ****                             .IntegralLimit = 10000,
+ 364:application/config/infantry_robot/infantry_config.c ****                             .MaxOut = 15000,
+ 365:application/config/infantry_robot/infantry_config.c ****                         },
+ 366:application/config/infantry_robot/infantry_config.c ****                         .current_PID = {
+ 367:application/config/infantry_robot/infantry_config.c ****                             .Kp = 0.4, 
+ 368:application/config/infantry_robot/infantry_config.c ****                             .Ki = 0.0, 
+ 369:application/config/infantry_robot/infantry_config.c ****                             .Kd = 0.0,
+ 370:application/config/infantry_robot/infantry_config.c ****                             .Improve = PID_Integral_Limit,
+ 371:application/config/infantry_robot/infantry_config.c ****                             .IntegralLimit = 10000,
+ 372:application/config/infantry_robot/infantry_config.c ****                             .MaxOut = 15000,
+ 373:application/config/infantry_robot/infantry_config.c ****                         },
+ 374:application/config/infantry_robot/infantry_config.c ****                     },
+ 375:application/config/infantry_robot/infantry_config.c ****                     .controller_setting_init_config = {
+ 376:application/config/infantry_robot/infantry_config.c ****                         .angle_feedback_source = MOTOR_FEED,
+ 377:application/config/infantry_robot/infantry_config.c ****                         .speed_feedback_source = MOTOR_FEED,
+ 378:application/config/infantry_robot/infantry_config.c ****                         .outer_loop_type = SPEED_LOOP,
+ 379:application/config/infantry_robot/infantry_config.c ****                         .close_loop_type = SPEED_LOOP | CURRENT_LOOP,
+ 380:application/config/infantry_robot/infantry_config.c ****                         .motor_reverse_flag = MOTOR_DIRECTION_REVERSE,
+ 381:application/config/infantry_robot/infantry_config.c ****                     },
+ 382:application/config/infantry_robot/infantry_config.c ****                     .motor_type = M3508
+ 383:application/config/infantry_robot/infantry_config.c ****                 },
+ 384:application/config/infantry_robot/infantry_config.c **** 
+ 385:application/config/infantry_robot/infantry_config.c ****                 .loader_motor_config = {
+ 386:application/config/infantry_robot/infantry_config.c ****                     .can_init_config = {
+ 387:application/config/infantry_robot/infantry_config.c ****                         .can_handle = &hcan2,
+ 388:application/config/infantry_robot/infantry_config.c ****                         .tx_id = 7,
+ 389:application/config/infantry_robot/infantry_config.c ****                     },
+ 390:application/config/infantry_robot/infantry_config.c ****                     .controller_param_init_config = {
+ 391:application/config/infantry_robot/infantry_config.c ****                         .angle_PID = {
+ 392:application/config/infantry_robot/infantry_config.c ****                             // 如果启用位置环来控制发弹,需要较大的I值保证输出
+ 393:application/config/infantry_robot/infantry_config.c ****                             .Kp = 10.0, 
+ 394:application/config/infantry_robot/infantry_config.c ****                             .Ki = 1.0,
+ 395:application/config/infantry_robot/infantry_config.c ****                             .Kd = 0.0,
+ 396:application/config/infantry_robot/infantry_config.c ****                             .MaxOut = 5000, 
+ 397:application/config/infantry_robot/infantry_config.c ****                         },
+ 398:application/config/infantry_robot/infantry_config.c ****                         .speed_PID = {
+ 399:application/config/infantry_robot/infantry_config.c ****                             .Kp = 3.0, 
+ 400:application/config/infantry_robot/infantry_config.c ****                             .Ki = 0.0, 
+ 401:application/config/infantry_robot/infantry_config.c ****                             .Kd = 0.0,
+ 402:application/config/infantry_robot/infantry_config.c ****                             .Improve = PID_Integral_Limit,
+ 403:application/config/infantry_robot/infantry_config.c ****                             .IntegralLimit = 8000,
+ 404:application/config/infantry_robot/infantry_config.c ****                             .MaxOut = 10000,
+ 405:application/config/infantry_robot/infantry_config.c ****                         },
+ 406:application/config/infantry_robot/infantry_config.c ****                         .current_PID = {
+ 407:application/config/infantry_robot/infantry_config.c ****                             .Kp = 0.4, 
+ 408:application/config/infantry_robot/infantry_config.c ****                             .Ki = 0.0, 
+ 409:application/config/infantry_robot/infantry_config.c ****                             .Kd = 0.0,
+ 410:application/config/infantry_robot/infantry_config.c ****                             .Improve = PID_Integral_Limit,
+ 411:application/config/infantry_robot/infantry_config.c ****                             .IntegralLimit = 5000,
+ 412:application/config/infantry_robot/infantry_config.c ****                             .MaxOut = 5000,
+ 413:application/config/infantry_robot/infantry_config.c ****                         },
+ 414:application/config/infantry_robot/infantry_config.c ****                     },
+ 415:application/config/infantry_robot/infantry_config.c ****                     .controller_setting_init_config = {
+ 416:application/config/infantry_robot/infantry_config.c ****                         .angle_feedback_source = MOTOR_FEED, 
+ 417:application/config/infantry_robot/infantry_config.c ****                         .speed_feedback_source = MOTOR_FEED,
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccopmDN6.s 			page 9
+
+
+ 418:application/config/infantry_robot/infantry_config.c ****                         .outer_loop_type = SPEED_LOOP, // 初始化成SPEED_LOOP,让拨盘停在原
+ 419:application/config/infantry_robot/infantry_config.c ****                         .close_loop_type = ANGLE_LOOP | SPEED_LOOP,
+ 420:application/config/infantry_robot/infantry_config.c ****                         .motor_reverse_flag = MOTOR_DIRECTION_NORMAL,
+ 421:application/config/infantry_robot/infantry_config.c ****                     },
+ 422:application/config/infantry_robot/infantry_config.c ****                     .motor_type = M2006 // 英雄使用M3508
+ 423:application/config/infantry_robot/infantry_config.c ****                 }
+ 424:application/config/infantry_robot/infantry_config.c ****             }
+ 425:application/config/infantry_robot/infantry_config.c ****         };
+ 426:application/config/infantry_robot/infantry_config.c ****         return &infantry_config_5;
+ 427:application/config/infantry_robot/infantry_config.c ****         break;
+ 428:application/config/infantry_robot/infantry_config.c ****     /*******************************************************五号步兵***************************
+ 429:application/config/infantry_robot/infantry_config.c ****     case INFANTRY_ROBOT_5:
+ 430:application/config/infantry_robot/infantry_config.c ****         break;
+ 431:application/config/infantry_robot/infantry_config.c ****     default:
+ 432:application/config/infantry_robot/infantry_config.c ****         break;
+ 433:application/config/infantry_robot/infantry_config.c ****     }
+ 434:application/config/infantry_robot/infantry_config.c **** } 
+  41              		.loc 1 434 1 is_stmt 0 view .LVU2
+  42 0008 7047     		bx	lr
+  43              	.LVL2:
+  44              	.L3:
+   5:application/config/infantry_robot/infantry_config.c ****     switch (robot_id)
+  45              		.loc 1 5 5 view .LVU3
+  46 000a 0248     		ldr	r0, .L5
+  47              	.LVL3:
+   5:application/config/infantry_robot/infantry_config.c ****     switch (robot_id)
+  48              		.loc 1 5 5 view .LVU4
+  49 000c 7047     		bx	lr
+  50              	.LVL4:
+  51              	.L4:
+  52              	.LBB2:
+ 426:application/config/infantry_robot/infantry_config.c ****         break;
+  53              		.loc 1 426 16 view .LVU5
+  54 000e 0248     		ldr	r0, .L5+4
+  55              	.LVL5:
+ 426:application/config/infantry_robot/infantry_config.c ****         break;
+  56              		.loc 1 426 16 view .LVU6
+  57              	.LBE2:
+  58              		.loc 1 434 1 view .LVU7
+  59 0010 7047     		bx	lr
+  60              	.L6:
+  61 0012 00BF     		.align	2
+  62              	.L5:
+  63 0014 00000000 		.word	infantry_config_3.1
+  64 0018 00000000 		.word	infantry_config_5.0
+  65              		.cfi_endproc
+  66              	.LFE276:
+  68              		.section	.rodata.InfantryStaticUI.str1.4,"aMS",%progbits,1
+  69              		.align	2
+  70              	.LC0:
+  71 0000 736C3000 		.ascii	"sl0\000"
+  72              		.align	2
+  73              	.LC1:
+  74 0004 736C3100 		.ascii	"sl1\000"
+  75              		.align	2
+  76              	.LC2:
+  77 0008 736C3200 		.ascii	"sl2\000"
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccopmDN6.s 			page 10
+
+
+  78              		.align	2
+  79              	.LC3:
+  80 000c 736C3300 		.ascii	"sl3\000"
+  81              		.align	2
+  82              	.LC4:
+  83 0010 736C3400 		.ascii	"sl4\000"
+  84              		.align	2
+  85              	.LC5:
+  86 0014 736C3500 		.ascii	"sl5\000"
+  87              		.align	2
+  88              	.LC6:
+  89 0018 736F3100 		.ascii	"so1\000"
+  90              		.align	2
+  91              	.LC7:
+  92 001c 736F3200 		.ascii	"so2\000"
+  93              		.align	2
+  94              	.LC8:
+  95 0020 736F3300 		.ascii	"so3\000"
+  96              		.align	2
+  97              	.LC9:
+  98 0024 736F3400 		.ascii	"so4\000"
+  99              		.align	2
+ 100              	.LC10:
+ 101 0028 736F3500 		.ascii	"so5\000"
+ 102              		.align	2
+ 103              	.LC11:
+ 104 002c 736F3600 		.ascii	"so6\000"
+ 105              		.align	2
+ 106              	.LC12:
+ 107 0030 73733000 		.ascii	"ss0\000"
+ 108              		.align	2
+ 109              	.LC13:
+ 110 0034 73733100 		.ascii	"ss1\000"
+ 111              		.align	2
+ 112              	.LC14:
+ 113 0038 73733200 		.ascii	"ss2\000"
+ 114              		.align	2
+ 115              	.LC15:
+ 116 003c 73733300 		.ascii	"ss3\000"
+ 117              		.align	2
+ 118              	.LC16:
+ 119 0040 736A3100 		.ascii	"sj1\000"
+ 120              		.align	2
+ 121              	.LC17:
+ 122 0044 736A3200 		.ascii	"sj2\000"
+ 123              		.align	2
+ 124              	.LC18:
+ 125 0048 736A3300 		.ascii	"sj3\000"
+ 126              		.align	2
+ 127              	.LC19:
+ 128 004c 736C3600 		.ascii	"sl6\000"
+ 129              		.align	2
+ 130              	.LC20:
+ 131 0050 736C3700 		.ascii	"sl7\000"
+ 132              		.section	.text.InfantryStaticUI,"ax",%progbits
+ 133              		.align	1
+ 134              		.global	InfantryStaticUI
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccopmDN6.s 			page 11
+
+
+ 135              		.syntax unified
+ 136              		.thumb
+ 137              		.thumb_func
+ 139              	InfantryStaticUI:
+ 140              	.LVL6:
+ 141              	.LFB277:
+ 435:application/config/infantry_robot/infantry_config.c **** 
+ 436:application/config/infantry_robot/infantry_config.c **** static Graph_Data_t UI_pitch_line[10]; // pitch准线
+ 437:application/config/infantry_robot/infantry_config.c **** static Graph_Data_t UI_shoot_line[10]; // 射击准线
+ 438:application/config/infantry_robot/infantry_config.c **** static Graph_Data_t UI_shoot_oval[10]; // 瞄准框架
+ 439:application/config/infantry_robot/infantry_config.c **** static Graph_Data_t UI_graph_Arc[3];   // 功率圆弧
+ 440:application/config/infantry_robot/infantry_config.c **** static Graph_Data_t UI_graph_Rectangle[3]; // 绘制射速矩形
+ 441:application/config/infantry_robot/infantry_config.c **** 
+ 442:application/config/infantry_robot/infantry_config.c **** static Graph_Data_t UI_State_dyn[6];  // 机器人状态,动态先add才能change
+ 443:application/config/infantry_robot/infantry_config.c **** 
+ 444:application/config/infantry_robot/infantry_config.c **** static uint32_t shoot_line_location[7] = {460, 380, 300, 538, 538, 959};
+ 445:application/config/infantry_robot/infantry_config.c **** void InfantryStaticUI(referee_info_t *referee_recv_info)
+ 446:application/config/infantry_robot/infantry_config.c **** {
+ 142              		.loc 1 446 1 is_stmt 1 view -0
+ 143              		.cfi_startproc
+ 144              		@ args = 0, pretend = 0, frame = 8
+ 145              		@ frame_needed = 0, uses_anonymous_args = 0
+ 146              		.loc 1 446 1 is_stmt 0 view .LVU9
+ 147 0000 2DE9F04F 		push	{r4, r5, r6, r7, r8, r9, r10, fp, lr}
+ 148              	.LCFI0:
+ 149              		.cfi_def_cfa_offset 36
+ 150              		.cfi_offset 4, -36
+ 151              		.cfi_offset 5, -32
+ 152              		.cfi_offset 6, -28
+ 153              		.cfi_offset 7, -24
+ 154              		.cfi_offset 8, -20
+ 155              		.cfi_offset 9, -16
+ 156              		.cfi_offset 10, -12
+ 157              		.cfi_offset 11, -8
+ 158              		.cfi_offset 14, -4
+ 159 0004 95B0     		sub	sp, sp, #84
+ 160              	.LCFI1:
+ 161              		.cfi_def_cfa_offset 120
+ 162 0006 1390     		str	r0, [sp, #76]
+ 447:application/config/infantry_robot/infantry_config.c ****     // 绘制发射基准线
+ 448:application/config/infantry_robot/infantry_config.c ****     UILineDraw(&UI_shoot_line[0], "sl0", UI_Graph_ADD, 7, UI_Color_Cyan, 2, 1029, shoot_line_locati
+ 163              		.loc 1 448 5 is_stmt 1 view .LVU10
+ 164 0008 D04C     		ldr	r4, .L9
+ 165 000a 4FF4E673 		mov	r3, #460
+ 166 000e 0593     		str	r3, [sp, #20]
+ 167 0010 4FF45C72 		mov	r2, #880
+ 168 0014 0492     		str	r2, [sp, #16]
+ 169 0016 0393     		str	r3, [sp, #12]
+ 170 0018 40F20543 		movw	r3, #1029
+ 171 001c 0293     		str	r3, [sp, #8]
+ 172 001e 0223     		movs	r3, #2
+ 173 0020 0193     		str	r3, [sp, #4]
+ 174 0022 0625     		movs	r5, #6
+ 175 0024 0095     		str	r5, [sp]
+ 176 0026 0723     		movs	r3, #7
+ 177 0028 0122     		movs	r2, #1
+ 178 002a C949     		ldr	r1, .L9+4
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccopmDN6.s 			page 12
+
+
+ 179 002c 2046     		mov	r0, r4
+ 180              	.LVL7:
+ 181              		.loc 1 448 5 is_stmt 0 view .LVU11
+ 182 002e FFF7FEFF 		bl	UILineDraw
+ 183              	.LVL8:
+ 449:application/config/infantry_robot/infantry_config.c ****     UILineDraw(&UI_shoot_line[1], "sl1", UI_Graph_ADD, 7, UI_Color_Cyan, 3, 750, shoot_line_locatio
+ 184              		.loc 1 449 5 is_stmt 1 view .LVU12
+ 185 0032 04F10F06 		add	r6, r4, #15
+ 186 0036 4FF4BE73 		mov	r3, #380
+ 187 003a 0593     		str	r3, [sp, #20]
+ 188 003c 4FF49162 		mov	r2, #1160
+ 189 0040 0492     		str	r2, [sp, #16]
+ 190 0042 0393     		str	r3, [sp, #12]
+ 191 0044 40F2EE23 		movw	r3, #750
+ 192 0048 0293     		str	r3, [sp, #8]
+ 193 004a 0323     		movs	r3, #3
+ 194 004c 0193     		str	r3, [sp, #4]
+ 195 004e 0095     		str	r5, [sp]
+ 196 0050 0723     		movs	r3, #7
+ 197 0052 0122     		movs	r2, #1
+ 198 0054 BF49     		ldr	r1, .L9+8
+ 199 0056 3046     		mov	r0, r6
+ 200 0058 FFF7FEFF 		bl	UILineDraw
+ 201              	.LVL9:
+ 450:application/config/infantry_robot/infantry_config.c ****     UILineDraw(&UI_shoot_line[2], "sl2", UI_Graph_ADD, 7, UI_Color_Cyan, 4, 645, shoot_line_locatio
+ 202              		.loc 1 450 5 view .LVU13
+ 203 005c 04F11E07 		add	r7, r4, #30
+ 204 0060 4FF4967A 		mov	r10, #300
+ 205 0064 CDF814A0 		str	r10, [sp, #20]
+ 206 0068 40F2FA43 		movw	r3, #1274
+ 207 006c 0493     		str	r3, [sp, #16]
+ 208 006e CDF80CA0 		str	r10, [sp, #12]
+ 209 0072 40F28523 		movw	r3, #645
+ 210 0076 0293     		str	r3, [sp, #8]
+ 211 0078 4FF0040B 		mov	fp, #4
+ 212 007c CDF804B0 		str	fp, [sp, #4]
+ 213 0080 0095     		str	r5, [sp]
+ 214 0082 0723     		movs	r3, #7
+ 215 0084 0122     		movs	r2, #1
+ 216 0086 B449     		ldr	r1, .L9+12
+ 217 0088 3846     		mov	r0, r7
+ 218 008a FFF7FEFF 		bl	UILineDraw
+ 219              	.LVL10:
+ 451:application/config/infantry_robot/infantry_config.c ****     UILineDraw(&UI_shoot_line[3], "sl3", UI_Graph_ADD, 7, UI_Color_Cyan, 4, 600, shoot_line_locatio
+ 220              		.loc 1 451 5 view .LVU14
+ 221 008e 04F12D08 		add	r8, r4, #45
+ 222 0092 40F21A23 		movw	r3, #538
+ 223 0096 0593     		str	r3, [sp, #20]
+ 224 0098 4FF46673 		mov	r3, #920
+ 225 009c 0493     		str	r3, [sp, #16]
+ 226 009e 40F21A23 		movw	r3, #538
+ 227 00a2 0393     		str	r3, [sp, #12]
+ 228 00a4 4FF41673 		mov	r3, #600
+ 229 00a8 0293     		str	r3, [sp, #8]
+ 230 00aa CDF804B0 		str	fp, [sp, #4]
+ 231 00ae 0095     		str	r5, [sp]
+ 232 00b0 0723     		movs	r3, #7
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccopmDN6.s 			page 13
+
+
+ 233 00b2 0122     		movs	r2, #1
+ 234 00b4 A949     		ldr	r1, .L9+16
+ 235 00b6 4046     		mov	r0, r8
+ 236 00b8 FFF7FEFF 		bl	UILineDraw
+ 237              	.LVL11:
+ 452:application/config/infantry_robot/infantry_config.c ****     UILineDraw(&UI_shoot_line[4], "sl4", UI_Graph_ADD, 7, UI_Color_Cyan, 4, 1000, shoot_line_locati
+ 238              		.loc 1 452 5 view .LVU15
+ 239 00bc 04F13C09 		add	r9, r4, #60
+ 240 00c0 40F21A23 		movw	r3, #538
+ 241 00c4 0593     		str	r3, [sp, #20]
+ 242 00c6 40F2C443 		movw	r3, #1220
+ 243 00ca 0493     		str	r3, [sp, #16]
+ 244 00cc 40F21A23 		movw	r3, #538
+ 245 00d0 0393     		str	r3, [sp, #12]
+ 246 00d2 4FF47A73 		mov	r3, #1000
+ 247 00d6 0293     		str	r3, [sp, #8]
+ 248 00d8 CDF804B0 		str	fp, [sp, #4]
+ 249 00dc 0095     		str	r5, [sp]
+ 250 00de 0723     		movs	r3, #7
+ 251 00e0 0122     		movs	r2, #1
+ 252 00e2 9F49     		ldr	r1, .L9+20
+ 253 00e4 4846     		mov	r0, r9
+ 254 00e6 FFF7FEFF 		bl	UILineDraw
+ 255              	.LVL12:
+ 453:application/config/infantry_robot/infantry_config.c ****     UIGraphRefresh(&referee_recv_info->referee_id, 5, UI_shoot_line[0], UI_shoot_line[1], UI_shoot_
+ 256              		.loc 1 453 5 view .LVU16
+ 257 00ea 0DF1380C 		add	ip, sp, #56
+ 258 00ee 99E80F00 		ldm	r9, {r0, r1, r2, r3}
+ 259 00f2 ACE80700 		stmia	ip!, {r0, r1, r2}
+ 260 00f6 2CF8023B 		strh	r3, [ip], #2	@ movhi
+ 261 00fa 1B0C     		lsrs	r3, r3, #16
+ 262 00fc 8CF80030 		strb	r3, [ip]
+ 263 0100 0AAB     		add	r3, sp, #40
+ 264 0102 D4F82D00 		ldr	r0, [r4, #45]	@ unaligned
+ 265 0106 D4F83110 		ldr	r1, [r4, #49]	@ unaligned
+ 266 010a D4F83520 		ldr	r2, [r4, #53]	@ unaligned
+ 267 010e 07C3     		stmia	r3!, {r0, r1, r2}
+ 268 0110 B4F83910 		ldrh	r1, [r4, #57]	@ unaligned
+ 269 0114 94F83B20 		ldrb	r2, [r4, #59]	@ zero_extendqisi2
+ 270 0118 1980     		strh	r1, [r3]	@ unaligned
+ 271 011a 9A70     		strb	r2, [r3, #2]
+ 272 011c 06AB     		add	r3, sp, #24
+ 273 011e D4F81E00 		ldr	r0, [r4, #30]	@ unaligned
+ 274 0122 D4F82210 		ldr	r1, [r4, #34]	@ unaligned
+ 275 0126 D4F82620 		ldr	r2, [r4, #38]	@ unaligned
+ 276 012a 07C3     		stmia	r3!, {r0, r1, r2}
+ 277 012c 618D     		ldrh	r1, [r4, #42]	@ unaligned
+ 278 012e 94F82C20 		ldrb	r2, [r4, #44]	@ zero_extendqisi2
+ 279 0132 1980     		strh	r1, [r3]	@ unaligned
+ 280 0134 9A70     		strb	r2, [r3, #2]
+ 281 0136 02AB     		add	r3, sp, #8
+ 282 0138 D4F80F00 		ldr	r0, [r4, #15]	@ unaligned
+ 283 013c D4F81310 		ldr	r1, [r4, #19]	@ unaligned
+ 284 0140 D4F81720 		ldr	r2, [r4, #23]	@ unaligned
+ 285 0144 07C3     		stmia	r3!, {r0, r1, r2}
+ 286 0146 B4F81B10 		ldrh	r1, [r4, #27]	@ unaligned
+ 287 014a 627F     		ldrb	r2, [r4, #29]	@ zero_extendqisi2
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccopmDN6.s 			page 14
+
+
+ 288 014c 1980     		strh	r1, [r3]	@ unaligned
+ 289 014e 9A70     		strb	r2, [r3, #2]
+ 290 0150 04F10803 		add	r3, r4, #8
+ 291 0154 93E80300 		ldm	r3, {r0, r1}
+ 292 0158 0090     		str	r0, [sp]
+ 293 015a ADF80410 		strh	r1, [sp, #4]	@ movhi
+ 294 015e 090C     		lsrs	r1, r1, #16
+ 295 0160 8DF80610 		strb	r1, [sp, #6]
+ 296 0164 94E80C00 		ldm	r4, {r2, r3}
+ 297 0168 0521     		movs	r1, #5
+ 298 016a DDF84C90 		ldr	r9, [sp, #76]
+ 299 016e 4846     		mov	r0, r9
+ 300 0170 FFF7FEFF 		bl	UIGraphRefresh
+ 301              	.LVL13:
+ 454:application/config/infantry_robot/infantry_config.c ****     UILineDraw(&UI_shoot_line[5], "sl5", UI_Graph_ADD, 7, UI_Color_Cyan, 4, shoot_line_location[5],
+ 302              		.loc 1 454 5 view .LVU17
+ 303 0174 40F2F913 		movw	r3, #505
+ 304 0178 0593     		str	r3, [sp, #20]
+ 305 017a 40F2BF33 		movw	r3, #959
+ 306 017e 0493     		str	r3, [sp, #16]
+ 307 0180 CDF80CA0 		str	r10, [sp, #12]
+ 308 0184 0293     		str	r3, [sp, #8]
+ 309 0186 CDF804B0 		str	fp, [sp, #4]
+ 310 018a 0095     		str	r5, [sp]
+ 311 018c 0723     		movs	r3, #7
+ 312 018e 0122     		movs	r2, #1
+ 313 0190 7449     		ldr	r1, .L9+24
+ 314 0192 04F14B00 		add	r0, r4, #75
+ 315 0196 FFF7FEFF 		bl	UILineDraw
+ 316              	.LVL14:
+ 455:application/config/infantry_robot/infantry_config.c ****     UIGraphRefresh(&referee_recv_info->referee_id, 1, UI_shoot_line[5]);
+ 317              		.loc 1 455 5 view .LVU18
+ 318 019a D4F85300 		ldr	r0, [r4, #83]	@ unaligned
+ 319 019e 0090     		str	r0, [sp]
+ 320 01a0 B4F85720 		ldrh	r2, [r4, #87]	@ unaligned
+ 321 01a4 94F85930 		ldrb	r3, [r4, #89]	@ zero_extendqisi2
+ 322 01a8 ADF80420 		strh	r2, [sp, #4]	@ unaligned
+ 323 01ac 8DF80630 		strb	r3, [sp, #6]
+ 324 01b0 D4F84B20 		ldr	r2, [r4, #75]	@ unaligned
+ 325 01b4 D4F84F30 		ldr	r3, [r4, #79]	@ unaligned
+ 326 01b8 0121     		movs	r1, #1
+ 327 01ba CDF84C90 		str	r9, [sp, #76]
+ 328              	.LVL15:
+ 329              		.loc 1 455 5 is_stmt 0 view .LVU19
+ 330 01be 4846     		mov	r0, r9
+ 331 01c0 FFF7FEFF 		bl	UIGraphRefresh
+ 332              	.LVL16:
+ 456:application/config/infantry_robot/infantry_config.c **** 
+ 457:application/config/infantry_robot/infantry_config.c ****     // 绘制pitch基准线
+ 458:application/config/infantry_robot/infantry_config.c ****     UILineDraw(&UI_pitch_line[0], "so1", UI_Graph_ADD, 7, UI_Color_Cyan, 10, 1320, 538, 1341, 538);
+ 333              		.loc 1 458 5 is_stmt 1 view .LVU20
+ 334 01c4 684E     		ldr	r6, .L9+28
+ 335 01c6 40F21A23 		movw	r3, #538
+ 336 01ca 0593     		str	r3, [sp, #20]
+ 337 01cc 40F23D53 		movw	r3, #1341
+ 338 01d0 0493     		str	r3, [sp, #16]
+ 339 01d2 40F21A23 		movw	r3, #538
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccopmDN6.s 			page 15
+
+
+ 340 01d6 0393     		str	r3, [sp, #12]
+ 341 01d8 4FF4A563 		mov	r3, #1320
+ 342 01dc 0293     		str	r3, [sp, #8]
+ 343 01de 0A23     		movs	r3, #10
+ 344 01e0 0193     		str	r3, [sp, #4]
+ 345 01e2 0095     		str	r5, [sp]
+ 346 01e4 0723     		movs	r3, #7
+ 347 01e6 0122     		movs	r2, #1
+ 348 01e8 6049     		ldr	r1, .L9+32
+ 349 01ea 3046     		mov	r0, r6
+ 350 01ec FFF7FEFF 		bl	UILineDraw
+ 351              	.LVL17:
+ 459:application/config/infantry_robot/infantry_config.c ****     UILineDraw(&UI_pitch_line[1], "so2", UI_Graph_ADD, 7, UI_Color_Cyan, 15, 1307, 679, 1258, 651);
+ 352              		.loc 1 459 5 view .LVU21
+ 353 01f0 06F10F07 		add	r7, r6, #15
+ 354 01f4 40F28B23 		movw	r3, #651
+ 355 01f8 0593     		str	r3, [sp, #20]
+ 356 01fa 40F2EA43 		movw	r3, #1258
+ 357 01fe 0493     		str	r3, [sp, #16]
+ 358 0200 40F2A723 		movw	r3, #679
+ 359 0204 0393     		str	r3, [sp, #12]
+ 360 0206 40F21B53 		movw	r3, #1307
+ 361 020a 0293     		str	r3, [sp, #8]
+ 362 020c 4FF00F0A 		mov	r10, #15
+ 363 0210 CDF804A0 		str	r10, [sp, #4]
+ 364 0214 0095     		str	r5, [sp]
+ 365 0216 0723     		movs	r3, #7
+ 366 0218 0122     		movs	r2, #1
+ 367 021a 5549     		ldr	r1, .L9+36
+ 368 021c 3846     		mov	r0, r7
+ 369 021e FFF7FEFF 		bl	UILineDraw
+ 370              	.LVL18:
+ 460:application/config/infantry_robot/infantry_config.c ****     UILineDraw(&UI_pitch_line[2], "so3", UI_Graph_ADD, 7, UI_Color_Cyan, 10, 1297, 600, 1329, 613);
+ 371              		.loc 1 460 5 view .LVU22
+ 372 0222 06F11E08 		add	r8, r6, #30
+ 373 0226 40F26523 		movw	r3, #613
+ 374 022a 0593     		str	r3, [sp, #20]
+ 375 022c 40F23153 		movw	r3, #1329
+ 376 0230 0493     		str	r3, [sp, #16]
+ 377 0232 4FF41673 		mov	r3, #600
+ 378 0236 0393     		str	r3, [sp, #12]
+ 379 0238 40F21153 		movw	r3, #1297
+ 380 023c 0293     		str	r3, [sp, #8]
+ 381 023e 0A23     		movs	r3, #10
+ 382 0240 0193     		str	r3, [sp, #4]
+ 383 0242 0095     		str	r5, [sp]
+ 384 0244 0723     		movs	r3, #7
+ 385 0246 0122     		movs	r2, #1
+ 386 0248 4A49     		ldr	r1, .L9+40
+ 387 024a 4046     		mov	r0, r8
+ 388 024c FFF7FEFF 		bl	UILineDraw
+ 389              	.LVL19:
+ 461:application/config/infantry_robot/infantry_config.c ****     UILineDraw(&UI_pitch_line[3], "so4", UI_Graph_ADD, 7, UI_Color_Cyan, 15, 1191, 768, 1227, 804);
+ 390              		.loc 1 461 5 view .LVU23
+ 391 0250 06F12D09 		add	r9, r6, #45
+ 392 0254 4FF44973 		mov	r3, #804
+ 393 0258 0593     		str	r3, [sp, #20]
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccopmDN6.s 			page 16
+
+
+ 394 025a 40F2CB43 		movw	r3, #1227
+ 395 025e 0493     		str	r3, [sp, #16]
+ 396 0260 4FF44073 		mov	r3, #768
+ 397 0264 0393     		str	r3, [sp, #12]
+ 398 0266 40F2A743 		movw	r3, #1191
+ 399 026a 0293     		str	r3, [sp, #8]
+ 400 026c CDF804A0 		str	r10, [sp, #4]
+ 401 0270 0095     		str	r5, [sp]
+ 402 0272 0723     		movs	r3, #7
+ 403 0274 0122     		movs	r2, #1
+ 404 0276 4049     		ldr	r1, .L9+44
+ 405 0278 4846     		mov	r0, r9
+ 406 027a FFF7FEFF 		bl	UILineDraw
+ 407              	.LVL20:
+ 462:application/config/infantry_robot/infantry_config.c ****     UILineDraw(&UI_pitch_line[4], "so5", UI_Graph_ADD, 7, UI_Color_Cyan, 10, 1254, 725, 1282, 742);
+ 408              		.loc 1 462 5 view .LVU24
+ 409 027e 40F2E623 		movw	r3, #742
+ 410 0282 0593     		str	r3, [sp, #20]
+ 411 0284 40F20253 		movw	r3, #1282
+ 412 0288 0493     		str	r3, [sp, #16]
+ 413 028a 40F2D523 		movw	r3, #725
+ 414 028e 0393     		str	r3, [sp, #12]
+ 415 0290 40F2E643 		movw	r3, #1254
+ 416 0294 0293     		str	r3, [sp, #8]
+ 417 0296 0A23     		movs	r3, #10
+ 418 0298 0193     		str	r3, [sp, #4]
+ 419 029a 0095     		str	r5, [sp]
+ 420 029c 0723     		movs	r3, #7
+ 421 029e 0122     		movs	r2, #1
+ 422 02a0 3649     		ldr	r1, .L9+48
+ 423 02a2 06F13C00 		add	r0, r6, #60
+ 424 02a6 FFF7FEFF 		bl	UILineDraw
+ 425              	.LVL21:
+ 463:application/config/infantry_robot/infantry_config.c ****     UIGraphRefresh(&referee_recv_info->referee_id, 5, UI_pitch_line[0], UI_pitch_line[1], UI_pitch_
+ 426              		.loc 1 463 5 view .LVU25
+ 427 02aa 0DF1380C 		add	ip, sp, #56
+ 428 02ae 06F13C03 		add	r3, r6, #60
+ 429 02b2 0FCB     		ldm	r3, {r0, r1, r2, r3}
+ 430 02b4 ACE80700 		stmia	ip!, {r0, r1, r2}
+ 431 02b8 2CF8023B 		strh	r3, [ip], #2	@ movhi
+ 432 02bc 1B0C     		lsrs	r3, r3, #16
+ 433 02be 8CF80030 		strb	r3, [ip]
+ 434 02c2 0AAB     		add	r3, sp, #40
+ 435 02c4 D6F82D00 		ldr	r0, [r6, #45]	@ unaligned
+ 436 02c8 D6F83110 		ldr	r1, [r6, #49]	@ unaligned
+ 437 02cc D6F83520 		ldr	r2, [r6, #53]	@ unaligned
+ 438 02d0 07C3     		stmia	r3!, {r0, r1, r2}
+ 439 02d2 B6F83910 		ldrh	r1, [r6, #57]	@ unaligned
+ 440 02d6 96F83B20 		ldrb	r2, [r6, #59]	@ zero_extendqisi2
+ 441 02da 1980     		strh	r1, [r3]	@ unaligned
+ 442 02dc 9A70     		strb	r2, [r3, #2]
+ 443 02de 06AB     		add	r3, sp, #24
+ 444 02e0 D6F81E00 		ldr	r0, [r6, #30]	@ unaligned
+ 445 02e4 D6F82210 		ldr	r1, [r6, #34]	@ unaligned
+ 446 02e8 D6F82620 		ldr	r2, [r6, #38]	@ unaligned
+ 447 02ec 07C3     		stmia	r3!, {r0, r1, r2}
+ 448 02ee 718D     		ldrh	r1, [r6, #42]	@ unaligned
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccopmDN6.s 			page 17
+
+
+ 449 02f0 96F82C20 		ldrb	r2, [r6, #44]	@ zero_extendqisi2
+ 450 02f4 1980     		strh	r1, [r3]	@ unaligned
+ 451 02f6 9A70     		strb	r2, [r3, #2]
+ 452 02f8 02AB     		add	r3, sp, #8
+ 453 02fa D6F80F00 		ldr	r0, [r6, #15]	@ unaligned
+ 454 02fe D6F81310 		ldr	r1, [r6, #19]	@ unaligned
+ 455 0302 D6F81720 		ldr	r2, [r6, #23]	@ unaligned
+ 456 0306 07C3     		stmia	r3!, {r0, r1, r2}
+ 457 0308 B6F81B10 		ldrh	r1, [r6, #27]	@ unaligned
+ 458 030c 727F     		ldrb	r2, [r6, #29]	@ zero_extendqisi2
+ 459 030e 1980     		strh	r1, [r3]	@ unaligned
+ 460 0310 9A70     		strb	r2, [r3, #2]
+ 461 0312 06F10803 		add	r3, r6, #8
+ 462 0316 93E80300 		ldm	r3, {r0, r1}
+ 463 031a 0090     		str	r0, [sp]
+ 464 031c ADF80410 		strh	r1, [sp, #4]	@ movhi
+ 465 0320 090C     		lsrs	r1, r1, #16
+ 466 0322 8DF80610 		strb	r1, [sp, #6]
+ 467 0326 96E80C00 		ldm	r6, {r2, r3}
+ 468 032a 0521     		movs	r1, #5
+ 469 032c DDF84C90 		ldr	r9, [sp, #76]
+ 470 0330 4846     		mov	r0, r9
+ 471 0332 FFF7FEFF 		bl	UIGraphRefresh
+ 472              	.LVL22:
+ 464:application/config/infantry_robot/infantry_config.c ****     
+ 465:application/config/infantry_robot/infantry_config.c ****     UIArcDraw(&UI_pitch_line[5], "so6", UI_Graph_ADD, 5, UI_Color_Purplish_red, 88, 92, 20, 958, 53
+ 473              		.loc 1 465 5 view .LVU26
+ 474 0336 4FF4B477 		mov	r7, #360
+ 475 033a 0797     		str	r7, [sp, #28]
+ 476 033c 0697     		str	r7, [sp, #24]
+ 477 033e 40F21A23 		movw	r3, #538
+ 478 0342 0593     		str	r3, [sp, #20]
+ 479 0344 40F2BE33 		movw	r3, #958
+ 480 0348 1AE0     		b	.L10
+ 481              	.L11:
+ 482 034a 00BF     		.align	2
+ 483              	.L9:
+ 484 034c 00000000 		.word	UI_shoot_line
+ 485 0350 00000000 		.word	.LC0
+ 486 0354 04000000 		.word	.LC1
+ 487 0358 08000000 		.word	.LC2
+ 488 035c 0C000000 		.word	.LC3
+ 489 0360 10000000 		.word	.LC4
+ 490 0364 14000000 		.word	.LC5
+ 491 0368 00000000 		.word	UI_pitch_line
+ 492 036c 18000000 		.word	.LC6
+ 493 0370 1C000000 		.word	.LC7
+ 494 0374 20000000 		.word	.LC8
+ 495 0378 24000000 		.word	.LC9
+ 496 037c 28000000 		.word	.LC10
+ 497              	.L10:
+ 498 0380 0493     		str	r3, [sp, #16]
+ 499 0382 1423     		movs	r3, #20
+ 500 0384 0393     		str	r3, [sp, #12]
+ 501 0386 5C23     		movs	r3, #92
+ 502 0388 0293     		str	r3, [sp, #8]
+ 503 038a 5823     		movs	r3, #88
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccopmDN6.s 			page 18
+
+
+ 504 038c 0193     		str	r3, [sp, #4]
+ 505 038e CDF800B0 		str	fp, [sp]
+ 506 0392 0523     		movs	r3, #5
+ 507 0394 0122     		movs	r2, #1
+ 508 0396 BD49     		ldr	r1, .L12
+ 509 0398 06F14B00 		add	r0, r6, #75
+ 510 039c FFF7FEFF 		bl	UIArcDraw
+ 511              	.LVL23:
+ 466:application/config/infantry_robot/infantry_config.c ****     UIGraphRefresh(&referee_recv_info->referee_id, 5, UI_pitch_line[5]);
+ 512              		.loc 1 466 5 view .LVU27
+ 513 03a0 D6F85300 		ldr	r0, [r6, #83]	@ unaligned
+ 514 03a4 0090     		str	r0, [sp]
+ 515 03a6 B6F85720 		ldrh	r2, [r6, #87]	@ unaligned
+ 516 03aa 96F85930 		ldrb	r3, [r6, #89]	@ zero_extendqisi2
+ 517 03ae ADF80420 		strh	r2, [sp, #4]	@ unaligned
+ 518 03b2 8DF80630 		strb	r3, [sp, #6]
+ 519 03b6 D6F84B20 		ldr	r2, [r6, #75]	@ unaligned
+ 520 03ba D6F84F30 		ldr	r3, [r6, #79]	@ unaligned
+ 521 03be 0521     		movs	r1, #5
+ 522 03c0 CDF84C90 		str	r9, [sp, #76]
+ 523 03c4 4846     		mov	r0, r9
+ 524 03c6 FFF7FEFF 		bl	UIGraphRefresh
+ 525              	.LVL24:
+ 467:application/config/infantry_robot/infantry_config.c **** 
+ 468:application/config/infantry_robot/infantry_config.c ****     // 绘制功率圆弧
+ 469:application/config/infantry_robot/infantry_config.c ****     UIArcDraw(&UI_graph_Arc[0], "ss0", UI_Graph_ADD, 7, UI_Color_Cyan, 45, 135, 6, 950, 540, 400, 4
+ 526              		.loc 1 469 5 view .LVU28
+ 527 03ca B14E     		ldr	r6, .L12+4
+ 528 03cc 4FF4C879 		mov	r9, #400
+ 529 03d0 CDF81C90 		str	r9, [sp, #28]
+ 530 03d4 CDF81890 		str	r9, [sp, #24]
+ 531 03d8 4FF40773 		mov	r3, #540
+ 532 03dc 0593     		str	r3, [sp, #20]
+ 533 03de 40F2B633 		movw	r3, #950
+ 534 03e2 0493     		str	r3, [sp, #16]
+ 535 03e4 0395     		str	r5, [sp, #12]
+ 536 03e6 8723     		movs	r3, #135
+ 537 03e8 0293     		str	r3, [sp, #8]
+ 538 03ea 2D23     		movs	r3, #45
+ 539 03ec 0193     		str	r3, [sp, #4]
+ 540 03ee 0095     		str	r5, [sp]
+ 541 03f0 0723     		movs	r3, #7
+ 542 03f2 0122     		movs	r2, #1
+ 543 03f4 A749     		ldr	r1, .L12+8
+ 544 03f6 3046     		mov	r0, r6
+ 545 03f8 FFF7FEFF 		bl	UIArcDraw
+ 546              	.LVL25:
+ 470:application/config/infantry_robot/infantry_config.c ****     UIArcDraw(&UI_graph_Arc[1], "ss1", UI_Graph_ADD, 7, UI_Color_Cyan, 225, 270, 15, 960, 530, 400,
+ 547              		.loc 1 470 5 view .LVU29
+ 548 03fc 06EB0A08 		add	r8, r6, r10
+ 549 0400 CDF81C90 		str	r9, [sp, #28]
+ 550 0404 CDF81890 		str	r9, [sp, #24]
+ 551 0408 40F21223 		movw	r3, #530
+ 552 040c 0593     		str	r3, [sp, #20]
+ 553 040e 4FF47073 		mov	r3, #960
+ 554 0412 0493     		str	r3, [sp, #16]
+ 555 0414 CDF80CA0 		str	r10, [sp, #12]
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccopmDN6.s 			page 19
+
+
+ 556 0418 4FF48773 		mov	r3, #270
+ 557 041c 0293     		str	r3, [sp, #8]
+ 558 041e E123     		movs	r3, #225
+ 559 0420 0193     		str	r3, [sp, #4]
+ 560 0422 0095     		str	r5, [sp]
+ 561 0424 0723     		movs	r3, #7
+ 562 0426 0122     		movs	r2, #1
+ 563 0428 9B49     		ldr	r1, .L12+12
+ 564 042a 4046     		mov	r0, r8
+ 565 042c FFF7FEFF 		bl	UIArcDraw
+ 566              	.LVL26:
+ 471:application/config/infantry_robot/infantry_config.c ****     UIGraphRefresh(&referee_recv_info->referee_id, 2, UI_graph_Arc[0], UI_graph_Arc[1]);
+ 567              		.loc 1 471 5 view .LVU30
+ 568 0430 02AB     		add	r3, sp, #8
+ 569 0432 D6F80F00 		ldr	r0, [r6, #15]	@ unaligned
+ 570 0436 D8F80410 		ldr	r1, [r8, #4]	@ unaligned
+ 571 043a D8F80820 		ldr	r2, [r8, #8]	@ unaligned
+ 572 043e 07C3     		stmia	r3!, {r0, r1, r2}
+ 573 0440 B8F80C10 		ldrh	r1, [r8, #12]	@ unaligned
+ 574 0444 98F80E20 		ldrb	r2, [r8, #14]	@ zero_extendqisi2
+ 575 0448 1980     		strh	r1, [r3]	@ unaligned
+ 576 044a 9A70     		strb	r2, [r3, #2]
+ 577 044c 06F10803 		add	r3, r6, #8
+ 578 0450 93E80300 		ldm	r3, {r0, r1}
+ 579 0454 0090     		str	r0, [sp]
+ 580 0456 ADF80410 		strh	r1, [sp, #4]	@ movhi
+ 581 045a 090C     		lsrs	r1, r1, #16
+ 582 045c 8DF80610 		strb	r1, [sp, #6]
+ 583 0460 96E80C00 		ldm	r6, {r2, r3}
+ 584 0464 0221     		movs	r1, #2
+ 585 0466 1398     		ldr	r0, [sp, #76]
+ 586 0468 FFF7FEFF 		bl	UIGraphRefresh
+ 587              	.LVL27:
+ 472:application/config/infantry_robot/infantry_config.c ****     
+ 473:application/config/infantry_robot/infantry_config.c ****     UIArcDraw(&UI_graph_Arc[2], "ss2", UI_Graph_ADD, 7, UI_Color_Cyan, 0, 360, 15, 1524, 725, 100, 
+ 588              		.loc 1 473 5 view .LVU31
+ 589 046c 4FF06408 		mov	r8, #100
+ 590 0470 CDF81C80 		str	r8, [sp, #28]
+ 591 0474 CDF81880 		str	r8, [sp, #24]
+ 592 0478 40F2D523 		movw	r3, #725
+ 593 047c 0593     		str	r3, [sp, #20]
+ 594 047e 40F2F459 		movw	r9, #1524
+ 595 0482 CDF81090 		str	r9, [sp, #16]
+ 596 0486 CDF80CA0 		str	r10, [sp, #12]
+ 597 048a 0297     		str	r7, [sp, #8]
+ 598 048c 0027     		movs	r7, #0
+ 599 048e 0197     		str	r7, [sp, #4]
+ 600 0490 0095     		str	r5, [sp]
+ 601 0492 0723     		movs	r3, #7
+ 602 0494 0122     		movs	r2, #1
+ 603 0496 8149     		ldr	r1, .L12+16
+ 604 0498 06F11E00 		add	r0, r6, #30
+ 605 049c FFF7FEFF 		bl	UIArcDraw
+ 606              	.LVL28:
+ 474:application/config/infantry_robot/infantry_config.c ****     UIGraphRefresh(&referee_recv_info->referee_id, 1, UI_graph_Arc[2]);
+ 607              		.loc 1 474 5 view .LVU32
+ 608 04a0 D6F82600 		ldr	r0, [r6, #38]	@ unaligned
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccopmDN6.s 			page 20
+
+
+ 609 04a4 0090     		str	r0, [sp]
+ 610 04a6 728D     		ldrh	r2, [r6, #42]	@ unaligned
+ 611 04a8 96F82C30 		ldrb	r3, [r6, #44]	@ zero_extendqisi2
+ 612 04ac ADF80420 		strh	r2, [sp, #4]	@ unaligned
+ 613 04b0 8DF80630 		strb	r3, [sp, #6]
+ 614 04b4 D6F81E20 		ldr	r2, [r6, #30]	@ unaligned
+ 615 04b8 D6F82230 		ldr	r3, [r6, #34]	@ unaligned
+ 616 04bc 0121     		movs	r1, #1
+ 617 04be 1398     		ldr	r0, [sp, #76]
+ 618 04c0 FFF7FEFF 		bl	UIGraphRefresh
+ 619              	.LVL29:
+ 475:application/config/infantry_robot/infantry_config.c ****     UIArcDraw(&UI_graph_Arc[3], "ss3", UI_Graph_ADD, 7, UI_Color_Cyan, 0, 0, 15, 1524, 725, 100, 10
+ 620              		.loc 1 475 5 view .LVU33
+ 621 04c4 CDF81C80 		str	r8, [sp, #28]
+ 622 04c8 CDF81880 		str	r8, [sp, #24]
+ 623 04cc 40F2D523 		movw	r3, #725
+ 624 04d0 0593     		str	r3, [sp, #20]
+ 625 04d2 CDF81090 		str	r9, [sp, #16]
+ 626 04d6 CDF80CA0 		str	r10, [sp, #12]
+ 627 04da 0297     		str	r7, [sp, #8]
+ 628 04dc 0197     		str	r7, [sp, #4]
+ 629 04de 0095     		str	r5, [sp]
+ 630 04e0 0723     		movs	r3, #7
+ 631 04e2 0122     		movs	r2, #1
+ 632 04e4 6E49     		ldr	r1, .L12+20
+ 633 04e6 06F12D00 		add	r0, r6, #45
+ 634 04ea FFF7FEFF 		bl	UIArcDraw
+ 635              	.LVL30:
+ 476:application/config/infantry_robot/infantry_config.c ****     UIGraphRefresh(&referee_recv_info->referee_id, 1, UI_graph_Arc[3]);
+ 636              		.loc 1 476 5 view .LVU34
+ 637 04ee D6F83500 		ldr	r0, [r6, #53]	@ unaligned
+ 638 04f2 0090     		str	r0, [sp]
+ 639 04f4 B6F83920 		ldrh	r2, [r6, #57]	@ unaligned
+ 640 04f8 96F83B30 		ldrb	r3, [r6, #59]	@ zero_extendqisi2
+ 641 04fc ADF80420 		strh	r2, [sp, #4]	@ unaligned
+ 642 0500 8DF80630 		strb	r3, [sp, #6]
+ 643 0504 D6F82D20 		ldr	r2, [r6, #45]	@ unaligned
+ 644 0508 D6F83130 		ldr	r3, [r6, #49]	@ unaligned
+ 645 050c 0121     		movs	r1, #1
+ 646 050e 1398     		ldr	r0, [sp, #76]
+ 647 0510 FFF7FEFF 		bl	UIGraphRefresh
+ 648              	.LVL31:
+ 477:application/config/infantry_robot/infantry_config.c **** 
+ 478:application/config/infantry_robot/infantry_config.c ****     // 绘制射速矩形
+ 479:application/config/infantry_robot/infantry_config.c ****     UIRectangleDraw(&UI_graph_Rectangle[0], "sj1", UI_Graph_ADD, 7, UI_Color_Cyan, 4, 46, 834, 136,
+ 649              		.loc 1 479 5 view .LVU35
+ 650 0514 634E     		ldr	r6, .L12+24
+ 651 0516 40F25A33 		movw	r3, #858
+ 652 051a 0593     		str	r3, [sp, #20]
+ 653 051c 8823     		movs	r3, #136
+ 654 051e 0493     		str	r3, [sp, #16]
+ 655 0520 40F24233 		movw	r3, #834
+ 656 0524 0393     		str	r3, [sp, #12]
+ 657 0526 2E23     		movs	r3, #46
+ 658 0528 0293     		str	r3, [sp, #8]
+ 659 052a CDF804B0 		str	fp, [sp, #4]
+ 660 052e 0095     		str	r5, [sp]
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccopmDN6.s 			page 21
+
+
+ 661 0530 0723     		movs	r3, #7
+ 662 0532 0122     		movs	r2, #1
+ 663 0534 5C49     		ldr	r1, .L12+28
+ 664 0536 3046     		mov	r0, r6
+ 665 0538 FFF7FEFF 		bl	UIRectangleDraw
+ 666              	.LVL32:
+ 480:application/config/infantry_robot/infantry_config.c **** 
+ 481:application/config/infantry_robot/infantry_config.c ****     UIRectangleDraw(&UI_graph_Rectangle[1], "sj2", UI_Graph_ADD, 7, UI_Color_Cyan, 5, 1481, 672, 15
+ 667              		.loc 1 481 5 view .LVU36
+ 668 053c 06EB0A07 		add	r7, r6, r10
+ 669 0540 4FF44373 		mov	r3, #780
+ 670 0544 0593     		str	r3, [sp, #20]
+ 671 0546 40F2E358 		movw	r8, #1507
+ 672 054a CDF81080 		str	r8, [sp, #16]
+ 673 054e 4FF4287A 		mov	r10, #672
+ 674 0552 CDF80CA0 		str	r10, [sp, #12]
+ 675 0556 40F2C953 		movw	r3, #1481
+ 676 055a 0293     		str	r3, [sp, #8]
+ 677 055c 4FF00509 		mov	r9, #5
+ 678 0560 CDF80490 		str	r9, [sp, #4]
+ 679 0564 0095     		str	r5, [sp]
+ 680 0566 0723     		movs	r3, #7
+ 681 0568 0122     		movs	r2, #1
+ 682 056a 5049     		ldr	r1, .L12+32
+ 683 056c 3846     		mov	r0, r7
+ 684 056e FFF7FEFF 		bl	UIRectangleDraw
+ 685              	.LVL33:
+ 482:application/config/infantry_robot/infantry_config.c ****     UIGraphRefresh(&referee_recv_info->referee_id, 2, UI_graph_Rectangle[0], UI_graph_Rectangle[1])
+ 686              		.loc 1 482 5 view .LVU37
+ 687 0572 02AB     		add	r3, sp, #8
+ 688 0574 D6F80F00 		ldr	r0, [r6, #15]	@ unaligned
+ 689 0578 7968     		ldr	r1, [r7, #4]	@ unaligned
+ 690 057a BA68     		ldr	r2, [r7, #8]	@ unaligned
+ 691 057c 07C3     		stmia	r3!, {r0, r1, r2}
+ 692 057e B989     		ldrh	r1, [r7, #12]	@ unaligned
+ 693 0580 BA7B     		ldrb	r2, [r7, #14]	@ zero_extendqisi2
+ 694 0582 1980     		strh	r1, [r3]	@ unaligned
+ 695 0584 9A70     		strb	r2, [r3, #2]
+ 696 0586 06F10803 		add	r3, r6, #8
+ 697 058a 93E80300 		ldm	r3, {r0, r1}
+ 698 058e 0090     		str	r0, [sp]
+ 699 0590 ADF80410 		strh	r1, [sp, #4]	@ movhi
+ 700 0594 090C     		lsrs	r1, r1, #16
+ 701 0596 8DF80610 		strb	r1, [sp, #6]
+ 702 059a 96E80C00 		ldm	r6, {r2, r3}
+ 703 059e 0221     		movs	r1, #2
+ 704 05a0 1398     		ldr	r0, [sp, #76]
+ 705 05a2 FFF7FEFF 		bl	UIGraphRefresh
+ 706              	.LVL34:
+ 483:application/config/infantry_robot/infantry_config.c ****     UIRectangleDraw(&UI_graph_Rectangle[2], "sj3", UI_Graph_ADD, 7, UI_Color_Cyan, 5, 1555, 672, 15
+ 707              		.loc 1 483 5 view .LVU38
+ 708 05a6 4FF44373 		mov	r3, #780
+ 709 05aa 0593     		str	r3, [sp, #20]
+ 710 05ac 40F22D67 		movw	r7, #1581
+ 711 05b0 0497     		str	r7, [sp, #16]
+ 712 05b2 CDF80CA0 		str	r10, [sp, #12]
+ 713 05b6 40F2136A 		movw	r10, #1555
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccopmDN6.s 			page 22
+
+
+ 714 05ba CDF808A0 		str	r10, [sp, #8]
+ 715 05be CDF80490 		str	r9, [sp, #4]
+ 716 05c2 0095     		str	r5, [sp]
+ 717 05c4 0723     		movs	r3, #7
+ 718 05c6 0122     		movs	r2, #1
+ 719 05c8 3949     		ldr	r1, .L12+36
+ 720 05ca 06F11E00 		add	r0, r6, #30
+ 721 05ce FFF7FEFF 		bl	UIRectangleDraw
+ 722              	.LVL35:
+ 484:application/config/infantry_robot/infantry_config.c ****     UIGraphRefresh(&referee_recv_info->referee_id, 1, UI_graph_Rectangle[2]);
+ 723              		.loc 1 484 5 view .LVU39
+ 724 05d2 D6F82600 		ldr	r0, [r6, #38]	@ unaligned
+ 725 05d6 0090     		str	r0, [sp]
+ 726 05d8 728D     		ldrh	r2, [r6, #42]	@ unaligned
+ 727 05da 96F82C30 		ldrb	r3, [r6, #44]	@ zero_extendqisi2
+ 728 05de ADF80420 		strh	r2, [sp, #4]	@ unaligned
+ 729 05e2 8DF80630 		strb	r3, [sp, #6]
+ 730 05e6 D6F81E20 		ldr	r2, [r6, #30]	@ unaligned
+ 731 05ea D6F82230 		ldr	r3, [r6, #34]	@ unaligned
+ 732 05ee 0121     		movs	r1, #1
+ 733 05f0 DDF84C90 		ldr	r9, [sp, #76]
+ 734 05f4 4846     		mov	r0, r9
+ 735 05f6 FFF7FEFF 		bl	UIGraphRefresh
+ 736              	.LVL36:
+ 485:application/config/infantry_robot/infantry_config.c **** 
+ 486:application/config/infantry_robot/infantry_config.c ****     UILineDraw(&UI_shoot_line[6], "sl6", UI_Graph_ADD, 7, UI_Color_Purplish_red, 4, 1481, 682, 1507
+ 737              		.loc 1 486 5 view .LVU40
+ 738 05fa 40F2AA25 		movw	r5, #682
+ 739 05fe 0595     		str	r5, [sp, #20]
+ 740 0600 CDF81080 		str	r8, [sp, #16]
+ 741 0604 0395     		str	r5, [sp, #12]
+ 742 0606 40F2C953 		movw	r3, #1481
+ 743 060a 0293     		str	r3, [sp, #8]
+ 744 060c CDF804B0 		str	fp, [sp, #4]
+ 745 0610 CDF800B0 		str	fp, [sp]
+ 746 0614 0723     		movs	r3, #7
+ 747 0616 0122     		movs	r2, #1
+ 748 0618 2649     		ldr	r1, .L12+40
+ 749 061a 04F15A00 		add	r0, r4, #90
+ 750 061e FFF7FEFF 		bl	UILineDraw
+ 751              	.LVL37:
+ 487:application/config/infantry_robot/infantry_config.c ****     UILineDraw(&UI_shoot_line[7], "sl7", UI_Graph_ADD, 7, UI_Color_Purplish_red, 4, 1555, 682, 1581
+ 752              		.loc 1 487 5 view .LVU41
+ 753 0622 04F16906 		add	r6, r4, #105
+ 754 0626 0595     		str	r5, [sp, #20]
+ 755 0628 0497     		str	r7, [sp, #16]
+ 756 062a 0395     		str	r5, [sp, #12]
+ 757 062c CDF808A0 		str	r10, [sp, #8]
+ 758 0630 CDF804B0 		str	fp, [sp, #4]
+ 759 0634 CDF800B0 		str	fp, [sp]
+ 760 0638 0723     		movs	r3, #7
+ 761 063a 0122     		movs	r2, #1
+ 762 063c 1E49     		ldr	r1, .L12+44
+ 763 063e 3046     		mov	r0, r6
+ 764 0640 FFF7FEFF 		bl	UILineDraw
+ 765              	.LVL38:
+ 488:application/config/infantry_robot/infantry_config.c ****     UIGraphRefresh(&referee_recv_info->referee_id, 2, UI_shoot_line[6], UI_shoot_line[7]); 
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccopmDN6.s 			page 23
+
+
+ 766              		.loc 1 488 5 view .LVU42
+ 767 0644 02AB     		add	r3, sp, #8
+ 768 0646 D4F86900 		ldr	r0, [r4, #105]	@ unaligned
+ 769 064a D4F86D10 		ldr	r1, [r4, #109]	@ unaligned
+ 770 064e D4F87120 		ldr	r2, [r4, #113]	@ unaligned
+ 771 0652 07C3     		stmia	r3!, {r0, r1, r2}
+ 772 0654 B4F87510 		ldrh	r1, [r4, #117]	@ unaligned
+ 773 0658 94F87720 		ldrb	r2, [r4, #119]	@ zero_extendqisi2
+ 774 065c 1980     		strh	r1, [r3]	@ unaligned
+ 775 065e 9A70     		strb	r2, [r3, #2]
+ 776 0660 D4F86200 		ldr	r0, [r4, #98]	@ unaligned
+ 777 0664 0090     		str	r0, [sp]
+ 778 0666 B4F86620 		ldrh	r2, [r4, #102]	@ unaligned
+ 779 066a 94F86830 		ldrb	r3, [r4, #104]	@ zero_extendqisi2
+ 780 066e ADF80420 		strh	r2, [sp, #4]	@ unaligned
+ 781 0672 8DF80630 		strb	r3, [sp, #6]
+ 782 0676 D4F85A20 		ldr	r2, [r4, #90]	@ unaligned
+ 783 067a D4F85E30 		ldr	r3, [r4, #94]	@ unaligned
+ 784 067e 0221     		movs	r1, #2
+ 785 0680 4846     		mov	r0, r9
+ 786 0682 FFF7FEFF 		bl	UIGraphRefresh
+ 787              	.LVL39:
+ 489:application/config/infantry_robot/infantry_config.c ****     
+ 490:application/config/infantry_robot/infantry_config.c **** }
+ 788              		.loc 1 490 1 is_stmt 0 view .LVU43
+ 789 0686 15B0     		add	sp, sp, #84
+ 790              	.LCFI2:
+ 791              		.cfi_def_cfa_offset 36
+ 792              		@ sp needed
+ 793 0688 BDE8F08F 		pop	{r4, r5, r6, r7, r8, r9, r10, fp, pc}
+ 794              	.L13:
+ 795              		.align	2
+ 796              	.L12:
+ 797 068c 2C000000 		.word	.LC11
+ 798 0690 00000000 		.word	UI_graph_Arc
+ 799 0694 30000000 		.word	.LC12
+ 800 0698 34000000 		.word	.LC13
+ 801 069c 38000000 		.word	.LC14
+ 802 06a0 3C000000 		.word	.LC15
+ 803 06a4 00000000 		.word	UI_graph_Rectangle
+ 804 06a8 40000000 		.word	.LC16
+ 805 06ac 44000000 		.word	.LC17
+ 806 06b0 48000000 		.word	.LC18
+ 807 06b4 4C000000 		.word	.LC19
+ 808 06b8 50000000 		.word	.LC20
+ 809              		.cfi_endproc
+ 810              	.LFE277:
+ 812              		.section	.text.InfantryDynamciscUI,"ax",%progbits
+ 813              		.align	1
+ 814              		.global	InfantryDynamciscUI
+ 815              		.syntax unified
+ 816              		.thumb
+ 817              		.thumb_func
+ 819              	InfantryDynamciscUI:
+ 820              	.LVL40:
+ 821              	.LFB278:
+ 491:application/config/infantry_robot/infantry_config.c **** void InfantryDynamciscUI(referee_info_t *referee_recv_info, Referee_Interactive_info_t *_Interactiv
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccopmDN6.s 			page 24
+
+
+ 492:application/config/infantry_robot/infantry_config.c **** {
+ 822              		.loc 1 492 1 is_stmt 1 view -0
+ 823              		.cfi_startproc
+ 824              		@ args = 0, pretend = 0, frame = 0
+ 825              		@ frame_needed = 0, uses_anonymous_args = 0
+ 826              		.loc 1 492 1 is_stmt 0 view .LVU45
+ 827 0000 2DE9F041 		push	{r4, r5, r6, r7, r8, lr}
+ 828              	.LCFI3:
+ 829              		.cfi_def_cfa_offset 24
+ 830              		.cfi_offset 4, -24
+ 831              		.cfi_offset 5, -20
+ 832              		.cfi_offset 6, -16
+ 833              		.cfi_offset 7, -12
+ 834              		.cfi_offset 8, -8
+ 835              		.cfi_offset 14, -4
+ 836 0004 88B0     		sub	sp, sp, #32
+ 837              	.LCFI4:
+ 838              		.cfi_def_cfa_offset 56
+ 839 0006 0646     		mov	r6, r0
+ 840 0008 0C46     		mov	r4, r1
+ 493:application/config/infantry_robot/infantry_config.c ****     // // shoot
+ 494:application/config/infantry_robot/infantry_config.c ****     // if (_Interactive_data->Referee_Interactive_Flag.shoot_flag == 1)
+ 495:application/config/infantry_robot/infantry_config.c ****     // {
+ 496:application/config/infantry_robot/infantry_config.c ****     //     // UICharDraw(&UI_State_dyn[2], "sd2", UI_Graph_Change, 8, UI_Color_Pink, 15, 2, 270, 65
+ 497:application/config/infantry_robot/infantry_config.c ****     //     // UICharRefresh(&referee_recv_info->referee_id, UI_State_dyn[2]);
+ 498:application/config/infantry_robot/infantry_config.c **** 
+ 499:application/config/infantry_robot/infantry_config.c ****     //     UIRectangleDraw(&UI_graph_Rectangle[0], "sj1", UI_Graph_ADD, 7, UI_Color_Purplish_red, 4
+ 500:application/config/infantry_robot/infantry_config.c ****     //     UIRectangleDraw(&UI_graph_Rectangle[1], "sj2", UI_Graph_ADD, 7, UI_Color_Purplish_red, 5
+ 501:application/config/infantry_robot/infantry_config.c ****     //     UIGraphRefresh(&referee_recv_info->referee_id, 2, UI_graph_Rectangle[0], UI_graph_Rectan
+ 502:application/config/infantry_robot/infantry_config.c ****     //     UIRectangleDraw(&UI_graph_Rectangle[2], "sj3", UI_Graph_ADD, 7, UI_Color_Purplish_red, 5
+ 503:application/config/infantry_robot/infantry_config.c ****     //     UIGraphRefresh(&referee_recv_info->referee_id, 1, UI_graph_Rectangle[2]);
+ 504:application/config/infantry_robot/infantry_config.c ****     //     _Interactive_data->Referee_Interactive_Flag.shoot_flag = 0;
+ 505:application/config/infantry_robot/infantry_config.c ****     // }
+ 506:application/config/infantry_robot/infantry_config.c ****     if (_Interactive_data->chassis_offset_angle < 180 && _Interactive_data->chassis_offset_angle >=
+ 841              		.loc 1 506 5 is_stmt 1 view .LVU46
+ 842              		.loc 1 506 26 is_stmt 0 view .LVU47
+ 843 000a 4B69     		ldr	r3, [r1, #20]	@ unaligned
+ 844 000c 07EE903A 		vmov	s15, r3	@ int
+ 845              		.loc 1 506 8 view .LVU48
+ 846 0010 9FEDCC7A 		vldr.32	s14, .L35
+ 847 0014 F4EEC77A 		vcmpe.f32	s15, s14
+ 848 0018 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 849 001c 05D5     		bpl	.L15
+ 850              		.loc 1 506 55 discriminator 1 view .LVU49
+ 851 001e F5EEC07A 		vcmpe.f32	s15, #0
+ 852 0022 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 853 0026 80F2B080 		bge	.L30
+ 854              	.L15:
+ 507:application/config/infantry_robot/infantry_config.c ****         UIArcDraw(&UI_graph_Arc[3], "ss3", UI_Graph_Change, 7, UI_Color_Pink, _Interactive_data->ch
+ 508:application/config/infantry_robot/infantry_config.c ****     else if (_Interactive_data->chassis_offset_angle > -180 && _Interactive_data->chassis_offset_an
+ 855              		.loc 1 508 10 is_stmt 1 view .LVU50
+ 856              		.loc 1 508 13 is_stmt 0 view .LVU51
+ 857 002a 9FEDC77A 		vldr.32	s14, .L35+4
+ 858 002e F4EEC77A 		vcmpe.f32	s15, s14
+ 859 0032 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 860 0036 05DD     		ble	.L18
+ 861              		.loc 1 508 61 discriminator 1 view .LVU52
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccopmDN6.s 			page 25
+
+
+ 862 0038 F5EEC07A 		vcmpe.f32	s15, #0
+ 863 003c F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 864 0040 00F1C580 		bmi	.L31
+ 865              	.LVL41:
+ 866              	.L18:
+ 509:application/config/infantry_robot/infantry_config.c ****         UIArcDraw(&UI_graph_Arc[3], "ss3", UI_Graph_Change, 7, UI_Color_Pink, 360 + (_Interactive_d
+ 510:application/config/infantry_robot/infantry_config.c ****     UIGraphRefresh(&referee_recv_info->referee_id, 1, UI_graph_Arc[3]);
+ 867              		.loc 1 510 5 is_stmt 1 view .LVU53
+ 868 0044 C14B     		ldr	r3, .L35+8
+ 869 0046 D3F83500 		ldr	r0, [r3, #53]	@ unaligned
+ 870 004a 0090     		str	r0, [sp]
+ 871 004c B3F83910 		ldrh	r1, [r3, #57]	@ unaligned
+ 872 0050 93F83B20 		ldrb	r2, [r3, #59]	@ zero_extendqisi2
+ 873 0054 ADF80410 		strh	r1, [sp, #4]	@ unaligned
+ 874 0058 8DF80620 		strb	r2, [sp, #6]
+ 875 005c D3F82D20 		ldr	r2, [r3, #45]	@ unaligned
+ 876 0060 D3F83130 		ldr	r3, [r3, #49]	@ unaligned
+ 877 0064 0121     		movs	r1, #1
+ 878 0066 3046     		mov	r0, r6
+ 879 0068 FFF7FEFF 		bl	UIGraphRefresh
+ 880              	.LVL42:
+ 511:application/config/infantry_robot/infantry_config.c **** 
+ 512:application/config/infantry_robot/infantry_config.c ****     UIArcDraw(&UI_pitch_line[5], "so6", UI_Graph_Change, 5, UI_Color_Purplish_red, 88 - _Interactiv
+ 881              		.loc 1 512 5 view .LVU54
+ 882              		.loc 1 512 106 is_stmt 0 view .LVU55
+ 883 006c A369     		ldr	r3, [r4, #24]	@ unaligned
+ 884 006e 06EE903A 		vmov	s13, r3	@ int
+ 885              		.loc 1 512 87 view .LVU56
+ 886 0072 DFEDB77A 		vldr.32	s15, .L35+12
+ 887 0076 77EEE67A 		vsub.f32	s15, s15, s13
+ 888              		.loc 1 512 124 view .LVU57
+ 889 007a 9FEDB67A 		vldr.32	s14, .L35+16
+ 890 007e 37EE667A 		vsub.f32	s14, s14, s13
+ 891              		.loc 1 512 5 view .LVU58
+ 892 0082 B54D     		ldr	r5, .L35+20
+ 893 0084 4FF4B473 		mov	r3, #360
+ 894 0088 0793     		str	r3, [sp, #28]
+ 895 008a 0693     		str	r3, [sp, #24]
+ 896 008c 40F21A23 		movw	r3, #538
+ 897 0090 0593     		str	r3, [sp, #20]
+ 898 0092 40F2BE33 		movw	r3, #958
+ 899 0096 0493     		str	r3, [sp, #16]
+ 900 0098 1423     		movs	r3, #20
+ 901 009a 0393     		str	r3, [sp, #12]
+ 902 009c BCEEC77A 		vcvt.u32.f32	s14, s14
+ 903 00a0 8DED027A 		vstr.32	s14, [sp, #8]	@ int
+ 904 00a4 FCEEE77A 		vcvt.u32.f32	s15, s15
+ 905 00a8 CDED017A 		vstr.32	s15, [sp, #4]	@ int
+ 906 00ac 0423     		movs	r3, #4
+ 907 00ae 0093     		str	r3, [sp]
+ 908 00b0 0523     		movs	r3, #5
+ 909 00b2 0222     		movs	r2, #2
+ 910 00b4 A949     		ldr	r1, .L35+24
+ 911 00b6 2846     		mov	r0, r5
+ 912 00b8 FFF7FEFF 		bl	UIArcDraw
+ 913              	.LVL43:
+ 513:application/config/infantry_robot/infantry_config.c ****     UIGraphRefresh(&referee_recv_info->referee_id, 5, UI_pitch_line[5]);
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccopmDN6.s 			page 26
+
+
+ 914              		.loc 1 513 5 is_stmt 1 view .LVU59
+ 915 00bc 2B46     		mov	r3, r5
+ 916 00be 53F84B29 		ldr	r2, [r3], #-75	@ unaligned
+ 917 00c2 A868     		ldr	r0, [r5, #8]	@ unaligned
+ 918 00c4 0090     		str	r0, [sp]
+ 919 00c6 A889     		ldrh	r0, [r5, #12]	@ unaligned
+ 920 00c8 A97B     		ldrb	r1, [r5, #14]	@ zero_extendqisi2
+ 921 00ca ADF80400 		strh	r0, [sp, #4]	@ unaligned
+ 922 00ce 8DF80610 		strb	r1, [sp, #6]
+ 923 00d2 D3F84F30 		ldr	r3, [r3, #79]	@ unaligned
+ 924 00d6 0521     		movs	r1, #5
+ 925 00d8 3046     		mov	r0, r6
+ 926 00da FFF7FEFF 		bl	UIGraphRefresh
+ 927              	.LVL44:
+ 514:application/config/infantry_robot/infantry_config.c **** 
+ 515:application/config/infantry_robot/infantry_config.c ****     if (_Interactive_data->friction_mode == FRICTION_OFF)
+ 928              		.loc 1 515 5 view .LVU60
+ 929              		.loc 1 515 26 is_stmt 0 view .LVU61
+ 930 00de 2379     		ldrb	r3, [r4, #4]	@ zero_extendqisi2
+ 931              		.loc 1 515 8 view .LVU62
+ 932 00e0 002B     		cmp	r3, #0
+ 933 00e2 00F09C80 		beq	.L32
+ 516:application/config/infantry_robot/infantry_config.c ****     {
+ 517:application/config/infantry_robot/infantry_config.c ****         UILineDraw(&UI_shoot_line[6], "sl6", UI_Graph_Change, 7, UI_Color_Purplish_red, 4, 1481, 68
+ 518:application/config/infantry_robot/infantry_config.c ****         UILineDraw(&UI_shoot_line[7], "sl7", UI_Graph_Change, 7, UI_Color_Purplish_red, 4, 1555, 68
+ 519:application/config/infantry_robot/infantry_config.c ****         UIGraphRefresh(&referee_recv_info->referee_id, 2, UI_shoot_line[6], UI_shoot_line[7]); 
+ 520:application/config/infantry_robot/infantry_config.c ****     }
+ 521:application/config/infantry_robot/infantry_config.c ****     else 
+ 522:application/config/infantry_robot/infantry_config.c ****     {
+ 523:application/config/infantry_robot/infantry_config.c ****         if (_Interactive_data->bullet_speed == SMALL_AMU_15)
+ 934              		.loc 1 523 9 is_stmt 1 view .LVU63
+ 935              		.loc 1 523 30 is_stmt 0 view .LVU64
+ 936 00e6 E37C     		ldrb	r3, [r4, #19]	@ zero_extendqisi2
+ 937              		.loc 1 523 12 view .LVU65
+ 938 00e8 0F2B     		cmp	r3, #15
+ 939 00ea 00F0E180 		beq	.L33
+ 524:application/config/infantry_robot/infantry_config.c ****         {
+ 525:application/config/infantry_robot/infantry_config.c ****             UILineDraw(&UI_shoot_line[6], "sl6", UI_Graph_Change, 7, UI_Color_Purplish_red, 4, 1481
+ 526:application/config/infantry_robot/infantry_config.c ****             UILineDraw(&UI_shoot_line[7], "sl7", UI_Graph_Change, 7, UI_Color_Purplish_red, 4, 1555
+ 527:application/config/infantry_robot/infantry_config.c ****             UIGraphRefresh(&referee_recv_info->referee_id, 2, UI_shoot_line[6], UI_shoot_line[7]); 
+ 528:application/config/infantry_robot/infantry_config.c ****         }
+ 529:application/config/infantry_robot/infantry_config.c ****         else if (_Interactive_data->bullet_speed == SMALL_AMU_18)
+ 940              		.loc 1 529 14 is_stmt 1 view .LVU66
+ 941              		.loc 1 529 17 is_stmt 0 view .LVU67
+ 942 00ee 122B     		cmp	r3, #18
+ 943 00f0 00F04281 		beq	.L34
+ 530:application/config/infantry_robot/infantry_config.c ****         {
+ 531:application/config/infantry_robot/infantry_config.c ****             UILineDraw(&UI_shoot_line[6], "sl6", UI_Graph_Change, 7, UI_Color_Purplish_red, 4, 1481
+ 532:application/config/infantry_robot/infantry_config.c ****             UILineDraw(&UI_shoot_line[7], "sl7", UI_Graph_Change, 7, UI_Color_Purplish_red, 4, 1555
+ 533:application/config/infantry_robot/infantry_config.c ****             UIGraphRefresh(&referee_recv_info->referee_id, 2, UI_shoot_line[6], UI_shoot_line[7]); 
+ 534:application/config/infantry_robot/infantry_config.c ****         }
+ 535:application/config/infantry_robot/infantry_config.c ****         else
+ 536:application/config/infantry_robot/infantry_config.c ****         {
+ 537:application/config/infantry_robot/infantry_config.c ****             UILineDraw(&UI_shoot_line[6], "sl6", UI_Graph_Change, 7, UI_Color_Purplish_red, 4, 1481
+ 944              		.loc 1 537 13 is_stmt 1 view .LVU68
+ 945 00f4 9A4C     		ldr	r4, .L35+28
+ 946              	.LVL45:
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccopmDN6.s 			page 27
+
+
+ 947              		.loc 1 537 13 is_stmt 0 view .LVU69
+ 948 00f6 4FF44178 		mov	r8, #772
+ 949 00fa CDF81480 		str	r8, [sp, #20]
+ 950 00fe 40F2E353 		movw	r3, #1507
+ 951 0102 0493     		str	r3, [sp, #16]
+ 952 0104 CDF80C80 		str	r8, [sp, #12]
+ 953 0108 40F2C953 		movw	r3, #1481
+ 954 010c 0293     		str	r3, [sp, #8]
+ 955 010e 0427     		movs	r7, #4
+ 956 0110 0197     		str	r7, [sp, #4]
+ 957 0112 0097     		str	r7, [sp]
+ 958 0114 0723     		movs	r3, #7
+ 959 0116 0222     		movs	r2, #2
+ 960 0118 9249     		ldr	r1, .L35+32
+ 961 011a 2046     		mov	r0, r4
+ 962 011c FFF7FEFF 		bl	UILineDraw
+ 963              	.LVL46:
+ 538:application/config/infantry_robot/infantry_config.c ****             UILineDraw(&UI_shoot_line[7], "sl7", UI_Graph_Change, 7, UI_Color_Purplish_red, 4, 1555
+ 964              		.loc 1 538 13 is_stmt 1 view .LVU70
+ 965 0120 04F10F05 		add	r5, r4, #15
+ 966 0124 CDF81480 		str	r8, [sp, #20]
+ 967 0128 40F22D63 		movw	r3, #1581
+ 968 012c 0493     		str	r3, [sp, #16]
+ 969 012e CDF80C80 		str	r8, [sp, #12]
+ 970 0132 40F21363 		movw	r3, #1555
+ 971 0136 0293     		str	r3, [sp, #8]
+ 972 0138 0197     		str	r7, [sp, #4]
+ 973 013a 0097     		str	r7, [sp]
+ 974 013c 0723     		movs	r3, #7
+ 975 013e 0222     		movs	r2, #2
+ 976 0140 8949     		ldr	r1, .L35+36
+ 977 0142 2846     		mov	r0, r5
+ 978 0144 FFF7FEFF 		bl	UILineDraw
+ 979              	.LVL47:
+ 539:application/config/infantry_robot/infantry_config.c ****             UIGraphRefresh(&referee_recv_info->referee_id, 2, UI_shoot_line[6], UI_shoot_line[7]); 
+ 980              		.loc 1 539 13 view .LVU71
+ 981 0148 2746     		mov	r7, r4
+ 982 014a 02AB     		add	r3, sp, #8
+ 983 014c D4F80F00 		ldr	r0, [r4, #15]	@ unaligned
+ 984 0150 D4F81310 		ldr	r1, [r4, #19]	@ unaligned
+ 985 0154 D4F81720 		ldr	r2, [r4, #23]	@ unaligned
+ 986 0158 07C3     		stmia	r3!, {r0, r1, r2}
+ 987 015a B4F81B10 		ldrh	r1, [r4, #27]	@ unaligned
+ 988 015e 627F     		ldrb	r2, [r4, #29]	@ zero_extendqisi2
+ 989 0160 1980     		strh	r1, [r3]	@ unaligned
+ 990 0162 9A70     		strb	r2, [r3, #2]
+ 991 0164 57F85A29 		ldr	r2, [r7], #-90	@ unaligned
+ 992 0168 A068     		ldr	r0, [r4, #8]	@ unaligned
+ 993 016a 0090     		str	r0, [sp]
+ 994 016c A189     		ldrh	r1, [r4, #12]	@ unaligned
+ 995 016e A37B     		ldrb	r3, [r4, #14]	@ zero_extendqisi2
+ 996 0170 ADF80410 		strh	r1, [sp, #4]	@ unaligned
+ 997 0174 8DF80630 		strb	r3, [sp, #6]
+ 998 0178 D7F85E30 		ldr	r3, [r7, #94]	@ unaligned
+ 999 017c 0221     		movs	r1, #2
+ 1000 017e 3046     		mov	r0, r6
+ 1001 0180 FFF7FEFF 		bl	UIGraphRefresh
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccopmDN6.s 			page 28
+
+
+ 1002              	.LVL48:
+ 1003              	.L14:
+ 540:application/config/infantry_robot/infantry_config.c ****         }        
+ 541:application/config/infantry_robot/infantry_config.c ****     }
+ 542:application/config/infantry_robot/infantry_config.c **** 
+ 543:application/config/infantry_robot/infantry_config.c **** 
+ 544:application/config/infantry_robot/infantry_config.c **** 
+ 545:application/config/infantry_robot/infantry_config.c ****     // UILineDraw(&UI_pitch_line[5], "so6", UI_Graph_Change, 5, UI_Color_Purplish_red, 15, 1275, 53
+ 546:application/config/infantry_robot/infantry_config.c ****     // UIGraphRefresh(&referee_recv_info->referee_id, 5, UI_pitch_line[5]);
+ 547:application/config/infantry_robot/infantry_config.c **** }
+ 1004              		.loc 1 547 1 is_stmt 0 view .LVU72
+ 1005 0184 08B0     		add	sp, sp, #32
+ 1006              	.LCFI5:
+ 1007              		.cfi_remember_state
+ 1008              		.cfi_def_cfa_offset 24
+ 1009              		@ sp needed
+ 1010 0186 BDE8F081 		pop	{r4, r5, r6, r7, r8, pc}
+ 1011              	.LVL49:
+ 1012              	.L30:
+ 1013              	.LCFI6:
+ 1014              		.cfi_restore_state
+ 507:application/config/infantry_robot/infantry_config.c ****     else if (_Interactive_data->chassis_offset_angle > -180 && _Interactive_data->chassis_offset_an
+ 1015              		.loc 1 507 9 is_stmt 1 view .LVU73
+ 507:application/config/infantry_robot/infantry_config.c ****     else if (_Interactive_data->chassis_offset_angle > -180 && _Interactive_data->chassis_offset_an
+ 1016              		.loc 1 507 119 is_stmt 0 view .LVU74
+ 1017 018a F2EE046A 		vmov.f32	s13, #1.0e+1
+ 1018 018e 37EEE67A 		vsub.f32	s14, s15, s13
+ 507:application/config/infantry_robot/infantry_config.c ****     else if (_Interactive_data->chassis_offset_angle > -180 && _Interactive_data->chassis_offset_an
+ 1019              		.loc 1 507 165 view .LVU75
+ 1020 0192 77EEA67A 		vadd.f32	s15, s15, s13
+ 507:application/config/infantry_robot/infantry_config.c ****     else if (_Interactive_data->chassis_offset_angle > -180 && _Interactive_data->chassis_offset_an
+ 1021              		.loc 1 507 9 view .LVU76
+ 1022 0196 6423     		movs	r3, #100
+ 1023 0198 0793     		str	r3, [sp, #28]
+ 1024 019a 0693     		str	r3, [sp, #24]
+ 1025 019c 40F2D523 		movw	r3, #725
+ 1026 01a0 0593     		str	r3, [sp, #20]
+ 1027 01a2 40F2F453 		movw	r3, #1524
+ 1028 01a6 0493     		str	r3, [sp, #16]
+ 1029 01a8 0F23     		movs	r3, #15
+ 1030 01aa 0393     		str	r3, [sp, #12]
+ 1031 01ac FCEEE77A 		vcvt.u32.f32	s15, s15
+ 1032 01b0 CDED027A 		vstr.32	s15, [sp, #8]	@ int
+ 1033 01b4 BCEEC77A 		vcvt.u32.f32	s14, s14
+ 1034 01b8 8DED017A 		vstr.32	s14, [sp, #4]	@ int
+ 1035 01bc 0523     		movs	r3, #5
+ 1036 01be 0093     		str	r3, [sp]
+ 1037 01c0 0723     		movs	r3, #7
+ 1038 01c2 0222     		movs	r2, #2
+ 1039 01c4 6949     		ldr	r1, .L35+40
+ 1040              	.LVL50:
+ 507:application/config/infantry_robot/infantry_config.c ****     else if (_Interactive_data->chassis_offset_angle > -180 && _Interactive_data->chassis_offset_an
+ 1041              		.loc 1 507 9 view .LVU77
+ 1042 01c6 6A48     		ldr	r0, .L35+44
+ 1043              	.LVL51:
+ 507:application/config/infantry_robot/infantry_config.c ****     else if (_Interactive_data->chassis_offset_angle > -180 && _Interactive_data->chassis_offset_an
+ 1044              		.loc 1 507 9 view .LVU78
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccopmDN6.s 			page 29
+
+
+ 1045 01c8 FFF7FEFF 		bl	UIArcDraw
+ 1046              	.LVL52:
+ 1047 01cc 3AE7     		b	.L18
+ 1048              	.LVL53:
+ 1049              	.L31:
+ 509:application/config/infantry_robot/infantry_config.c ****     UIGraphRefresh(&referee_recv_info->referee_id, 1, UI_graph_Arc[3]);
+ 1050              		.loc 1 509 9 is_stmt 1 view .LVU79
+ 509:application/config/infantry_robot/infantry_config.c ****     UIGraphRefresh(&referee_recv_info->referee_id, 1, UI_graph_Arc[3]);
+ 1051              		.loc 1 509 126 is_stmt 0 view .LVU80
+ 1052 01ce B2EE046A 		vmov.f32	s12, #1.0e+1
+ 1053 01d2 37EEC67A 		vsub.f32	s14, s15, s12
+ 509:application/config/infantry_robot/infantry_config.c ****     UIGraphRefresh(&referee_recv_info->referee_id, 1, UI_graph_Arc[3]);
+ 1054              		.loc 1 509 83 view .LVU81
+ 1055 01d6 DFED676A 		vldr.32	s13, .L35+48
+ 1056 01da 37EE267A 		vadd.f32	s14, s14, s13
+ 509:application/config/infantry_robot/infantry_config.c ****     UIGraphRefresh(&referee_recv_info->referee_id, 1, UI_graph_Arc[3]);
+ 1057              		.loc 1 509 180 view .LVU82
+ 1058 01de 77EE867A 		vadd.f32	s15, s15, s12
+ 509:application/config/infantry_robot/infantry_config.c ****     UIGraphRefresh(&referee_recv_info->referee_id, 1, UI_graph_Arc[3]);
+ 1059              		.loc 1 509 137 view .LVU83
+ 1060 01e2 77EEA67A 		vadd.f32	s15, s15, s13
+ 509:application/config/infantry_robot/infantry_config.c ****     UIGraphRefresh(&referee_recv_info->referee_id, 1, UI_graph_Arc[3]);
+ 1061              		.loc 1 509 9 view .LVU84
+ 1062 01e6 6423     		movs	r3, #100
+ 1063 01e8 0793     		str	r3, [sp, #28]
+ 1064 01ea 0693     		str	r3, [sp, #24]
+ 1065 01ec 40F2D523 		movw	r3, #725
+ 1066 01f0 0593     		str	r3, [sp, #20]
+ 1067 01f2 40F2F453 		movw	r3, #1524
+ 1068 01f6 0493     		str	r3, [sp, #16]
+ 1069 01f8 0F23     		movs	r3, #15
+ 1070 01fa 0393     		str	r3, [sp, #12]
+ 1071 01fc FCEEE77A 		vcvt.u32.f32	s15, s15
+ 1072 0200 CDED027A 		vstr.32	s15, [sp, #8]	@ int
+ 1073 0204 BCEEC77A 		vcvt.u32.f32	s14, s14
+ 1074 0208 8DED017A 		vstr.32	s14, [sp, #4]	@ int
+ 1075 020c 0523     		movs	r3, #5
+ 1076 020e 0093     		str	r3, [sp]
+ 1077 0210 0723     		movs	r3, #7
+ 1078 0212 0222     		movs	r2, #2
+ 1079 0214 5549     		ldr	r1, .L35+40
+ 1080              	.LVL54:
+ 509:application/config/infantry_robot/infantry_config.c ****     UIGraphRefresh(&referee_recv_info->referee_id, 1, UI_graph_Arc[3]);
+ 1081              		.loc 1 509 9 view .LVU85
+ 1082 0216 5648     		ldr	r0, .L35+44
+ 1083              	.LVL55:
+ 509:application/config/infantry_robot/infantry_config.c ****     UIGraphRefresh(&referee_recv_info->referee_id, 1, UI_graph_Arc[3]);
+ 1084              		.loc 1 509 9 view .LVU86
+ 1085 0218 FFF7FEFF 		bl	UIArcDraw
+ 1086              	.LVL56:
+ 1087 021c 12E7     		b	.L18
+ 1088              	.L32:
+ 517:application/config/infantry_robot/infantry_config.c ****         UILineDraw(&UI_shoot_line[7], "sl7", UI_Graph_Change, 7, UI_Color_Purplish_red, 4, 1555, 68
+ 1089              		.loc 1 517 9 is_stmt 1 view .LVU87
+ 1090 021e 504C     		ldr	r4, .L35+28
+ 1091              	.LVL57:
+ 517:application/config/infantry_robot/infantry_config.c ****         UILineDraw(&UI_shoot_line[7], "sl7", UI_Graph_Change, 7, UI_Color_Purplish_red, 4, 1555, 68
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccopmDN6.s 			page 30
+
+
+ 1092              		.loc 1 517 9 is_stmt 0 view .LVU88
+ 1093 0220 40F2AA28 		movw	r8, #682
+ 1094 0224 CDF81480 		str	r8, [sp, #20]
+ 1095 0228 40F2E353 		movw	r3, #1507
+ 1096 022c 0493     		str	r3, [sp, #16]
+ 1097 022e CDF80C80 		str	r8, [sp, #12]
+ 1098 0232 40F2C953 		movw	r3, #1481
+ 1099 0236 0293     		str	r3, [sp, #8]
+ 1100 0238 0427     		movs	r7, #4
+ 1101 023a 0197     		str	r7, [sp, #4]
+ 1102 023c 0097     		str	r7, [sp]
+ 1103 023e 0723     		movs	r3, #7
+ 1104 0240 0222     		movs	r2, #2
+ 1105 0242 4849     		ldr	r1, .L35+32
+ 1106 0244 2046     		mov	r0, r4
+ 1107 0246 FFF7FEFF 		bl	UILineDraw
+ 1108              	.LVL58:
+ 518:application/config/infantry_robot/infantry_config.c ****         UIGraphRefresh(&referee_recv_info->referee_id, 2, UI_shoot_line[6], UI_shoot_line[7]); 
+ 1109              		.loc 1 518 9 is_stmt 1 view .LVU89
+ 1110 024a 04F10F05 		add	r5, r4, #15
+ 1111 024e CDF81480 		str	r8, [sp, #20]
+ 1112 0252 40F22D63 		movw	r3, #1581
+ 1113 0256 0493     		str	r3, [sp, #16]
+ 1114 0258 CDF80C80 		str	r8, [sp, #12]
+ 1115 025c 40F21363 		movw	r3, #1555
+ 1116 0260 0293     		str	r3, [sp, #8]
+ 1117 0262 0197     		str	r7, [sp, #4]
+ 1118 0264 0097     		str	r7, [sp]
+ 1119 0266 0723     		movs	r3, #7
+ 1120 0268 0222     		movs	r2, #2
+ 1121 026a 3F49     		ldr	r1, .L35+36
+ 1122 026c 2846     		mov	r0, r5
+ 1123 026e FFF7FEFF 		bl	UILineDraw
+ 1124              	.LVL59:
+ 519:application/config/infantry_robot/infantry_config.c ****     }
+ 1125              		.loc 1 519 9 view .LVU90
+ 1126 0272 2746     		mov	r7, r4
+ 1127 0274 02AB     		add	r3, sp, #8
+ 1128 0276 D4F80F00 		ldr	r0, [r4, #15]	@ unaligned
+ 1129 027a D4F81310 		ldr	r1, [r4, #19]	@ unaligned
+ 1130 027e D4F81720 		ldr	r2, [r4, #23]	@ unaligned
+ 1131 0282 07C3     		stmia	r3!, {r0, r1, r2}
+ 1132 0284 B4F81B10 		ldrh	r1, [r4, #27]	@ unaligned
+ 1133 0288 627F     		ldrb	r2, [r4, #29]	@ zero_extendqisi2
+ 1134 028a 1980     		strh	r1, [r3]	@ unaligned
+ 1135 028c 9A70     		strb	r2, [r3, #2]
+ 1136 028e 57F85A29 		ldr	r2, [r7], #-90	@ unaligned
+ 1137 0292 A068     		ldr	r0, [r4, #8]	@ unaligned
+ 1138 0294 0090     		str	r0, [sp]
+ 1139 0296 A189     		ldrh	r1, [r4, #12]	@ unaligned
+ 1140 0298 A37B     		ldrb	r3, [r4, #14]	@ zero_extendqisi2
+ 1141 029a ADF80410 		strh	r1, [sp, #4]	@ unaligned
+ 1142 029e 8DF80630 		strb	r3, [sp, #6]
+ 1143 02a2 D7F85E30 		ldr	r3, [r7, #94]	@ unaligned
+ 1144 02a6 0221     		movs	r1, #2
+ 1145 02a8 3046     		mov	r0, r6
+ 1146 02aa FFF7FEFF 		bl	UIGraphRefresh
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccopmDN6.s 			page 31
+
+
+ 1147              	.LVL60:
+ 1148 02ae 69E7     		b	.L14
+ 1149              	.LVL61:
+ 1150              	.L33:
+ 525:application/config/infantry_robot/infantry_config.c ****             UILineDraw(&UI_shoot_line[7], "sl7", UI_Graph_Change, 7, UI_Color_Purplish_red, 4, 1555
+ 1151              		.loc 1 525 13 view .LVU91
+ 1152 02b0 2B4C     		ldr	r4, .L35+28
+ 1153              	.LVL62:
+ 525:application/config/infantry_robot/infantry_config.c ****             UILineDraw(&UI_shoot_line[7], "sl7", UI_Graph_Change, 7, UI_Color_Purplish_red, 4, 1555
+ 1154              		.loc 1 525 13 is_stmt 0 view .LVU92
+ 1155 02b2 4FF43278 		mov	r8, #712
+ 1156 02b6 CDF81480 		str	r8, [sp, #20]
+ 1157 02ba 40F2E353 		movw	r3, #1507
+ 1158 02be 0493     		str	r3, [sp, #16]
+ 1159 02c0 CDF80C80 		str	r8, [sp, #12]
+ 1160 02c4 40F2C953 		movw	r3, #1481
+ 1161 02c8 0293     		str	r3, [sp, #8]
+ 1162 02ca 0427     		movs	r7, #4
+ 1163 02cc 0197     		str	r7, [sp, #4]
+ 1164 02ce 0097     		str	r7, [sp]
+ 1165 02d0 0723     		movs	r3, #7
+ 1166 02d2 0222     		movs	r2, #2
+ 1167 02d4 2349     		ldr	r1, .L35+32
+ 1168 02d6 2046     		mov	r0, r4
+ 1169 02d8 FFF7FEFF 		bl	UILineDraw
+ 1170              	.LVL63:
+ 526:application/config/infantry_robot/infantry_config.c ****             UIGraphRefresh(&referee_recv_info->referee_id, 2, UI_shoot_line[6], UI_shoot_line[7]); 
+ 1171              		.loc 1 526 13 is_stmt 1 view .LVU93
+ 1172 02dc 04F10F05 		add	r5, r4, #15
+ 1173 02e0 CDF81480 		str	r8, [sp, #20]
+ 1174 02e4 40F22D63 		movw	r3, #1581
+ 1175 02e8 0493     		str	r3, [sp, #16]
+ 1176 02ea CDF80C80 		str	r8, [sp, #12]
+ 1177 02ee 40F21363 		movw	r3, #1555
+ 1178 02f2 0293     		str	r3, [sp, #8]
+ 1179 02f4 0197     		str	r7, [sp, #4]
+ 1180 02f6 0097     		str	r7, [sp]
+ 1181 02f8 0723     		movs	r3, #7
+ 1182 02fa 0222     		movs	r2, #2
+ 1183 02fc 1A49     		ldr	r1, .L35+36
+ 1184 02fe 2846     		mov	r0, r5
+ 1185 0300 FFF7FEFF 		bl	UILineDraw
+ 1186              	.LVL64:
+ 527:application/config/infantry_robot/infantry_config.c ****         }
+ 1187              		.loc 1 527 13 view .LVU94
+ 1188 0304 2746     		mov	r7, r4
+ 1189 0306 02AB     		add	r3, sp, #8
+ 1190 0308 D4F80F00 		ldr	r0, [r4, #15]	@ unaligned
+ 1191 030c D4F81310 		ldr	r1, [r4, #19]	@ unaligned
+ 1192 0310 D4F81720 		ldr	r2, [r4, #23]	@ unaligned
+ 1193 0314 07C3     		stmia	r3!, {r0, r1, r2}
+ 1194 0316 B4F81B10 		ldrh	r1, [r4, #27]	@ unaligned
+ 1195 031a 627F     		ldrb	r2, [r4, #29]	@ zero_extendqisi2
+ 1196 031c 1980     		strh	r1, [r3]	@ unaligned
+ 1197 031e 9A70     		strb	r2, [r3, #2]
+ 1198 0320 57F85A29 		ldr	r2, [r7], #-90	@ unaligned
+ 1199 0324 A068     		ldr	r0, [r4, #8]	@ unaligned
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccopmDN6.s 			page 32
+
+
+ 1200 0326 0090     		str	r0, [sp]
+ 1201 0328 A189     		ldrh	r1, [r4, #12]	@ unaligned
+ 1202 032a A37B     		ldrb	r3, [r4, #14]	@ zero_extendqisi2
+ 1203 032c ADF80410 		strh	r1, [sp, #4]	@ unaligned
+ 1204 0330 8DF80630 		strb	r3, [sp, #6]
+ 1205 0334 D7F85E30 		ldr	r3, [r7, #94]	@ unaligned
+ 1206 0338 0221     		movs	r1, #2
+ 1207 033a 3046     		mov	r0, r6
+ 1208 033c FFF7FEFF 		bl	UIGraphRefresh
+ 1209              	.LVL65:
+ 1210 0340 20E7     		b	.L14
+ 1211              	.L36:
+ 1212 0342 00BF     		.align	2
+ 1213              	.L35:
+ 1214 0344 00003443 		.word	1127481344
+ 1215 0348 000034C3 		.word	-1020002304
+ 1216 034c 00000000 		.word	UI_graph_Arc
+ 1217 0350 0000B042 		.word	1118830592
+ 1218 0354 0000B842 		.word	1119354880
+ 1219 0358 4B000000 		.word	UI_pitch_line+75
+ 1220 035c 2C000000 		.word	.LC11
+ 1221 0360 5A000000 		.word	UI_shoot_line+90
+ 1222 0364 4C000000 		.word	.LC19
+ 1223 0368 50000000 		.word	.LC20
+ 1224 036c 3C000000 		.word	.LC15
+ 1225 0370 2D000000 		.word	UI_graph_Arc+45
+ 1226 0374 0000B443 		.word	1135869952
+ 1227              	.LVL66:
+ 1228              	.L34:
+ 531:application/config/infantry_robot/infantry_config.c ****             UILineDraw(&UI_shoot_line[7], "sl7", UI_Graph_Change, 7, UI_Color_Purplish_red, 4, 1555
+ 1229              		.loc 1 531 13 view .LVU95
+ 1230 0378 244C     		ldr	r4, .L37
+ 1231              	.LVL67:
+ 531:application/config/infantry_robot/infantry_config.c ****             UILineDraw(&UI_shoot_line[7], "sl7", UI_Graph_Change, 7, UI_Color_Purplish_red, 4, 1555
+ 1232              		.loc 1 531 13 is_stmt 0 view .LVU96
+ 1233 037a 40F2E628 		movw	r8, #742
+ 1234 037e CDF81480 		str	r8, [sp, #20]
+ 1235 0382 40F2E353 		movw	r3, #1507
+ 1236 0386 0493     		str	r3, [sp, #16]
+ 1237 0388 CDF80C80 		str	r8, [sp, #12]
+ 1238 038c 40F2C953 		movw	r3, #1481
+ 1239 0390 0293     		str	r3, [sp, #8]
+ 1240 0392 0427     		movs	r7, #4
+ 1241 0394 0197     		str	r7, [sp, #4]
+ 1242 0396 0097     		str	r7, [sp]
+ 1243 0398 0723     		movs	r3, #7
+ 1244 039a 0222     		movs	r2, #2
+ 1245 039c 1C49     		ldr	r1, .L37+4
+ 1246 039e 2046     		mov	r0, r4
+ 1247 03a0 FFF7FEFF 		bl	UILineDraw
+ 1248              	.LVL68:
+ 532:application/config/infantry_robot/infantry_config.c ****             UIGraphRefresh(&referee_recv_info->referee_id, 2, UI_shoot_line[6], UI_shoot_line[7]); 
+ 1249              		.loc 1 532 13 is_stmt 1 view .LVU97
+ 1250 03a4 04F10F05 		add	r5, r4, #15
+ 1251 03a8 CDF81480 		str	r8, [sp, #20]
+ 1252 03ac 40F22D63 		movw	r3, #1581
+ 1253 03b0 0493     		str	r3, [sp, #16]
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccopmDN6.s 			page 33
+
+
+ 1254 03b2 CDF80C80 		str	r8, [sp, #12]
+ 1255 03b6 40F21363 		movw	r3, #1555
+ 1256 03ba 0293     		str	r3, [sp, #8]
+ 1257 03bc 0197     		str	r7, [sp, #4]
+ 1258 03be 0097     		str	r7, [sp]
+ 1259 03c0 0723     		movs	r3, #7
+ 1260 03c2 0222     		movs	r2, #2
+ 1261 03c4 1349     		ldr	r1, .L37+8
+ 1262 03c6 2846     		mov	r0, r5
+ 1263 03c8 FFF7FEFF 		bl	UILineDraw
+ 1264              	.LVL69:
+ 533:application/config/infantry_robot/infantry_config.c ****         }
+ 1265              		.loc 1 533 13 view .LVU98
+ 1266 03cc 2746     		mov	r7, r4
+ 1267 03ce 02AB     		add	r3, sp, #8
+ 1268 03d0 D4F80F00 		ldr	r0, [r4, #15]	@ unaligned
+ 1269 03d4 D4F81310 		ldr	r1, [r4, #19]	@ unaligned
+ 1270 03d8 D4F81720 		ldr	r2, [r4, #23]	@ unaligned
+ 1271 03dc 07C3     		stmia	r3!, {r0, r1, r2}
+ 1272 03de B4F81B10 		ldrh	r1, [r4, #27]	@ unaligned
+ 1273 03e2 627F     		ldrb	r2, [r4, #29]	@ zero_extendqisi2
+ 1274 03e4 1980     		strh	r1, [r3]	@ unaligned
+ 1275 03e6 9A70     		strb	r2, [r3, #2]
+ 1276 03e8 57F85A29 		ldr	r2, [r7], #-90	@ unaligned
+ 1277 03ec A068     		ldr	r0, [r4, #8]	@ unaligned
+ 1278 03ee 0090     		str	r0, [sp]
+ 1279 03f0 A189     		ldrh	r1, [r4, #12]	@ unaligned
+ 1280 03f2 A37B     		ldrb	r3, [r4, #14]	@ zero_extendqisi2
+ 1281 03f4 ADF80410 		strh	r1, [sp, #4]	@ unaligned
+ 1282 03f8 8DF80630 		strb	r3, [sp, #6]
+ 1283 03fc D7F85E30 		ldr	r3, [r7, #94]	@ unaligned
+ 1284 0400 0221     		movs	r1, #2
+ 1285 0402 3046     		mov	r0, r6
+ 1286 0404 FFF7FEFF 		bl	UIGraphRefresh
+ 1287              	.LVL70:
+ 1288 0408 BCE6     		b	.L14
+ 1289              	.L38:
+ 1290 040a 00BF     		.align	2
+ 1291              	.L37:
+ 1292 040c 5A000000 		.word	UI_shoot_line+90
+ 1293 0410 4C000000 		.word	.LC19
+ 1294 0414 50000000 		.word	.LC20
+ 1295              		.cfi_endproc
+ 1296              	.LFE278:
+ 1298              		.section	.data.infantry_config_5.0,"aw"
+ 1299              		.align	2
+ 1302              	infantry_config_5.0:
+ 1303 0000 00       		.byte	0
+ 1304 0001 000000   		.space	3
+ 1305 0004 00000000 		.word	0
+ 1306 0008 00000000 		.word	0
+ 1307 000c 0000B943 		.word	1136197632
+ 1308 0010 0000D243 		.word	1137836032
+ 1309 0014 00009642 		.word	1117126656
+ 1310 0018 00009841 		.word	1100480512
+ 1311 001c 00000000 		.space	16
+ 1311      00000000 
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccopmDN6.s 			page 34
+
+
+ 1311      00000000 
+ 1311      00000000 
+ 1312 002c 0000003F 		.word	1056964608
+ 1313 0030 00000000 		.word	0
+ 1314 0034 00000000 		.word	0
+ 1315 0038 00606A46 		.word	1181376512
+ 1316 003c 00000000 		.space	4
+ 1317 0040 07       		.byte	7
+ 1318 0041 000000   		.space	3
+ 1319 0044 00803B45 		.word	1161527296
+ 1320 0048 00000000 		.space	16
+ 1320      00000000 
+ 1320      00000000 
+ 1320      00000000 
+ 1321 0058 0000A040 		.word	1084227584
+ 1322 005c 0000803F 		.word	1065353216
+ 1323 0060 00000000 		.word	0
+ 1324 0064 00803B46 		.word	1178304512
+ 1325 0068 00000000 		.space	4
+ 1326 006c 07       		.byte	7
+ 1327 006d 000000   		.space	3
+ 1328 0070 00803B45 		.word	1161527296
+ 1329 0074 00000000 		.space	16
+ 1329      00000000 
+ 1329      00000000 
+ 1329      00000000 
+ 1330 0084 00000000 		.space	44
+ 1330      00000000 
+ 1330      00000000 
+ 1330      00000000 
+ 1330      00000000 
+ 1331 00b0 02       		.byte	2
+ 1332 00b1 03       		.byte	3
+ 1333 00b2 0000     		.space	2
+ 1334 00b4 00       		.byte	0
+ 1335 00b5 00       		.byte	0
+ 1336 00b6 0000     		.space	2
+ 1337 00b8 02       		.byte	2
+ 1338 00b9 000000   		.space	3
+ 1339 00bc 00000000 		.word	hcan1
+ 1340 00c0 00000000 		.space	24
+ 1340      00000000 
+ 1340      00000000 
+ 1340      00000000 
+ 1340      00000000 
+ 1341 00d8 00000000 		.space	44
+ 1341      00000000 
+ 1341      00000000 
+ 1341      00000000 
+ 1341      00000000 
+ 1342 0104 03020401 		.ascii	"\003\002\004\001\000"
+ 1342      00
+ 1343 0109 000000   		.space	3
+ 1344 010c 00       		.byte	0
+ 1345 010d 000000   		.space	3
+ 1346 0110 00000000 		.space	4
+ 1347 0114 0060B945 		.word	1169776640
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccopmDN6.s 			page 35
+
+
+ 1348 0118 00007041 		.word	1097859072
+ 1349 011c 000020C2 		.word	-1038090240
+ 1350 0120 00000000 		.space	60
+ 1350      00000000 
+ 1350      00000000 
+ 1350      00000000 
+ 1350      00000000 
+ 1351 015c 00009643 		.word	1133903872
+ 1352 0160 00001643 		.word	1125515264
+ 1353 0164 00000000 		.word	0
+ 1354 0168 00409C46 		.word	1184645120
+ 1355 016c 00000000 		.space	4
+ 1356 0170 07       		.byte	7
+ 1357 0171 000000   		.space	3
+ 1358 0174 00803B45 		.word	1161527296
+ 1359 0178 00000000 		.space	16
+ 1359      00000000 
+ 1359      00000000 
+ 1359      00000000 
+ 1360 0188 00007041 		.word	1097859072
+ 1361 018c 00000000 		.word	0
+ 1362 0190 3333333F 		.word	1060320051
+ 1363 0194 0000FA43 		.word	1140457472
+ 1364 0198 CDCCCC3D 		.word	1036831949
+ 1365 019c 07       		.byte	7
+ 1366 019d 000000   		.space	3
+ 1367 01a0 0000C842 		.word	1120403456
+ 1368 01a4 00000000 		.space	16
+ 1368      00000000 
+ 1368      00000000 
+ 1368      00000000 
+ 1369 01b4 04       		.byte	4
+ 1370 01b5 06       		.byte	6
+ 1371 01b6 01       		.byte	1
+ 1372 01b7 00       		.byte	0
+ 1373 01b8 01       		.byte	1
+ 1374 01b9 01       		.byte	1
+ 1375 01ba 0000     		.space	2
+ 1376 01bc 01       		.byte	1
+ 1377 01bd 000000   		.space	3
+ 1378 01c0 00000000 		.word	hcan1
+ 1379 01c4 01000000 		.word	1
+ 1380 01c8 00000000 		.space	20
+ 1380      00000000 
+ 1380      00000000 
+ 1380      00000000 
+ 1380      00000000 
+ 1381 01dc 00000000 		.space	188
+ 1381      00000000 
+ 1381      00000000 
+ 1381      00000000 
+ 1381      00000000 
+ 1382 0298 00000000 		.space	60
+ 1382      00000000 
+ 1382      00000000 
+ 1382      00000000 
+ 1382      00000000 
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccopmDN6.s 			page 36
+
+
+ 1383 02d4 00004843 		.word	1128792064
+ 1384 02d8 0000C842 		.word	1120403456
+ 1385 02dc 00000000 		.word	0
+ 1386 02e0 00409C46 		.word	1184645120
+ 1387 02e4 00000000 		.space	4
+ 1388 02e8 07       		.byte	7
+ 1389 02e9 000000   		.space	3
+ 1390 02ec 00401C45 		.word	1159479296
+ 1391 02f0 00000000 		.space	16
+ 1391      00000000 
+ 1391      00000000 
+ 1391      00000000 
+ 1392 0300 0000A041 		.word	1101004800
+ 1393 0304 00000000 		.word	0
+ 1394 0308 CDCCCC3E 		.word	1053609165
+ 1395 030c 0000FA43 		.word	1140457472
+ 1396 0310 00000000 		.space	4
+ 1397 0314 07       		.byte	7
+ 1398 0315 000000   		.space	3
+ 1399 0318 0000C842 		.word	1120403456
+ 1400 031c 00000000 		.space	16
+ 1400      00000000 
+ 1400      00000000 
+ 1400      00000000 
+ 1401 032c 04       		.byte	4
+ 1402 032d 06       		.byte	6
+ 1403 032e 00       		.byte	0
+ 1404 032f 01       		.byte	1
+ 1405 0330 01       		.byte	1
+ 1406 0331 01       		.byte	1
+ 1407 0332 0000     		.space	2
+ 1408 0334 01       		.byte	1
+ 1409 0335 000000   		.space	3
+ 1410 0338 00000000 		.word	hcan2
+ 1411 033c 02000000 		.word	2
+ 1412 0340 00000000 		.space	20
+ 1412      00000000 
+ 1412      00000000 
+ 1412      00000000 
+ 1412      00000000 
+ 1413 0354 00       		.byte	0
+ 1414 0355 000000   		.space	3
+ 1415 0358 00000000 		.space	16
+ 1415      00000000 
+ 1415      00000000 
+ 1415      00000000 
+ 1416 0368 CDCCCC3E 		.word	1053609165
+ 1417 036c 00000000 		.word	0
+ 1418 0370 00000000 		.word	0
+ 1419 0374 00606A46 		.word	1181376512
+ 1420 0378 00000000 		.space	4
+ 1421 037c 01       		.byte	1
+ 1422 037d 000000   		.space	3
+ 1423 0380 00401C46 		.word	1176256512
+ 1424 0384 00000000 		.space	16
+ 1424      00000000 
+ 1424      00000000 
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccopmDN6.s 			page 37
+
+
+ 1424      00000000 
+ 1425 0394 00007041 		.word	1097859072
+ 1426 0398 0000803F 		.word	1065353216
+ 1427 039c 00000000 		.word	0
+ 1428 03a0 00606A46 		.word	1181376512
+ 1429 03a4 00000000 		.space	4
+ 1430 03a8 01       		.byte	1
+ 1431 03a9 000000   		.space	3
+ 1432 03ac 00401C46 		.word	1176256512
+ 1433 03b0 00000000 		.space	16
+ 1433      00000000 
+ 1433      00000000 
+ 1433      00000000 
+ 1434 03c0 00000000 		.space	44
+ 1434      00000000 
+ 1434      00000000 
+ 1434      00000000 
+ 1434      00000000 
+ 1435 03ec 02       		.byte	2
+ 1436 03ed 03       		.byte	3
+ 1437 03ee 01       		.byte	1
+ 1438 03ef 00       		.space	1
+ 1439 03f0 00       		.byte	0
+ 1440 03f1 00       		.byte	0
+ 1441 03f2 0000     		.space	2
+ 1442 03f4 02       		.byte	2
+ 1443 03f5 000000   		.space	3
+ 1444 03f8 00000000 		.word	hcan2
+ 1445 03fc 00000000 		.space	24
+ 1445      00000000 
+ 1445      00000000 
+ 1445      00000000 
+ 1445      00000000 
+ 1446 0414 00000000 		.space	16
+ 1446      00000000 
+ 1446      00000000 
+ 1446      00000000 
+ 1447 0424 CDCCCC3E 		.word	1053609165
+ 1448 0428 00000000 		.word	0
+ 1449 042c 00000000 		.word	0
+ 1450 0430 00409C45 		.word	1167867904
+ 1451 0434 00000000 		.space	4
+ 1452 0438 01       		.byte	1
+ 1453 0439 000000   		.space	3
+ 1454 043c 00409C45 		.word	1167867904
+ 1455 0440 00000000 		.space	16
+ 1455      00000000 
+ 1455      00000000 
+ 1455      00000000 
+ 1456 0450 00004040 		.word	1077936128
+ 1457 0454 00000000 		.word	0
+ 1458 0458 00000000 		.word	0
+ 1459 045c 00401C46 		.word	1176256512
+ 1460 0460 00000000 		.space	4
+ 1461 0464 01       		.byte	1
+ 1462 0465 000000   		.space	3
+ 1463 0468 0000FA45 		.word	1174011904
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccopmDN6.s 			page 38
+
+
+ 1464 046c 00000000 		.space	16
+ 1464      00000000 
+ 1464      00000000 
+ 1464      00000000 
+ 1465 047c 00002041 		.word	1092616192
+ 1466 0480 0000803F 		.word	1065353216
+ 1467 0484 00000000 		.word	0
+ 1468 0488 00409C45 		.word	1167867904
+ 1469 048c 00000000 		.space	28
+ 1469      00000000 
+ 1469      00000000 
+ 1469      00000000 
+ 1469      00000000 
+ 1470 04a8 02       		.byte	2
+ 1471 04a9 06       		.byte	6
+ 1472 04aa 00       		.byte	0
+ 1473 04ab 00       		.space	1
+ 1474 04ac 00       		.byte	0
+ 1475 04ad 00       		.byte	0
+ 1476 04ae 0000     		.space	2
+ 1477 04b0 03       		.byte	3
+ 1478 04b1 000000   		.space	3
+ 1479 04b4 00000000 		.word	hcan2
+ 1480 04b8 07000000 		.word	7
+ 1481 04bc 00000000 		.space	20
+ 1481      00000000 
+ 1481      00000000 
+ 1481      00000000 
+ 1481      00000000 
+ 1482 04d0 030400   		.ascii	"\003\004\000"
+ 1483 04d3 00       		.space	1
+ 1484 04d4 01       		.byte	1
+ 1485 04d5 00       		.byte	0
+ 1486 04d6 0000     		.space	2
+ 1487              		.section	.data.infantry_config_3.1,"aw"
+ 1488              		.align	2
+ 1491              	infantry_config_3.1:
+ 1492 0000 00       		.byte	0
+ 1493 0001 000000   		.space	3
+ 1494 0004 00000000 		.word	0
+ 1495 0008 00000000 		.word	0
+ 1496 000c 0000B943 		.word	1136197632
+ 1497 0010 0000D243 		.word	1137836032
+ 1498 0014 00009642 		.word	1117126656
+ 1499 0018 00009841 		.word	1100480512
+ 1500 001c 00000000 		.space	16
+ 1500      00000000 
+ 1500      00000000 
+ 1500      00000000 
+ 1501 002c 0000003F 		.word	1056964608
+ 1502 0030 00000000 		.word	0
+ 1503 0034 00000000 		.word	0
+ 1504 0038 00606A46 		.word	1181376512
+ 1505 003c 00000000 		.space	4
+ 1506 0040 07       		.byte	7
+ 1507 0041 000000   		.space	3
+ 1508 0044 00803B45 		.word	1161527296
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccopmDN6.s 			page 39
+
+
+ 1509 0048 00000000 		.space	16
+ 1509      00000000 
+ 1509      00000000 
+ 1509      00000000 
+ 1510 0058 0000A040 		.word	1084227584
+ 1511 005c 0000803F 		.word	1065353216
+ 1512 0060 00000000 		.word	0
+ 1513 0064 00803B46 		.word	1178304512
+ 1514 0068 00000000 		.space	4
+ 1515 006c 07       		.byte	7
+ 1516 006d 000000   		.space	3
+ 1517 0070 00803B45 		.word	1161527296
+ 1518 0074 00000000 		.space	16
+ 1518      00000000 
+ 1518      00000000 
+ 1518      00000000 
+ 1519 0084 00000000 		.space	44
+ 1519      00000000 
+ 1519      00000000 
+ 1519      00000000 
+ 1519      00000000 
+ 1520 00b0 02       		.byte	2
+ 1521 00b1 03       		.byte	3
+ 1522 00b2 0000     		.space	2
+ 1523 00b4 00       		.byte	0
+ 1524 00b5 00       		.byte	0
+ 1525 00b6 0000     		.space	2
+ 1526 00b8 02       		.byte	2
+ 1527 00b9 000000   		.space	3
+ 1528 00bc 00000000 		.word	hcan1
+ 1529 00c0 00000000 		.space	24
+ 1529      00000000 
+ 1529      00000000 
+ 1529      00000000 
+ 1529      00000000 
+ 1530 00d8 00000000 		.space	44
+ 1530      00000000 
+ 1530      00000000 
+ 1530      00000000 
+ 1530      00000000 
+ 1531 0104 01020403 		.ascii	"\001\002\004\003\000"
+ 1531      00
+ 1532 0109 000000   		.space	3
+ 1533 010c 00       		.byte	0
+ 1534 010d 000000   		.space	3
+ 1535 0110 00000000 		.space	4
+ 1536 0114 00002545 		.word	1160052736
+ 1537 0118 00000C42 		.word	1108082688
+ 1538 011c 000090C1 		.word	-1047527424
+ 1539 0120 00000000 		.space	60
+ 1539      00000000 
+ 1539      00000000 
+ 1539      00000000 
+ 1539      00000000 
+ 1540 015c 00001643 		.word	1125515264
+ 1541 0160 00000000 		.word	0
+ 1542 0164 00000000 		.word	0
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccopmDN6.s 			page 40
+
+
+ 1543 0168 00409C46 		.word	1184645120
+ 1544 016c 00000000 		.space	4
+ 1545 0170 07       		.byte	7
+ 1546 0171 000000   		.space	3
+ 1547 0174 00803B45 		.word	1161527296
+ 1548 0178 00000000 		.space	16
+ 1548      00000000 
+ 1548      00000000 
+ 1548      00000000 
+ 1549 0188 00000041 		.word	1090519040
+ 1550 018c 00000000 		.word	0
+ 1551 0190 CDCCCC3E 		.word	1053609165
+ 1552 0194 0000FA43 		.word	1140457472
+ 1553 0198 CDCCCC3D 		.word	1036831949
+ 1554 019c 07       		.byte	7
+ 1555 019d 000000   		.space	3
+ 1556 01a0 0000C842 		.word	1120403456
+ 1557 01a4 00000000 		.space	16
+ 1557      00000000 
+ 1557      00000000 
+ 1557      00000000 
+ 1558 01b4 04       		.byte	4
+ 1559 01b5 06       		.byte	6
+ 1560 01b6 00       		.byte	0
+ 1561 01b7 00       		.byte	0
+ 1562 01b8 01       		.byte	1
+ 1563 01b9 01       		.byte	1
+ 1564 01ba 0000     		.space	2
+ 1565 01bc 01       		.byte	1
+ 1566 01bd 000000   		.space	3
+ 1567 01c0 00000000 		.word	hcan1
+ 1568 01c4 01000000 		.word	1
+ 1569 01c8 00000000 		.space	20
+ 1569      00000000 
+ 1569      00000000 
+ 1569      00000000 
+ 1569      00000000 
+ 1570 01dc 00000000 		.space	188
+ 1570      00000000 
+ 1570      00000000 
+ 1570      00000000 
+ 1570      00000000 
+ 1571 0298 00000000 		.space	60
+ 1571      00000000 
+ 1571      00000000 
+ 1571      00000000 
+ 1571      00000000 
+ 1572 02d4 00004041 		.word	1094713344
+ 1573 02d8 00000000 		.word	0
+ 1574 02dc 00000000 		.word	0
+ 1575 02e0 00409C46 		.word	1184645120
+ 1576 02e4 00000000 		.space	4
+ 1577 02e8 07       		.byte	7
+ 1578 02e9 000000   		.space	3
+ 1579 02ec 00401C45 		.word	1159479296
+ 1580 02f0 00000000 		.space	16
+ 1580      00000000 
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccopmDN6.s 			page 41
+
+
+ 1580      00000000 
+ 1580      00000000 
+ 1581 0300 00007041 		.word	1097859072
+ 1582 0304 00000000 		.word	0
+ 1583 0308 CDCCCC3E 		.word	1053609165
+ 1584 030c 0000FA43 		.word	1140457472
+ 1585 0310 CDCCCC3D 		.word	1036831949
+ 1586 0314 07       		.byte	7
+ 1587 0315 000000   		.space	3
+ 1588 0318 0000C842 		.word	1120403456
+ 1589 031c 00000000 		.space	16
+ 1589      00000000 
+ 1589      00000000 
+ 1589      00000000 
+ 1590 032c 04       		.byte	4
+ 1591 032d 06       		.byte	6
+ 1592 032e 01       		.byte	1
+ 1593 032f 00       		.byte	0
+ 1594 0330 01       		.byte	1
+ 1595 0331 01       		.byte	1
+ 1596 0332 0000     		.space	2
+ 1597 0334 01       		.byte	1
+ 1598 0335 000000   		.space	3
+ 1599 0338 00000000 		.word	hcan2
+ 1600 033c 02000000 		.word	2
+ 1601 0340 00000000 		.space	20
+ 1601      00000000 
+ 1601      00000000 
+ 1601      00000000 
+ 1601      00000000 
+ 1602 0354 00       		.byte	0
+ 1603 0355 000000   		.space	3
+ 1604 0358 00000000 		.space	16
+ 1604      00000000 
+ 1604      00000000 
+ 1604      00000000 
+ 1605 0368 CDCCCC3E 		.word	1053609165
+ 1606 036c 00000000 		.word	0
+ 1607 0370 00000000 		.word	0
+ 1608 0374 00606A46 		.word	1181376512
+ 1609 0378 00000000 		.space	4
+ 1610 037c 01       		.byte	1
+ 1611 037d 000000   		.space	3
+ 1612 0380 00401C46 		.word	1176256512
+ 1613 0384 00000000 		.space	16
+ 1613      00000000 
+ 1613      00000000 
+ 1613      00000000 
+ 1614 0394 00002041 		.word	1092616192
+ 1615 0398 0000803F 		.word	1065353216
+ 1616 039c 00000000 		.word	0
+ 1617 03a0 0050C346 		.word	1187205120
+ 1618 03a4 00000000 		.space	4
+ 1619 03a8 01       		.byte	1
+ 1620 03a9 000000   		.space	3
+ 1621 03ac 00401C46 		.word	1176256512
+ 1622 03b0 00000000 		.space	16
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccopmDN6.s 			page 42
+
+
+ 1622      00000000 
+ 1622      00000000 
+ 1622      00000000 
+ 1623 03c0 00000000 		.space	44
+ 1623      00000000 
+ 1623      00000000 
+ 1623      00000000 
+ 1623      00000000 
+ 1624 03ec 02       		.byte	2
+ 1625 03ed 03       		.byte	3
+ 1626 03ee 01       		.byte	1
+ 1627 03ef 00       		.space	1
+ 1628 03f0 00       		.byte	0
+ 1629 03f1 00       		.byte	0
+ 1630 03f2 0000     		.space	2
+ 1631 03f4 02       		.byte	2
+ 1632 03f5 000000   		.space	3
+ 1633 03f8 00000000 		.word	hcan2
+ 1634 03fc 00000000 		.space	24
+ 1634      00000000 
+ 1634      00000000 
+ 1634      00000000 
+ 1634      00000000 
+ 1635 0414 00000000 		.space	16
+ 1635      00000000 
+ 1635      00000000 
+ 1635      00000000 
+ 1636 0424 CDCCCC3E 		.word	1053609165
+ 1637 0428 00000000 		.word	0
+ 1638 042c 00000000 		.word	0
+ 1639 0430 00409C45 		.word	1167867904
+ 1640 0434 00000000 		.space	4
+ 1641 0438 01       		.byte	1
+ 1642 0439 000000   		.space	3
+ 1643 043c 00409C45 		.word	1167867904
+ 1644 0440 00000000 		.space	16
+ 1644      00000000 
+ 1644      00000000 
+ 1644      00000000 
+ 1645 0450 00004040 		.word	1077936128
+ 1646 0454 00000000 		.word	0
+ 1647 0458 00000000 		.word	0
+ 1648 045c 0000FA45 		.word	1174011904
+ 1649 0460 00000000 		.space	4
+ 1650 0464 01       		.byte	1
+ 1651 0465 000000   		.space	3
+ 1652 0468 0000FA45 		.word	1174011904
+ 1653 046c 00000000 		.space	16
+ 1653      00000000 
+ 1653      00000000 
+ 1653      00000000 
+ 1654 047c 00007041 		.word	1097859072
+ 1655 0480 0000803F 		.word	1065353216
+ 1656 0484 00000000 		.word	0
+ 1657 0488 00409C45 		.word	1167867904
+ 1658 048c 00000000 		.space	28
+ 1658      00000000 
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccopmDN6.s 			page 43
+
+
+ 1658      00000000 
+ 1658      00000000 
+ 1658      00000000 
+ 1659 04a8 02       		.byte	2
+ 1660 04a9 06       		.byte	6
+ 1661 04aa 00       		.byte	0
+ 1662 04ab 00       		.space	1
+ 1663 04ac 00       		.byte	0
+ 1664 04ad 00       		.byte	0
+ 1665 04ae 0000     		.space	2
+ 1666 04b0 03       		.byte	3
+ 1667 04b1 000000   		.space	3
+ 1668 04b4 00000000 		.word	hcan2
+ 1669 04b8 07000000 		.word	7
+ 1670 04bc 00000000 		.space	20
+ 1670      00000000 
+ 1670      00000000 
+ 1670      00000000 
+ 1670      00000000 
+ 1671 04d0 040100   		.ascii	"\004\001\000"
+ 1672 04d3 00       		.space	1
+ 1673 04d4 01       		.byte	1
+ 1674 04d5 00       		.byte	0
+ 1675 04d6 0000     		.space	2
+ 1676              		.section	.bss.UI_graph_Rectangle,"aw",%nobits
+ 1677              		.align	2
+ 1680              	UI_graph_Rectangle:
+ 1681 0000 00000000 		.space	45
+ 1681      00000000 
+ 1681      00000000 
+ 1681      00000000 
+ 1681      00000000 
+ 1682              		.section	.bss.UI_graph_Arc,"aw",%nobits
+ 1683              		.align	2
+ 1686              	UI_graph_Arc:
+ 1687 0000 00000000 		.space	45
+ 1687      00000000 
+ 1687      00000000 
+ 1687      00000000 
+ 1687      00000000 
+ 1688              		.section	.bss.UI_shoot_line,"aw",%nobits
+ 1689              		.align	2
+ 1692              	UI_shoot_line:
+ 1693 0000 00000000 		.space	150
+ 1693      00000000 
+ 1693      00000000 
+ 1693      00000000 
+ 1693      00000000 
+ 1694              		.section	.bss.UI_pitch_line,"aw",%nobits
+ 1695              		.align	2
+ 1698              	UI_pitch_line:
+ 1699 0000 00000000 		.space	150
+ 1699      00000000 
+ 1699      00000000 
+ 1699      00000000 
+ 1699      00000000 
+ 1700              		.text
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccopmDN6.s 			page 44
+
+
+ 1701              	.Letext0:
+ 1702              		.file 2 "D:/msys2/mingw64/arm-none-eabi/include/machine/_default_types.h"
+ 1703              		.file 3 "D:/msys2/mingw64/arm-none-eabi/include/sys/_stdint.h"
+ 1704              		.file 4 "Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f407xx.h"
+ 1705              		.file 5 "Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f4xx.h"
+ 1706              		.file 6 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_can.h"
+ 1707              		.file 7 "Inc/can.h"
+ 1708              		.file 8 "bsp/can/bsp_can.h"
+ 1709              		.file 9 "modules/algorithm/controller.h"
+ 1710              		.file 10 "modules/motor/motor_def.h"
+ 1711              		.file 11 "application/config/config.h"
+ 1712              		.file 12 "modules/referee/referee_protocol.h"
+ 1713              		.file 13 "modules/master_machine/master_process.h"
+ 1714              		.file 14 "application/robot_def.h"
+ 1715              		.file 15 "modules/referee/rm_referee.h"
+ 1716              		.file 16 "modules/referee/referee_UI.h"
+ARM GAS  C:\Users\lenovo\AppData\Local\Temp\ccopmDN6.s 			page 45
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 infantry_config.c
+C:\Users\lenovo\AppData\Local\Temp\ccopmDN6.s:21     .text.InfantryConfigInit:00000000 $t
+C:\Users\lenovo\AppData\Local\Temp\ccopmDN6.s:27     .text.InfantryConfigInit:00000000 InfantryConfigInit
+C:\Users\lenovo\AppData\Local\Temp\ccopmDN6.s:63     .text.InfantryConfigInit:00000014 $d
+C:\Users\lenovo\AppData\Local\Temp\ccopmDN6.s:1491   .data.infantry_config_3.1:00000000 infantry_config_3.1
+C:\Users\lenovo\AppData\Local\Temp\ccopmDN6.s:1302   .data.infantry_config_5.0:00000000 infantry_config_5.0
+C:\Users\lenovo\AppData\Local\Temp\ccopmDN6.s:69     .rodata.InfantryStaticUI.str1.4:00000000 $d
+C:\Users\lenovo\AppData\Local\Temp\ccopmDN6.s:133    .text.InfantryStaticUI:00000000 $t
+C:\Users\lenovo\AppData\Local\Temp\ccopmDN6.s:139    .text.InfantryStaticUI:00000000 InfantryStaticUI
+C:\Users\lenovo\AppData\Local\Temp\ccopmDN6.s:484    .text.InfantryStaticUI:0000034c $d
+C:\Users\lenovo\AppData\Local\Temp\ccopmDN6.s:1692   .bss.UI_shoot_line:00000000 UI_shoot_line
+C:\Users\lenovo\AppData\Local\Temp\ccopmDN6.s:1698   .bss.UI_pitch_line:00000000 UI_pitch_line
+C:\Users\lenovo\AppData\Local\Temp\ccopmDN6.s:498    .text.InfantryStaticUI:00000380 $t
+C:\Users\lenovo\AppData\Local\Temp\ccopmDN6.s:797    .text.InfantryStaticUI:0000068c $d
+C:\Users\lenovo\AppData\Local\Temp\ccopmDN6.s:1686   .bss.UI_graph_Arc:00000000 UI_graph_Arc
+C:\Users\lenovo\AppData\Local\Temp\ccopmDN6.s:1680   .bss.UI_graph_Rectangle:00000000 UI_graph_Rectangle
+C:\Users\lenovo\AppData\Local\Temp\ccopmDN6.s:813    .text.InfantryDynamciscUI:00000000 $t
+C:\Users\lenovo\AppData\Local\Temp\ccopmDN6.s:819    .text.InfantryDynamciscUI:00000000 InfantryDynamciscUI
+C:\Users\lenovo\AppData\Local\Temp\ccopmDN6.s:1214   .text.InfantryDynamciscUI:00000344 $d
+C:\Users\lenovo\AppData\Local\Temp\ccopmDN6.s:1230   .text.InfantryDynamciscUI:00000378 $t
+C:\Users\lenovo\AppData\Local\Temp\ccopmDN6.s:1292   .text.InfantryDynamciscUI:0000040c $d
+C:\Users\lenovo\AppData\Local\Temp\ccopmDN6.s:1299   .data.infantry_config_5.0:00000000 $d
+C:\Users\lenovo\AppData\Local\Temp\ccopmDN6.s:1488   .data.infantry_config_3.1:00000000 $d
+C:\Users\lenovo\AppData\Local\Temp\ccopmDN6.s:1677   .bss.UI_graph_Rectangle:00000000 $d
+C:\Users\lenovo\AppData\Local\Temp\ccopmDN6.s:1683   .bss.UI_graph_Arc:00000000 $d
+C:\Users\lenovo\AppData\Local\Temp\ccopmDN6.s:1689   .bss.UI_shoot_line:00000000 $d
+C:\Users\lenovo\AppData\Local\Temp\ccopmDN6.s:1695   .bss.UI_pitch_line:00000000 $d
+
+UNDEFINED SYMBOLS
+UILineDraw
+UIGraphRefresh
+UIArcDraw
+UIRectangleDraw
+hcan1
+hcan2
