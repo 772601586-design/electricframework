@@ -1,3 +1,0 @@
-D:/rmproject/2/electric_framework/build/CMakeFiles/basic_framework.elf.dir
-D:/rmproject/2/electric_framework/build/CMakeFiles/edit_cache.dir
-D:/rmproject/2/electric_framework/build/CMakeFiles/rebuild_cache.dir
