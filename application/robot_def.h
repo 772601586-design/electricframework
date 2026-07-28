@@ -27,19 +27,23 @@
 //     #define GIMBAL_BOARD  
 // #endif
 
-// // 检查是否存在该机器人ID,不存在则编译会自动报错
-// #if (!defined(INFANTRY_ROBOT) && !defined(SENTINEL_ROBOT)) && \
-//     (!defined(HERO_ROBOT) && !defined(ENGINEER_ROBOT)) && \
-//     (!defined(AERIAL_ROBOT) && !defined(DART_ROBOT))
-// #error None Robot ID definition! You can only define ID from 0 to 5.
-// #endif
+/*
+ * 检查是否存在该机器人ID,不存在则编译会自动报错
+ * #if (!defined(INFANTRY_ROBOT) && !defined(SENTINEL_ROBOT)) && \
+ *     (!defined(HERO_ROBOT) && !defined(ENGINEER_ROBOT)) && \
+ *     (!defined(AERIAL_ROBOT) && !defined(DART_ROBOT))
+ * #error None Robot ID definition! You can only define ID from 0 to 5.
+ * #endif
+ */
 
-// // 检查是否出现底盘类型冲突,只允许一个底盘类型定义存在,否则编译会自动报错
-// #if (defined(MECANUM_WHEEL) && defined(OMIN_WHEEL)) || \
-//     (defined(MECANUM_WHEEL) && defined(STEER_WHEEL)) ||  \
-//     (defined(OMIN_WHEEL) && defined(STEER_WHEEL))
-// #error Conflict chassis wheel definition! You can only define one chassis type.
-// #endif
+/*
+ * 检查是否出现底盘类型冲突,只允许一个底盘类型定义存在,否则编译会自动报错
+ * #if (defined(MECANUM_WHEEL) && defined(OMIN_WHEEL)) || \
+ *     (defined(MECANUM_WHEEL) && defined(STEER_WHEEL)) ||  \
+ *     (defined(OMIN_WHEEL) && defined(STEER_WHEEL))
+ * #error Conflict chassis wheel definition! You can only define one chassis type.
+ * #endif
+ */
 
 #pragma pack(1) // 压缩结构体,取消字节对齐,下面的数据都可能被传输
 /* -------------------------基本控制模式和数据类型定义-------------------------*/
@@ -131,6 +135,17 @@ typedef enum
     LOAD_BURSTFIRE, // 连发
 } loader_mode_e;
 
+
+// 弹速枚举（供 Shoot_Ctrl_Cmd_s / Referee_Interactive_info_t 使用）
+typedef enum
+{
+    BULLET_SPEED_NONE = 0,
+    BIG_AMU_10 = 10,
+    SMALL_AMU_15 = 15,
+    BIG_AMU_16 = 16,
+    SMALL_AMU_18 = 18,
+    SMALL_AMU_30 = 30,
+} Bullet_Speed_e;
 
 // 功率限制,从裁判系统获取,是否有必要保留?
 typedef struct

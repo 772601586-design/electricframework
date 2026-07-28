@@ -305,7 +305,8 @@ static float ChassisFollowControl(float offset_angle, float gimbal_yaw_rate,
  * @note  使用前需在CubeMX中配置对应UART并开启TX DMA
  *        将下面宏改为实际使用的UART Handle
  */
-#define VOFA_HUART huart2  // TODO: 改为实际空闲UART
+UART_HandleTypeDef huart2;  // VOFA调试用, 需在CubeMX中配置UART2 init并启用TX DMA
+#define VOFA_HUART huart2
 
 static void VOFA_Send(float *data, uint8_t count)
 {
