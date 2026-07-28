@@ -235,6 +235,11 @@ static void RemoteControlSet()
         gimbal_cmd_send.gimbal_mode = GIMBAL_GYRO_MODE;
     }
 #endif
+    // 右开关[上]: 视觉自瞄模式,强制云台陀螺仪模式
+    if (switch_is_up(rc_data[TEMP].rc.switch_right))
+    {
+        gimbal_cmd_send.gimbal_mode = GIMBAL_GYRO_MODE;
+    }
 
     // 云台陀螺仪模式,并且视觉未识别到目标,纯遥控器拨杆控制
     add_yaw = RC_TO_YAW_ANGLE * (float)rc_data[TEMP].rc.rocker_l_;
@@ -242,8 +247,9 @@ static void RemoteControlSet()
 
     if (robot_state == ROBOT_READY)
     {
-        // 视觉接管优先级最高
-        if (vision_recv_data->mode == 1 || vision_recv_data->mode == 2)
+        // 右开关[上]时视觉接管，不再是默认最高优先级
+        if (switch_is_up(rc_data[TEMP].rc.switch_right) &&
+            (vision_recv_data->mode == 1 || vision_recv_data->mode == 2))
         {
             float vision_yaw = vision_recv_data->yaw * RAD_TO_DEG;
             float vision_pitch = vision_recv_data->pitch * RAD_TO_DEG + PITCH_ZERO_OFFSET;
@@ -262,18 +268,10 @@ static void RemoteControlSet()
             add_yaw = 0.0f;
             add_pitch = 0.0f;
         }
-        else // mode == 0: 未识别到目标，切换回手动控制
-        {
-            // 恢复手动控制，使用遥控器摇杆控制云台
-            // add_yaw 和 add_pitch 已经在前面计算好了
-        }
         if (gimbal_cmd_send.gimbal_mode == GIMBAL_GYRO_MODE)
-        { // 按照摇杆的输出大小进行角度增量,拨杆向右/向上为正
-            if (vision_recv_data->mode == 0) { // 只有在视觉未识别到目标时才允许遥控器调整云台角度
-                gimbal_cmd_send.yaw += add_yaw;
-                gimbal_cmd_send.pitch += add_pitch;
-            }
-            
+        { // 视觉接管时add已被清零,天然不加; 手动或视觉丢失时add=摇杆值,正常增量
+            gimbal_cmd_send.yaw   += add_yaw;
+            gimbal_cmd_send.pitch += add_pitch;
         }
     }
 
@@ -321,10 +319,15 @@ static void RemoteControlSet()
         }     
     }
     
-    // 右侧开关[上],发射关闭
-    if (switch_is_up(rc_data[TEMP].rc.switch_right)) 
+    // 右侧开关[上],视觉自瞄模式
+    // 视觉在线时发射由视觉mode决定（已在上面视觉接管块中设置）
+    // 视觉丢失时停止供弹，操作手可摇杆控制云台
+    if (switch_is_up(rc_data[TEMP].rc.switch_right))
     {
-        shoot_cmd_send.shoot_mode = SHOOT_OFF;
+        if (vision_recv_data->mode == 0)
+        {
+            shoot_cmd_send.load_mode = LOAD_STOP;
+        }
     }
 
     // 左右侧开关均为[下],摩擦轮关闭
@@ -587,205 +590,7 @@ static void EmergencyHandler()
     AlarmHandler(); // 报警处理
 }
 
-/* -----------------------------------------------------------------------
- * 自主运动任务（哨兵）
- *
- * 触发条件（二选一）：
- *   A. 裁判系统比赛开始后5秒（game_progress==4 且 stage_remain_time<=415）
- *   B. 调试模式：左右拨杆均[上]
- *
- * 主流程（占点）：
- *   前进7m -> 左移6m -> 后退4m -> 到达占点区
- *   -> 底盘停止，云台360°旋转搜寻
- *   -> 视觉识别到目标：视觉接管云台（mode=2时开火）
- *   -> 视觉丢失：退出视觉接管，继续360°旋转搜寻
- *
- * 撤退条件：自身血量 < 100
- *   -> 前进4m -> 右移6m -> 后退7m -> 回到启动区 -> 停止
- *
- * 速度单位: m/s，时间积分估算位移
- * ----------------------------------------------------------------------- */
-typedef enum {
-    // 占点路径
-    OPEN_LOOP_FORWARD_1 = 0, // 前进7m
-    OPEN_LOOP_LEFT_1,        // 左移6m
-    OPEN_LOOP_BACKWARD_1,    // 后退4m
-    // 占点区行为
-    OPEN_LOOP_SEARCH,        // 云台360°旋转搜寻
-    OPEN_LOOP_VISION,        // 视觉接管
-    // 撤退路径
-    OPEN_LOOP_RETREAT_FWD,   // 前进4m（撤退第一段）
-    OPEN_LOOP_RETREAT_RIGHT, // 右移6m（撤退第二段）
-    OPEN_LOOP_RETREAT_BACK,  // 后退7m（撤退第三段）
-    // 结束
-    OPEN_LOOP_DONE,
-} OpenLoopPhase_e;
-
-#define OPEN_LOOP_MOVE_SPEED  1.5f  // 底盘平移速度 m/s
-#define OPEN_LOOP_SEARCH_WZ   1.5f  // 云台搜寻旋转速度 rad/s
-#define OPEN_LOOP_TASK_DT_MS  5.0f  // 任务调用周期 ms（200Hz）
-#define OPEN_LOOP_LOW_HP      100   // 撤退血量阈值
-
-static OpenLoopPhase_e open_loop_phase = OPEN_LOOP_FORWARD_1;
-static float open_loop_dist_accum = 0.0f;
-static float open_loop_yaw_accum  = 0.0f;
-
-/**
- * @brief 自主运动任务主体，每控制周期调用一次
- *        入口条件在 RobotCMDTask 中判断
- */
-static void OpenLoopMotionTask()
-{
-    const float dt_s = OPEN_LOOP_TASK_DT_MS / 1000.0f;
-
-    // 占点区阶段：血量低于阈值时触发撤退
-    if ((open_loop_phase == OPEN_LOOP_SEARCH || open_loop_phase == OPEN_LOOP_VISION) &&
-        referee_data->GameRobotState.current_HP < OPEN_LOOP_LOW_HP)
-    {
-        open_loop_dist_accum = 0.0f;
-        open_loop_phase = OPEN_LOOP_RETREAT_FWD;
-    }
-
-    // 占点区阶段：视觉识别到目标则切入视觉接管
-    if ((open_loop_phase == OPEN_LOOP_SEARCH) &&
-        (vision_recv_data->mode == 1 || vision_recv_data->mode == 2))
-    {
-        open_loop_phase = OPEN_LOOP_VISION;
-    }
-
-    chassis_cmd_send.chassis_mode = CHASSIS_NO_FOLLOW;
-    gimbal_cmd_send.gimbal_mode   = GIMBAL_GYRO_MODE;
-
-    switch (open_loop_phase)
-    {
-    // ---- 占点路径 ----
-    case OPEN_LOOP_FORWARD_1:
-        chassis_cmd_send.vx = OPEN_LOOP_MOVE_SPEED;
-        chassis_cmd_send.vy = 0.0f;
-        chassis_cmd_send.wz = 0.0f;
-        open_loop_dist_accum += OPEN_LOOP_MOVE_SPEED * dt_s;
-        if (open_loop_dist_accum >= 7.0f)
-        {
-            open_loop_dist_accum = 0.0f;
-            open_loop_phase = OPEN_LOOP_LEFT_1;
-        }
-        break;
-
-    case OPEN_LOOP_LEFT_1:
-        chassis_cmd_send.vx = 0.0f;
-        chassis_cmd_send.vy = OPEN_LOOP_MOVE_SPEED; // vy正方向为左移
-        chassis_cmd_send.wz = 0.0f;
-        open_loop_dist_accum += OPEN_LOOP_MOVE_SPEED * dt_s;
-        if (open_loop_dist_accum >= 6.0f)
-        {
-            open_loop_dist_accum = 0.0f;
-            open_loop_phase = OPEN_LOOP_BACKWARD_1;
-        }
-        break;
-
-    case OPEN_LOOP_BACKWARD_1:
-        chassis_cmd_send.vx = -OPEN_LOOP_MOVE_SPEED;
-        chassis_cmd_send.vy = 0.0f;
-        chassis_cmd_send.wz = 0.0f;
-        open_loop_dist_accum += OPEN_LOOP_MOVE_SPEED * dt_s;
-        if (open_loop_dist_accum >= 4.0f)
-        {
-            open_loop_dist_accum = 0.0f;
-            open_loop_yaw_accum  = 0.0f;
-            open_loop_phase = OPEN_LOOP_SEARCH;
-        }
-        break;
-
-    // ---- 占点区行为 ----
-    case OPEN_LOOP_SEARCH:
-        chassis_cmd_send.vx = 0.0f;
-        chassis_cmd_send.vy = 0.0f;
-        chassis_cmd_send.wz = 0.0f;
-        gimbal_cmd_send.yaw += OPEN_LOOP_SEARCH_WZ * RAD_TO_DEG * dt_s;
-        open_loop_yaw_accum += OPEN_LOOP_SEARCH_WZ * RAD_TO_DEG * dt_s;
-        if (open_loop_yaw_accum >= 360.0f)
-            open_loop_yaw_accum = 0.0f; // 持续循环搜寻，不退出
-        break;
-
-    case OPEN_LOOP_VISION:
-        chassis_cmd_send.vx = 0.0f;
-        chassis_cmd_send.vy = 0.0f;
-        chassis_cmd_send.wz = 0.0f;
-        {
-            float vision_yaw   = vision_recv_data->yaw   * RAD_TO_DEG * YAW_GEAR_RATIO;
-            float vision_pitch = vision_recv_data->pitch * RAD_TO_DEG + PITCH_ZERO_OFFSET;
-            gimbal_cmd_send.yaw   = vision_yaw;
-            gimbal_cmd_send.pitch = vision_pitch;
-            if (vision_recv_data->mode == 2)
-            {
-                shoot_cmd_send.shoot_mode    = SHOOT_ON;
-                shoot_cmd_send.friction_mode = FRICTION_ON;
-                shoot_cmd_send.load_mode     = LOAD_BURSTFIRE;
-                shoot_cmd_send.shoot_rate    = 10;
-            }
-            else
-            {
-                shoot_cmd_send.friction_mode = FRICTION_ON;
-                shoot_cmd_send.load_mode     = LOAD_STOP;
-            }
-        }
-        // 视觉丢失退回搜寻
-        if (vision_recv_data->mode == 0)
-        {
-            open_loop_yaw_accum = 0.0f;
-            open_loop_phase = OPEN_LOOP_SEARCH;
-        }
-        break;
-
-    // ---- 撤退路径 ----
-    case OPEN_LOOP_RETREAT_FWD:
-        chassis_cmd_send.vx = OPEN_LOOP_MOVE_SPEED;
-        chassis_cmd_send.vy = 0.0f;
-        chassis_cmd_send.wz = 0.0f;
-        open_loop_dist_accum += OPEN_LOOP_MOVE_SPEED * dt_s;
-        if (open_loop_dist_accum >= 4.0f)
-        {
-            open_loop_dist_accum = 0.0f;
-            open_loop_phase = OPEN_LOOP_RETREAT_RIGHT;
-        }
-        break;
-
-    case OPEN_LOOP_RETREAT_RIGHT:
-        chassis_cmd_send.vx = 0.0f;
-        chassis_cmd_send.vy = -OPEN_LOOP_MOVE_SPEED; // vy负方向为右移
-        chassis_cmd_send.wz = 0.0f;
-        open_loop_dist_accum += OPEN_LOOP_MOVE_SPEED * dt_s;
-        if (open_loop_dist_accum >= 6.0f)
-        {
-            open_loop_dist_accum = 0.0f;
-            open_loop_phase = OPEN_LOOP_RETREAT_BACK;
-        }
-        break;
-
-    case OPEN_LOOP_RETREAT_BACK:
-        chassis_cmd_send.vx = -OPEN_LOOP_MOVE_SPEED;
-        chassis_cmd_send.vy = 0.0f;
-        chassis_cmd_send.wz = 0.0f;
-        open_loop_dist_accum += OPEN_LOOP_MOVE_SPEED * dt_s;
-        if (open_loop_dist_accum >= 7.0f)
-        {
-            open_loop_dist_accum = 0.0f;
-            open_loop_phase = OPEN_LOOP_DONE;
-        }
-        break;
-
-    case OPEN_LOOP_DONE:
-    default:
-        chassis_cmd_send.vx = 0.0f;
-        chassis_cmd_send.vy = 0.0f;
-        chassis_cmd_send.wz = 0.0f;
-        break;
-    }
-
-    VAL_LIMIT(gimbal_cmd_send.pitch,
-              robot_config->gimbal_param.gimbal_offset.pitch_min_angle,
-              robot_config->gimbal_param.gimbal_offset.pitch_max_angle);
-}
+/* 哨兵自主模式已移除，步兵使用手动+视觉自瞄模式 */
 
 /**
  * @brief 裁判系统反馈，包括UI数据/小电脑数据/裁判系统限制
@@ -855,52 +660,7 @@ void RobotCMDTask()
     // 根据gimbal的反馈值计算云台和底盘正方向的夹角,不需要传参,通过static私有变量完成
     CalcOffsetAngle();
 
-    /* -----------------------------------------------------------------------
-     * 自主运动任务入口判断
-     *
-     * 触发条件（二选一，均为一次性触发）：
-     *   A. 裁判系统：比赛进行中（game_progress==4）且剩余时间<=415s（开赛5s后）
-     *   B. 调试模式：左右拨杆均[上]
-     *
-     * 退出条件：任务完成（OPEN_LOOP_DONE）或拨轮急停（dial<-400）
-     * ----------------------------------------------------------------------- */
-    static uint8_t open_loop_active = 0;
-
-    // 裁判系统触发：比赛开始5秒后自动启动（game_progress=4表示比赛中，总时长420s）
-    if (!open_loop_active &&
-        referee_data->GameState.game_progress == 4 &&
-        referee_data->GameState.stage_remain_time <= 415)
-    {
-        open_loop_phase      = OPEN_LOOP_FORWARD_1;
-        open_loop_dist_accum = 0.0f;
-        open_loop_yaw_accum  = 0.0f;
-        open_loop_active     = 1;
-    }
-
-    // 调试模式触发：左右拨杆均[上]
-    if (!open_loop_active &&
-        switch_is_up(rc_data[TEMP].rc.switch_left) &&
-        switch_is_up(rc_data[TEMP].rc.switch_right))
-    {
-        open_loop_phase      = OPEN_LOOP_FORWARD_1;
-        open_loop_dist_accum = 0.0f;
-        open_loop_yaw_accum  = 0.0f;
-        open_loop_active     = 1;
-    }
-
-    // 急停或任务完成时退出
-    if (open_loop_phase == OPEN_LOOP_DONE || rc_data[TEMP].rc.dial < -400)
-    {
-        open_loop_active = 0;
-    }
-
-    if (open_loop_active)
-    {
-        OpenLoopMotionTask();
-    }
-    else
-    {
-    // B键开关遥控器
+    // B键切换遥控器/键鼠控制
     switch (rc_data[TEMP].key_count[KEY_PRESS][Key_B] % 2)
     {
     case 0:
@@ -921,7 +681,6 @@ void RobotCMDTask()
         RemoteControlSet();
         break;
     }
-    } // end open_loop_active else
 
     // EmergencyHandler(); // 处理模块离线和遥控器急停等紧急情况
 
