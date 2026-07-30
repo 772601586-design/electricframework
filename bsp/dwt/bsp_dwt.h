@@ -83,6 +83,15 @@ float DWT_GetTimeline_ms(void);
  */
 uint64_t DWT_GetTimeline_us(void);
 
+/** 只读DWT周期计数，可安全用于中断时间戳。 */
+uint32_t DWT_GetCycleCount(void);
+
+/** 将两个DWT周期计数的差值换算为秒，支持一次32位回绕。 */
+float DWT_CycleDeltaToSeconds(uint32_t start_count, uint32_t end_count);
+
+/** 将两个DWT周期计数的差值换算为微秒，支持一次32位回绕。 */
+uint32_t DWT_CycleDeltaToUs(uint32_t start_count, uint32_t end_count);
+
 /**
  * @brief DWT延时函数,单位为秒/s
  * @attention 该函数不受中断是否开启的影响,可以在临界区和关闭中断时使用

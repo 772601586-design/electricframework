@@ -91,6 +91,21 @@ XMMotorInstance *XMMotorInit(Motor_Init_Config_s *config)
     PIDInit(&motor->motor_controller.angle_PID, &config->controller_param_init_config.angle_PID);
     motor->motor_controller.other_angle_feedback_ptr = config->controller_param_init_config.other_angle_feedback_ptr;
     motor->motor_controller.other_speed_feedback_ptr = config->controller_param_init_config.other_speed_feedback_ptr;
+    motor->motor_controller.current_feedforward_ptr = config->controller_param_init_config.current_feedforward_ptr;
+    motor->motor_controller.speed_feedforward_ptr = config->controller_param_init_config.speed_feedforward_ptr;
+
+    if ((motor->motor_settings.feedforward_flag & SPEED_FEEDFORWARD) &&
+        motor->motor_controller.speed_feedforward_ptr == NULL)
+    {
+        LOGERROR("[xmmotor] speed feedforward enabled with NULL pointer");
+        motor->motor_settings.feedforward_flag &= ~SPEED_FEEDFORWARD;
+    }
+    if ((motor->motor_settings.feedforward_flag & CURRENT_FEEDFORWARD) &&
+        motor->motor_controller.current_feedforward_ptr == NULL)
+    {
+        LOGERROR("[xmmotor] current feedforward enabled with NULL pointer");
+        motor->motor_settings.feedforward_flag &= ~CURRENT_FEEDFORWARD;
+    }
 
     config->can_init_config.can_module_callback = XMMotorDecode;
     config->can_init_config.id = motor;
@@ -184,6 +199,9 @@ void XMMotorTask(void const *argument)
         {
             if (motor_setting->feedforward_flag & SPEED_FEEDFORWARD)
                 pid_ref += *motor_controller->speed_feedforward_ptr;
+
+            if (motor_setting->outer_loop_type == ANGLE_LOOP && motor_controller->angle_PID.MaxOut > 0.0f)
+                LIMIT_MIN_MAX(pid_ref, -motor_controller->angle_PID.MaxOut, motor_controller->angle_PID.MaxOut);
 
             if (motor_setting->speed_feedback_source == OTHER_FEED)
                 pid_measure = *motor_controller->other_speed_feedback_ptr;

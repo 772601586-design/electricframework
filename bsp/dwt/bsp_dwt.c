@@ -124,6 +124,22 @@ uint64_t DWT_GetTimeline_us(void)
     return DWT_Timelinef32;
 }
 
+uint32_t DWT_GetCycleCount(void)
+{
+    return DWT->CYCCNT;
+}
+
+float DWT_CycleDeltaToSeconds(uint32_t start_count, uint32_t end_count)
+{
+    return (float)((uint32_t)(end_count - start_count)) / (float)CPU_FREQ_Hz;
+}
+
+uint32_t DWT_CycleDeltaToUs(uint32_t start_count, uint32_t end_count)
+{
+    uint64_t elapsed_cycles = (uint32_t)(end_count - start_count);
+    return (uint32_t)(elapsed_cycles * 1000000ULL / CPU_FREQ_Hz);
+}
+
 void DWT_Delay(float Delay)
 {
     uint32_t tickstart = DWT->CYCCNT;

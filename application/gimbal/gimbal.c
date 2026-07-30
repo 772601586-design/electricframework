@@ -8,6 +8,21 @@
 #include "message_center.h"
 #include "general_def.h"
 #include "bmi088.h"
+#include "master_process.h"
+#include "bsp_dwt.h"
+
+#include <math.h>
+
+#define VISION_TRAJECTORY_MAX_PROPAGATION_US 4000ULL
+#define VISION_TRAJECTORY_STALE_US 10000ULL
+
+typedef struct
+{
+    float theta0_rad;
+    float omega0_rad_s;
+    float alpha0_rad_s2;
+    uint32_t anchor_dwt_count;
+} Gimbal_Axis_Trajectory_s;
 
 static Gimbal_Config_s *gimbal_config;
 
@@ -20,8 +35,77 @@ static Publisher_t *gimbal_pub;                   // 云台应用消息发布者
 static Subscriber_t *gimbal_sub;                  // cmd控制消息订阅者
 static Gimbal_Upload_Data_s gimbal_feedback_data; // 回传给cmd的云台状态信息
 static Gimbal_Ctrl_Cmd_s gimbal_cmd_recv;         // 来自cmd的控制信息
+static Gimbal_Ctrl_Cmd_s gimbal_fast_cmd;         // 供1kHz任务读取的原子快照
+
+static float yaw_speed_ff_rad_s;
+static float pitch_speed_ff_rad_s;
+static Gimbal_Axis_Trajectory_s yaw_trajectory;
+static Gimbal_Axis_Trajectory_s pitch_trajectory;
+static uint32_t trajectory_generation;
+static uint32_t rejected_trajectory_generation;
+static uint8_t trajectory_active;
+static volatile Gimbal_Trajectory_Debug_s gimbal_trajectory_debug;
 
 static BMI088Instance *bmi088; // 云台IMU
+
+static uint8_t VisionTrajectoryDataValid(const Vision_Recv_s *vision)
+{
+    return isfinite(vision->yaw) && isfinite(vision->yaw_vel) && isfinite(vision->yaw_acc) &&
+           isfinite(vision->pitch) && isfinite(vision->pitch_vel) && isfinite(vision->pitch_acc);
+}
+
+static void AxisTrajectoryAccept(Gimbal_Axis_Trajectory_s *trajectory,
+                                 float theta_rad, float omega_rad_s,
+                                 float alpha_rad_s2, uint32_t anchor_dwt_count)
+{
+    trajectory->theta0_rad = theta_rad;
+    trajectory->omega0_rad_s = omega_rad_s;
+    trajectory->alpha0_rad_s2 = alpha_rad_s2;
+    trajectory->anchor_dwt_count = anchor_dwt_count;
+}
+
+static void AxisTrajectoryPropagate(const Gimbal_Axis_Trajectory_s *trajectory,
+                                    uint32_t now_dwt_count, float *theta_ref_rad,
+                                    float *omega_ref_rad_s)
+{
+    uint32_t age_us = DWT_CycleDeltaToUs(trajectory->anchor_dwt_count, now_dwt_count);
+    uint32_t propagation_us = age_us;
+
+    if (propagation_us > VISION_TRAJECTORY_MAX_PROPAGATION_US)
+        propagation_us = VISION_TRAJECTORY_MAX_PROPAGATION_US;
+
+    float dt = (float)propagation_us * 1e-6f;
+    *theta_ref_rad = trajectory->theta0_rad + trajectory->omega0_rad_s * dt +
+                     0.5f * trajectory->alpha0_rad_s2 * dt * dt;
+    *omega_ref_rad_s = trajectory->omega0_rad_s + trajectory->alpha0_rad_s2 * dt;
+
+    if (age_us > VISION_TRAJECTORY_MAX_PROPAGATION_US)
+        *omega_ref_rad_s = 0.0f;
+}
+
+static float MotorReferenceSign(const Motor_Init_Config_s *config)
+{
+    return config->controller_setting_init_config.motor_reverse_flag == MOTOR_DIRECTION_REVERSE ? -1.0f : 1.0f;
+}
+
+static void UpdateFastCommandSnapshot(void)
+{
+    uint32_t primask = __get_PRIMASK();
+    __disable_irq();
+    gimbal_fast_cmd = gimbal_cmd_recv;
+    __set_PRIMASK(primask);
+}
+
+static Gimbal_Ctrl_Cmd_s GetFastCommandSnapshot(void)
+{
+    Gimbal_Ctrl_Cmd_s snapshot;
+    uint32_t primask = __get_PRIMASK();
+    __disable_irq();
+    snapshot = gimbal_fast_cmd;
+    __set_PRIMASK(primask);
+    return snapshot;
+}
+
 void GimbalInit()
 {   
     gimba_IMU_data = INS_Init(); // IMU先初始化,获取姿态数据指针赋给yaw电机的其他数据来源
@@ -31,6 +115,8 @@ void GimbalInit()
     // yaw轴初始化
     gimbal_config->yaw_motor_config.controller_param_init_config.other_angle_feedback_ptr = &gimba_IMU_data->YawTotalAngle;
     gimbal_config->yaw_motor_config.controller_param_init_config.other_speed_feedback_ptr = &gimba_IMU_data->Gyro[2];
+    gimbal_config->yaw_motor_config.controller_param_init_config.speed_feedforward_ptr = &yaw_speed_ff_rad_s;
+    gimbal_config->yaw_motor_config.controller_setting_init_config.feedforward_flag |= SPEED_FEEDFORWARD;
     yaw_motor = DJIMotorInit(&gimbal_config->yaw_motor_config);
     
     /*
@@ -50,6 +136,9 @@ void GimbalInit()
     gimbal_config->pitch_motor_config.controller_param_init_config.other_speed_feedback_ptr = &gimba_IMU_data->Gyro[0];
 #endif
 
+    gimbal_config->pitch_motor_config.controller_param_init_config.speed_feedforward_ptr = &pitch_speed_ff_rad_s;
+    gimbal_config->pitch_motor_config.controller_setting_init_config.feedforward_flag |= SPEED_FEEDFORWARD;
+
     // 电机对total_angle闭环,上电时为零,会保持静止,收到遥控器数据再动
     switch (gimbal_config->pitch_motor_config.motor_type)
     {
@@ -62,6 +151,8 @@ void GimbalInit()
     default:
         break;
     }
+
+    UpdateFastCommandSnapshot();
 
     gimbal_pub = PubRegister("gimbal_feed", sizeof(Gimbal_Upload_Data_s));
     gimbal_sub = SubRegister("gimbal_cmd", sizeof(Gimbal_Ctrl_Cmd_s));
@@ -116,12 +207,10 @@ void GimbalTask()
         DJIMotorChangeFeed(yaw_motor, SPEED_LOOP, OTHER_FEED);
         DJIMotorOuterLoop(yaw_motor, ANGLE_LOOP);
         DJIMotorCloseLoop(yaw_motor, ANGLE_LOOP | SPEED_LOOP);
-        DJIMotorSetRef(yaw_motor, gimbal_cmd_recv.yaw); // yaw和pitch会在robot_cmd中处理好多圈和单圈
 
         if (gimbal_config->gimbal_type == MINI_GIMBAL && mini_yaw_motor != NULL)
         {
             DJIMotorEnable(mini_yaw_motor);
-            DJIMotorSetRef(mini_yaw_motor, gimbal_cmd_recv.mini_yaw); 
         }
     
         switch (gimbal_config->pitch_motor_config.motor_type)
@@ -132,13 +221,11 @@ void GimbalTask()
             DJIMotorChangeFeed(pitch_motor, SPEED_LOOP, OTHER_FEED);
             DJIMotorOuterLoop(pitch_motor, ANGLE_LOOP);
             DJIMotorCloseLoop(pitch_motor, ANGLE_LOOP | SPEED_LOOP);
-            DJIMotorSetRef(pitch_motor, gimbal_cmd_recv.pitch);
             break;
         case XMCY:
             XMMotorEnable(pitch_xmmotor);
             XMMotorChangeFeed(pitch_xmmotor, ANGLE_LOOP, OTHER_FEED);
             XMMotorChangeFeed(pitch_xmmotor, SPEED_LOOP, OTHER_FEED);
-            XMMotorSetRef(pitch_xmmotor, gimbal_cmd_recv.pitch);
             break;
         default:
             break;
@@ -147,6 +234,8 @@ void GimbalTask()
     default:
         break;
     }
+
+    UpdateFastCommandSnapshot();
     
     // 在合适的地方添加pitch重力补偿前馈力矩
     // 根据IMU姿态/pitch电机角度反馈计算出当前配重下的重力矩
@@ -178,4 +267,147 @@ void GimbalTask()
 
     //推送消息
     PubPushMessage(gimbal_pub, (void *)&gimbal_feedback_data);
+}
+
+void GimbalFastTask(void)
+{
+    Vision_Rx_Snapshot_s vision_snapshot = {0};
+    Gimbal_Ctrl_Cmd_s command = GetFastCommandSnapshot();
+    uint32_t now_dwt_count = DWT_GetCycleCount();
+
+    if (command.gimbal_mode != GIMBAL_GYRO_MODE)
+    {
+        trajectory_active = 0;
+        yaw_speed_ff_rad_s = 0.0f;
+        pitch_speed_ff_rad_s = 0.0f;
+        gimbal_trajectory_debug.vision_active = 0;
+        return;
+    }
+
+    if (!command.vision_control)
+    {
+        trajectory_active = 0;
+        yaw_speed_ff_rad_s = 0.0f;
+        pitch_speed_ff_rad_s = 0.0f;
+        DJIMotorSetRef(yaw_motor, command.yaw);
+
+        if (gimbal_config->gimbal_type == MINI_GIMBAL && mini_yaw_motor != NULL)
+            DJIMotorSetRef(mini_yaw_motor, command.mini_yaw);
+
+        switch (gimbal_config->pitch_motor_config.motor_type)
+        {
+        case GM6020:
+            DJIMotorSetRef(pitch_motor, command.pitch);
+            break;
+        case XMCY:
+            XMMotorSetRef(pitch_xmmotor, command.pitch);
+            break;
+        default:
+            break;
+        }
+
+        gimbal_trajectory_debug.vision_active = 0;
+        gimbal_trajectory_debug.command_stale = 0;
+        return;
+    }
+
+    if (!VisionGetRxSnapshotWithMeta(&vision_snapshot) ||
+        vision_snapshot.generation == 0 ||
+        (vision_snapshot.data.mode != 1 && vision_snapshot.data.mode != 2) ||
+        !VisionTrajectoryDataValid(&vision_snapshot.data))
+    {
+        if (vision_snapshot.generation != 0)
+            rejected_trajectory_generation = vision_snapshot.generation;
+        trajectory_active = 0;
+        yaw_speed_ff_rad_s = 0.0f;
+        pitch_speed_ff_rad_s = 0.0f;
+        gimbal_trajectory_debug.vision_active = 0;
+        gimbal_trajectory_debug.command_stale = 1;
+        return;
+    }
+
+    uint32_t command_age_us = DWT_CycleDeltaToUs(vision_snapshot.rx_dwt_count, now_dwt_count);
+    if (command_age_us > VISION_TRAJECTORY_STALE_US)
+    {
+        rejected_trajectory_generation = vision_snapshot.generation;
+        trajectory_active = 0;
+        yaw_speed_ff_rad_s = 0.0f;
+        pitch_speed_ff_rad_s = 0.0f;
+        gimbal_trajectory_debug.vision_active = 0;
+        gimbal_trajectory_debug.command_stale = 1;
+        gimbal_trajectory_debug.command_age_us = (uint32_t)command_age_us;
+        return;
+    }
+
+    if (vision_snapshot.generation == rejected_trajectory_generation)
+    {
+        trajectory_active = 0;
+        yaw_speed_ff_rad_s = 0.0f;
+        pitch_speed_ff_rad_s = 0.0f;
+        gimbal_trajectory_debug.vision_active = 0;
+        gimbal_trajectory_debug.command_stale = 1;
+        return;
+    }
+
+    if (vision_snapshot.generation != trajectory_generation)
+    {
+        AxisTrajectoryAccept(&yaw_trajectory,
+                             vision_snapshot.data.yaw,
+                             vision_snapshot.data.yaw_vel,
+                             vision_snapshot.data.yaw_acc,
+                             vision_snapshot.rx_dwt_count);
+        AxisTrajectoryAccept(&pitch_trajectory,
+                             vision_snapshot.data.pitch + VISION_PITCH_ZERO_OFFSET_DEG * DEGREE_2_RAD,
+                             vision_snapshot.data.pitch_vel,
+                             vision_snapshot.data.pitch_acc,
+                             vision_snapshot.rx_dwt_count);
+        trajectory_generation = vision_snapshot.generation;
+    }
+    trajectory_active = 1;
+
+    float yaw_ref_rad;
+    float pitch_ref_rad;
+    float yaw_omega_ref_rad_s;
+    float pitch_omega_ref_rad_s;
+    AxisTrajectoryPropagate(&yaw_trajectory, now_dwt_count, &yaw_ref_rad, &yaw_omega_ref_rad_s);
+    AxisTrajectoryPropagate(&pitch_trajectory, now_dwt_count, &pitch_ref_rad, &pitch_omega_ref_rad_s);
+
+    float yaw_ref_deg = yaw_ref_rad * RAD_2_DEGREE;
+    float pitch_ref_deg = pitch_ref_rad * RAD_2_DEGREE;
+    float pitch_ref_unlimited_deg = pitch_ref_deg;
+    LIMIT_MIN_MAX(pitch_ref_deg,
+                  gimbal_config->gimbal_offset.pitch_min_angle,
+                  gimbal_config->gimbal_offset.pitch_max_angle);
+    if (pitch_ref_deg != pitch_ref_unlimited_deg)
+        pitch_omega_ref_rad_s = 0.0f;
+
+    yaw_speed_ff_rad_s = MotorReferenceSign(&gimbal_config->yaw_motor_config) * yaw_omega_ref_rad_s;
+    pitch_speed_ff_rad_s = MotorReferenceSign(&gimbal_config->pitch_motor_config) * pitch_omega_ref_rad_s;
+
+    DJIMotorSetRef(yaw_motor, yaw_ref_deg);
+    switch (gimbal_config->pitch_motor_config.motor_type)
+    {
+    case GM6020:
+        DJIMotorSetRef(pitch_motor, pitch_ref_deg);
+        break;
+    case XMCY:
+        XMMotorSetRef(pitch_xmmotor, pitch_ref_deg);
+        break;
+    default:
+        break;
+    }
+
+    gimbal_trajectory_debug.vision_generation = trajectory_generation;
+    gimbal_trajectory_debug.command_age_us = (uint32_t)command_age_us;
+    gimbal_trajectory_debug.vision_active = 1;
+    gimbal_trajectory_debug.command_stale = 0;
+    gimbal_trajectory_debug.yaw_ref_deg = yaw_ref_deg;
+    gimbal_trajectory_debug.yaw_speed_ff_rad_s = yaw_speed_ff_rad_s;
+    gimbal_trajectory_debug.pitch_ref_deg = pitch_ref_deg;
+    gimbal_trajectory_debug.pitch_speed_ff_rad_s = pitch_speed_ff_rad_s;
+}
+
+const volatile Gimbal_Trajectory_Debug_s *GimbalGetTrajectoryDebug(void)
+{
+    return &gimbal_trajectory_debug;
 }

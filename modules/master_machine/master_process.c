@@ -3,6 +3,7 @@
 #include "daemon.h"
 #include "bsp_log.h"
 #include "bsp_usb.h"
+#include "bsp_dwt.h"
 
 #include <string.h>
 
@@ -14,6 +15,8 @@ static uint8_t vision_rx_frame[sizeof(Vision_Recv_s)];
 static uint16_t vision_rx_frame_len;
 static volatile Vision_Comm_Stats_s vision_comm_stats;
 static volatile uint8_t vision_offline_reported;
+static volatile uint32_t vision_rx_dwt_count;
+static volatile uint32_t vision_rx_generation;
 
 _Static_assert(sizeof(Vision_Recv_s) == 29u, "Vision_Recv_s protocol size changed");
 _Static_assert(sizeof(Vision_Send_s) == 43u, "Vision_Send_s protocol size changed");
@@ -158,6 +161,8 @@ static void DecodeVision(uint16_t recv_len)
             if (VisionCheckCRC16(vision_rx_frame, sizeof(vision_rx_frame)))
             {
                 memcpy(&recv_data, vision_rx_frame, sizeof(recv_data));
+                vision_rx_dwt_count = DWT_GetCycleCount();
+                vision_rx_generation++;
                 vision_comm_stats.rx_ok_count++;
                 vision_offline_reported = 0;
                 DaemonReload(vision_daemon_instance);
@@ -197,6 +202,8 @@ Vision_Recv_s *VisionInit(UART_HandleTypeDef *_handle)
     memset((void *)&vision_comm_stats, 0, sizeof(vision_comm_stats));
     vision_rx_frame_len = 0;
     vision_offline_reported = 0;
+    vision_rx_dwt_count = 0;
+    vision_rx_generation = 0;
 
     USB_Init_Config_s conf = {
         .tx_cbk = NULL,  // 不注册 TX complete,不在回调中续发
@@ -231,6 +238,23 @@ uint8_t VisionGetRxSnapshot(Vision_Recv_s *snapshot)
     primask = __get_PRIMASK();
     __disable_irq();
     memcpy(snapshot, &recv_data, sizeof(*snapshot));
+    __set_PRIMASK(primask);
+
+    return 1;
+}
+
+uint8_t VisionGetRxSnapshotWithMeta(Vision_Rx_Snapshot_s *snapshot)
+{
+    uint32_t primask;
+
+    if (snapshot == NULL)
+        return 0;
+
+    primask = __get_PRIMASK();
+    __disable_irq();
+    memcpy(&snapshot->data, &recv_data, sizeof(snapshot->data));
+    snapshot->rx_dwt_count = vision_rx_dwt_count;
+    snapshot->generation = vision_rx_generation;
     __set_PRIMASK(primask);
 
     return 1;

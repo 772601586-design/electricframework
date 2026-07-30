@@ -53,8 +53,16 @@ typedef struct
     uint32_t usb_reset_count;
 } Vision_Comm_Stats_s;
 
+typedef struct
+{
+    Vision_Recv_s data;
+    uint32_t rx_dwt_count;
+    uint32_t generation;
+} Vision_Rx_Snapshot_s;
+
 Vision_Recv_s *VisionInit(UART_HandleTypeDef *_handle);
 uint8_t VisionGetRxSnapshot(Vision_Recv_s *snapshot);
+uint8_t VisionGetRxSnapshotWithMeta(Vision_Rx_Snapshot_s *snapshot);
 uint8_t VisionSend(void);
 const volatile Vision_Comm_Stats_s *VisionGetCommStats(void);
 

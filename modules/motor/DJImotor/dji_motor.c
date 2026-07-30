@@ -172,7 +172,19 @@ DJIMotorInstance *DJIMotorInit(Motor_Init_Config_s *config)
     instance->motor_controller.other_speed_feedback_ptr = config->controller_param_init_config.other_speed_feedback_ptr;
     instance->motor_controller.current_feedforward_ptr = config->controller_param_init_config.current_feedforward_ptr;
     instance->motor_controller.speed_feedforward_ptr = config->controller_param_init_config.speed_feedforward_ptr;
-    // 后续增加电机前馈控制器(速度和电流)
+
+    if ((instance->motor_settings.feedforward_flag & SPEED_FEEDFORWARD) &&
+        instance->motor_controller.speed_feedforward_ptr == NULL)
+    {
+        LOGERROR("[dji_motor] speed feedforward enabled with NULL pointer");
+        instance->motor_settings.feedforward_flag &= ~SPEED_FEEDFORWARD;
+    }
+    if ((instance->motor_settings.feedforward_flag & CURRENT_FEEDFORWARD) &&
+        instance->motor_controller.current_feedforward_ptr == NULL)
+    {
+        LOGERROR("[dji_motor] current feedforward enabled with NULL pointer");
+        instance->motor_settings.feedforward_flag &= ~CURRENT_FEEDFORWARD;
+    }
 
     // 电机分组,因为至多4个电机可以共用一帧CAN控制报文
     MotorSenderGrouping(instance, &config->can_init_config);
@@ -282,6 +294,10 @@ void DJIMotorControl()
         {
             if (motor_setting->feedforward_flag & SPEED_FEEDFORWARD)
                 pid_ref += *motor_controller->speed_feedforward_ptr;
+
+            // 速度前馈不能绕过位置环的速度参考限幅
+            if (motor_setting->outer_loop_type == ANGLE_LOOP && motor_controller->angle_PID.MaxOut > 0.0f)
+                LIMIT_MIN_MAX(pid_ref, -motor_controller->angle_PID.MaxOut, motor_controller->angle_PID.MaxOut);
 
             if (motor_setting->speed_feedback_source == OTHER_FEED)
                 pid_measure = *motor_controller->other_speed_feedback_ptr;

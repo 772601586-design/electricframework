@@ -23,7 +23,6 @@
 #define RAD_TO_DEG 57.295779513f
 #define DEG_TO_RAD (1.0f / 57.295779513f)
 #define YAW_GEAR_RATIO 1.25f  // yaw轴皮带传动比 1:1.25
-#define PITCH_ZERO_OFFSET 0.0f  // pitch轴零点偏移，调整此值使上位机发送0时云台水平
 
 /* cmd应用包含的模块实例指针和交互信息存储*/
 static Robot_Config_s *robot_config;
@@ -186,6 +185,8 @@ static void RemoteControlSet()
     static float add_yaw, add_pitch; // 角度增量
     static shoot_mode_e last_shoot_mode = SHOOT_ZERO_FORCE; 
 
+    gimbal_cmd_send.vision_control = 0;
+
 #ifdef ONE_BOARD
     // 单独控制云台和底盘
 
@@ -255,7 +256,7 @@ static void RemoteControlSet()
             (vision_recv_data->mode == 1 || vision_recv_data->mode == 2))
         {
             float vision_yaw = vision_recv_data->yaw * RAD_TO_DEG;
-            float vision_pitch = vision_recv_data->pitch * RAD_TO_DEG + PITCH_ZERO_OFFSET;
+            float vision_pitch = vision_recv_data->pitch * RAD_TO_DEG + VISION_PITCH_ZERO_OFFSET_DEG;
             if (vision_recv_data->mode == 2) {
                 shoot_cmd_send.shoot_mode = SHOOT_ON;
                 shoot_cmd_send.friction_mode = FRICTION_ON;
@@ -266,6 +267,7 @@ static void RemoteControlSet()
                 shoot_cmd_send.friction_mode = FRICTION_ON;
             }
             gimbal_cmd_send.gimbal_mode = GIMBAL_GYRO_MODE;
+            gimbal_cmd_send.vision_control = 1;
             gimbal_cmd_send.yaw = vision_yaw;
             gimbal_cmd_send.pitch = vision_pitch;
             add_yaw = 0.0f;
@@ -352,6 +354,7 @@ static void RemoteControlSet()
 static void MouseKeySet()
 {
     static float add_yaw, add_pitch; // 角度增量
+    gimbal_cmd_send.vision_control = 0;
     add_yaw = (float)rc_data[TEMP].mouse.x / 660 * 10; // 系数待测
     add_pitch = -(float)rc_data[TEMP].mouse.y / 660 * 10;
 
@@ -414,7 +417,8 @@ static void MouseKeySet()
         if (vision_recv_data->mode == 1 || vision_recv_data->mode == 2)
         {
             gimbal_cmd_send.yaw = vision_recv_data->yaw * RAD_TO_DEG;
-            gimbal_cmd_send.pitch = vision_recv_data->pitch * RAD_TO_DEG + PITCH_ZERO_OFFSET;
+            gimbal_cmd_send.pitch = vision_recv_data->pitch * RAD_TO_DEG + VISION_PITCH_ZERO_OFFSET_DEG;
+            gimbal_cmd_send.vision_control = 1;
 
             add_yaw = 0.0f;
             add_pitch = 0.0f;

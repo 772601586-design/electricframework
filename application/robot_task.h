@@ -7,6 +7,7 @@
 #include "cmsis_os.h"
 
 #include "robot.h"
+#include "gimbal.h"
 #include "ins_task.h"
 #include "motor_task.h"
 #include "referee_task.h"
@@ -89,6 +90,7 @@ __attribute__((noreturn)) void StartMOTORTASK(void const *argument)
     for (;;)
     {
         motor_start = DWT_GetTimeline_ms();
+        GimbalFastTask();
         MotorControlTask();
         motor_dt = DWT_GetTimeline_ms() - motor_start;
         if (motor_dt > 1)

@@ -184,6 +184,8 @@ typedef struct
     float pitch;
     float chassis_rotate_wz;
 
+    uint8_t vision_control; // 视觉轨迹是否接管云台目标
+
     gimbal_mode_e gimbal_mode;
     gimbal_mode_e last_mode;
 } Gimbal_Ctrl_Cmd_s;
