@@ -519,3 +519,11 @@ FOLLOW_KFF: 0.20 → 0.35 → 0.50 → 0.65 → 0.80
 - [ ] 第一阶段 `FOLLOW_KFF = 0.0`，确认反馈正确后再开前馈
 - [ ] 串口先不发，确认控制逻辑正确后再打开调试输出
 - [ ] `wz_target` 方向与实际底盘旋转方向一致
+
+---
+
+## 附录：VisionSend 频率修复
+
+**问题**：`VisionSend()` 在 `RobotCMDTask()` 中以 200Hz 调用，USB CDC 连续发送 43 字节/帧，上位机串口读取未做 `SP` 帧头同步时，USB 驱动攒包导致读帧错位，CRC 持续失败。
+
+**修复**：[robot_cmd.c:631](../application/cmd/robot_cmd.c) 加 4 分频 → 50Hz。上位机侧需做 `SP` 帧头搜索 + CRC 校验。

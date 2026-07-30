@@ -23,7 +23,7 @@ Robot_Config_s *SentinelConfigInit(void)
                 .can_init_config.can_handle = &hcan1,
                 .controller_param_init_config = {
                     .speed_PID = {
-                        .Kp = 5.0,
+                        .Kp = 3.0,
                         .Ki = 1.0,
                         .Kd = 0.0, 
                         .IntegralLimit = 3000,

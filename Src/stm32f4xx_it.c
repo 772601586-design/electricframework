@@ -41,7 +41,30 @@
 
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN PV */
+typedef struct
+{
+  uint32_t magic;
+  uint32_t count;
+  uint32_t exc_return;
+  uint32_t r0;
+  uint32_t r1;
+  uint32_t r2;
+  uint32_t r3;
+  uint32_t r12;
+  uint32_t lr;
+  uint32_t pc;
+  uint32_t xpsr;
+  uint32_t cfsr;
+  uint32_t hfsr;
+  uint32_t dfsr;
+  uint32_t afsr;
+  uint32_t mmfar;
+  uint32_t bfar;
+  uint32_t icsr;
+  uint32_t shcsr;
+} HardFault_Record_s;
 
+volatile HardFault_Record_s hardfault_record;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -51,7 +74,37 @@
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+__attribute__((used, noinline)) void HardFault_Capture(uint32_t *stack,
+                                                       uint32_t exc_return)
+{
+  __disable_irq();
 
+  hardfault_record.magic = 0U;
+  hardfault_record.count++;
+  hardfault_record.exc_return = exc_return;
+  hardfault_record.r0 = stack[0];
+  hardfault_record.r1 = stack[1];
+  hardfault_record.r2 = stack[2];
+  hardfault_record.r3 = stack[3];
+  hardfault_record.r12 = stack[4];
+  hardfault_record.lr = stack[5];
+  hardfault_record.pc = stack[6];
+  hardfault_record.xpsr = stack[7];
+  hardfault_record.cfsr = SCB->CFSR;
+  hardfault_record.hfsr = SCB->HFSR;
+  hardfault_record.dfsr = SCB->DFSR;
+  hardfault_record.afsr = SCB->AFSR;
+  hardfault_record.mmfar = SCB->MMFAR;
+  hardfault_record.bfar = SCB->BFAR;
+  hardfault_record.icsr = SCB->ICSR;
+  hardfault_record.shcsr = SCB->SHCSR;
+  hardfault_record.magic = 0x48465254U; /* "HFRT": capture is complete. */
+
+  while (1)
+  {
+    __NOP();
+  }
+}
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
@@ -102,17 +155,17 @@ void NMI_Handler(void)
 /**
   * @brief This function handles Hard fault interrupt.
   */
-void HardFault_Handler(void)
+__attribute__((naked)) void HardFault_Handler(void)
 {
   /* USER CODE BEGIN HardFault_IRQn 0 */
-  asm("bx lr");
+  __asm volatile(
+      "tst lr, #4      \n"
+      "ite eq          \n"
+      "mrseq r0, msp   \n"
+      "mrsne r0, psp   \n"
+      "mov r1, lr      \n"
+      "b HardFault_Capture \n");
   /* USER CODE END HardFault_IRQn 0 */
-  while (1)
-  {
-    /* USER CODE BEGIN W1_HardFault_IRQn 0 */
-    asm("bx lr");
-    /* USER CODE END W1_HardFault_IRQn 0 */
-  }
 }
 
 /**

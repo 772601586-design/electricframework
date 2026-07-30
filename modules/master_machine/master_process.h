@@ -40,8 +40,23 @@ typedef struct
 
 #pragma pack(pop)
 
+typedef struct
+{
+    uint32_t tx_ok_count;
+    uint32_t tx_queued_count;
+    uint32_t tx_pending_replace_count;
+    uint32_t tx_complete_count;
+    uint32_t tx_busy_drop_count;
+    uint32_t tx_fail_count;
+    uint32_t rx_ok_count;
+    uint32_t rx_crc_error_count;
+    uint32_t usb_reset_count;
+} Vision_Comm_Stats_s;
+
 Vision_Recv_s *VisionInit(UART_HandleTypeDef *_handle);
-void VisionSend(void);
+uint8_t VisionGetRxSnapshot(Vision_Recv_s *snapshot);
+uint8_t VisionSend(void);
+const volatile Vision_Comm_Stats_s *VisionGetCommStats(void);
 
 /* 每个控制周期把下位机状态塞给上位机 */
 void VisionUpdateTx(uint8_t mode,

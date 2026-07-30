@@ -10,6 +10,13 @@ static Vision_Recv_s recv_data;
 static Vision_Send_s send_data;
 static DaemonInstance *vision_daemon_instance;
 static uint8_t *vis_recv_buff;
+static uint8_t vision_rx_frame[sizeof(Vision_Recv_s)];
+static uint16_t vision_rx_frame_len;
+static volatile Vision_Comm_Stats_s vision_comm_stats;
+static volatile uint8_t vision_offline_reported;
+
+_Static_assert(sizeof(Vision_Recv_s) == 29u, "Vision_Recv_s protocol size changed");
+_Static_assert(sizeof(Vision_Send_s) == 43u, "Vision_Send_s protocol size changed");
 
 /* 和 sp_vision_25 一致的 CRC16/X25 */
 static uint16_t VisionCRC16(const uint8_t *data, uint32_t len)
@@ -40,8 +47,32 @@ static uint8_t VisionCheckCRC16(const uint8_t *data, uint32_t len)
 
 static void VisionOfflineCallback(void *id)
 {
+    uint32_t primask;
+    uint8_t report_offline = 0;
+
     (void)id;
-    LOGWARNING("[vision] vision offline.");
+    primask = __get_PRIMASK();
+    __disable_irq();
+
+    /*
+     * A valid frame may arrive after DaemonTask decides to invoke this
+     * callback. Re-check the daemon while USB interrupts are masked so a
+     * freshly received command is not overwritten with mode 0.
+     */
+    if (vision_daemon_instance != NULL &&
+        !DaemonIsOnline(vision_daemon_instance))
+    {
+        recv_data.mode = 0;
+        if (!vision_offline_reported)
+        {
+            vision_offline_reported = 1;
+            report_offline = 1;
+        }
+    }
+    __set_PRIMASK(primask);
+
+    if (report_offline)
+        LOGWARNING("[vision] vision offline.");
 }
 
 void VisionUpdateTx(uint8_t mode,
@@ -67,34 +98,93 @@ void VisionUpdateTx(uint8_t mode,
     send_data.bullet_count = bullet_count;
 }
 
+static void VisionRxResync(void)
+{
+    for (uint16_t i = 1; i + 1 < sizeof(vision_rx_frame); i++)
+    {
+        if (vision_rx_frame[i] == 'S' && vision_rx_frame[i + 1] == 'P')
+        {
+            vision_rx_frame_len = sizeof(vision_rx_frame) - i;
+            memmove(vision_rx_frame, vision_rx_frame + i, vision_rx_frame_len);
+            return;
+        }
+    }
+
+    if (vision_rx_frame[sizeof(vision_rx_frame) - 1] == 'S')
+    {
+        vision_rx_frame[0] = 'S';
+        vision_rx_frame_len = 1;
+    }
+    else
+    {
+        vision_rx_frame_len = 0;
+    }
+}
+
 static void DecodeVision(uint16_t recv_len)
 {
-    LOGINFO("[vision] DecodeVision called, recv_len=%d", recv_len);
-
-    if (recv_len < sizeof(Vision_Recv_s))
-        return;
-
-    for (uint16_t i = 0; i + sizeof(Vision_Recv_s) <= recv_len; i++)
+    for (uint16_t i = 0; i < recv_len; i++)
     {
-        Vision_Recv_s pkt;
-        memcpy(&pkt, vis_recv_buff + i, sizeof(Vision_Recv_s));
+        uint8_t byte = vis_recv_buff[i];
 
-        if (pkt.head[0] != 'S' || pkt.head[1] != 'P')
-            continue;
-
-        LOGINFO("[vision] Found SP header at offset %d", i);
-
-        if (!VisionCheckCRC16((const uint8_t *)&pkt, sizeof(Vision_Recv_s)))
+        if (vision_rx_frame_len == 0)
         {
-            LOGWARNING("[vision] CRC check failed");
+            if (byte == 'S')
+            {
+                vision_rx_frame[0] = byte;
+                vision_rx_frame_len = 1;
+            }
             continue;
         }
 
-        LOGINFO("[vision] Received: mode=%d, yaw=%.3f, pitch=%.3f", pkt.mode, pkt.yaw, pkt.pitch);
-        recv_data = pkt;
-        DaemonReload(vision_daemon_instance);
-        return;
+        if (vision_rx_frame_len == 1)
+        {
+            if (byte == 'P')
+            {
+                vision_rx_frame[1] = byte;
+                vision_rx_frame_len = 2;
+            }
+            else if (byte != 'S')
+            {
+                vision_rx_frame_len = 0;
+            }
+            continue;
+        }
+
+        vision_rx_frame[vision_rx_frame_len++] = byte;
+
+        if (vision_rx_frame_len == sizeof(vision_rx_frame))
+        {
+            if (VisionCheckCRC16(vision_rx_frame, sizeof(vision_rx_frame)))
+            {
+                memcpy(&recv_data, vision_rx_frame, sizeof(recv_data));
+                vision_comm_stats.rx_ok_count++;
+                vision_offline_reported = 0;
+                DaemonReload(vision_daemon_instance);
+                vision_rx_frame_len = 0;
+            }
+            else
+            {
+                vision_comm_stats.rx_crc_error_count++;
+                VisionRxResync();
+            }
+        }
     }
+}
+
+/**
+ * @brief USB reset 回调。
+ *        只清理接收状态和控制模式,不再维护 TX 双缓冲状态。
+ */
+static void VisionUsbResetCallback(void)
+{
+    uint32_t primask = __get_PRIMASK();
+
+    __disable_irq();
+    vision_rx_frame_len = 0;
+    recv_data.mode = 0;
+    vision_comm_stats.usb_reset_count++;
+    __set_PRIMASK(primask);
 }
 
 Vision_Recv_s *VisionInit(UART_HandleTypeDef *_handle)
@@ -103,9 +193,15 @@ Vision_Recv_s *VisionInit(UART_HandleTypeDef *_handle)
 
     memset(&recv_data, 0, sizeof(recv_data));
     memset(&send_data, 0, sizeof(send_data));
+    memset(vision_rx_frame, 0, sizeof(vision_rx_frame));
+    memset((void *)&vision_comm_stats, 0, sizeof(vision_comm_stats));
+    vision_rx_frame_len = 0;
+    vision_offline_reported = 0;
 
     USB_Init_Config_s conf = {
-        .rx_cbk = DecodeVision
+        .tx_cbk = NULL,  // 不注册 TX complete,不在回调中续发
+        .rx_cbk = DecodeVision,
+        .reset_cbk = VisionUsbResetCallback,
     };
 
     vis_recv_buff = USBInit(conf);
@@ -120,13 +216,53 @@ Vision_Recv_s *VisionInit(UART_HandleTypeDef *_handle)
     return &recv_data;
 }
 
-void VisionSend(void)
+uint8_t VisionGetRxSnapshot(Vision_Recv_s *snapshot)
+{
+    uint32_t primask;
+
+    if (snapshot == NULL)
+        return 0;
+
+    /*
+     * recv_data is replaced in the USB OUT interrupt. Copying one complete
+     * 29-byte frame with interrupts masked prevents the control task from
+     * observing fields from two different frames.
+     */
+    primask = __get_PRIMASK();
+    __disable_irq();
+    memcpy(snapshot, &recv_data, sizeof(*snapshot));
+    __set_PRIMASK(primask);
+
+    return 1;
+}
+
+/**
+ * @brief CDC 忙就丢帧,不做 pending 排队。
+ *        和 Restar2027Sentinel 行为一致:
+ *        build packet → USBTransmit → USBD_BUSY 就丢弃本帧。
+ */
+uint8_t VisionSend(void)
 {
     Vision_Send_s tx_pkt = send_data;
+    uint8_t status;
 
     tx_pkt.head[0] = 'S';
     tx_pkt.head[1] = 'P';
     tx_pkt.crc16 = VisionCRC16((const uint8_t *)&tx_pkt, sizeof(Vision_Send_s) - 2);
 
-    USBTransmit((uint8_t *)&tx_pkt, sizeof(Vision_Send_s));
+    status = USBTransmit((const uint8_t *)&tx_pkt, sizeof(Vision_Send_s));
+
+    if (status == USBD_OK)
+        vision_comm_stats.tx_ok_count++;
+    else if (status == USBD_BUSY)
+        vision_comm_stats.tx_busy_drop_count++;
+    else
+        vision_comm_stats.tx_fail_count++;
+
+    return status;
+}
+
+const volatile Vision_Comm_Stats_s *VisionGetCommStats(void)
+{
+    return &vision_comm_stats;
 }

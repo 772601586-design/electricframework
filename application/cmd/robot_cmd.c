@@ -42,6 +42,7 @@ static Chassis_Upload_Data_s chassis_fetch_data; // 从底盘应用接收的反�
 
 static RC_ctrl_t *rc_data;              // 遥控器数据,初始化时返回
 static Vision_Recv_s *vision_recv_data; // 视觉接收数据指针,初始化时返回
+static Vision_Recv_s vision_recv_snapshot;
 static Vision_Send_s vision_send_data;  // 视觉发送数据
 
 static Publisher_t *gimbal_cmd_pub;            // 云台控制消息发布者
@@ -64,7 +65,7 @@ LEDInstance *led_alarm;
 
 void RobotCMDInit()
 {
-    robot_config = RobotConfigInit(SENTINEL_ROBOT);
+    robot_config = RobotConfigInit(ROBOT_ID);
 
     Buzzer_config_s buzzer_config ={
             .alarm_level = ALARM_LEVEL_HIGH, //设置警报等级 同一状态下 高等级的响应
@@ -81,7 +82,9 @@ void RobotCMDInit()
     led_alarm = LEDRegister(&LED_config);
 
     rc_data = RemoteControlInit(&huart3);   // 修改为对应串口,注意如果是自研板dbus协议串口需选用添加了反相器的那个
-    vision_recv_data = VisionInit(&huart1); // 视觉通信串口
+    (void)VisionInit(&huart1); // 视觉通信串口
+    VisionGetRxSnapshot(&vision_recv_snapshot);
+    vision_recv_data = &vision_recv_snapshot;
 
     referee_data = UITaskInit(&huart6,&ui_data); // 裁判系统初始化,会同时初始化UI 
 
@@ -410,8 +413,8 @@ static void MouseKeySet()
     case 1:
         if (vision_recv_data->mode == 1 || vision_recv_data->mode == 2)
         {
-            gimbal_cmd_send.yaw = vision_recv_data->yaw;
-            gimbal_cmd_send.pitch = vision_recv_data->pitch;
+            gimbal_cmd_send.yaw = vision_recv_data->yaw * RAD_TO_DEG;
+            gimbal_cmd_send.pitch = vision_recv_data->pitch * RAD_TO_DEG + PITCH_ZERO_OFFSET;
 
             add_yaw = 0.0f;
             add_pitch = 0.0f;
@@ -647,6 +650,8 @@ static void RefereeHandler()
 /* 机器人核心控制任务,200Hz频率运行(必须高于视觉发送频率) */
 void RobotCMDTask()
 {
+    VisionGetRxSnapshot(&vision_recv_snapshot);
+
     // 从其他应用获取回传数据
 #ifdef ONE_BOARD
     SubGetMessage(chassis_feed_sub, (void *)&chassis_fetch_data);

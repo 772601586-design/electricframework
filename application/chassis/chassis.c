@@ -364,7 +364,10 @@ static void LimitChassisOutput()
 
     float currentPower[4];
     float error[4];
-    float allocatablePower, sumPowerRequired, sumCurrentPower, sumError;
+    float allocatablePower;
+    float sumPowerRequired = 0.0f;
+    float sumCurrentPower = 0.0f;
+    float sumError = 0.0f;
     float errorConfidence, powerWeight_Error, powerWeight_Prop, powerWeight, delta;
 
     // 裁判系统获得的功率限制值

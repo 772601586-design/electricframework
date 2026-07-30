@@ -33,9 +33,12 @@ void GimbalInit()
     gimbal_config->yaw_motor_config.controller_param_init_config.other_speed_feedback_ptr = &gimba_IMU_data->Gyro[2];
     yaw_motor = DJIMotorInit(&gimbal_config->yaw_motor_config);
     
-    // 小yaw轴初始化
-    if (gimbal_config->gimbal_type == MINI_GIMBAL)
-   //     mini_yaw_motor = DJIMotorInit(&gimbal_config->mini_yaw_motor_config);
+    /*
+     * 小 yaw 电机当前未启用。不要在这里保留一个没有函数体的 if：
+     * 被注释掉的语句会让下面的 pitch 角度反馈初始化意外成为 if 的
+     * 单条语句，导致 SINGLE_GIMBAL 的反馈指针保持为 NULL。
+     */
+    mini_yaw_motor = NULL;
     
 #ifdef _IS_IMU_ROLL
     // PITCH
@@ -91,7 +94,7 @@ void GimbalTask()
     case GIMBAL_ZERO_FORCE:
         DJIMotorStop(yaw_motor);
 
-        if (gimbal_config->gimbal_type == MINI_GIMBAL)
+        if (gimbal_config->gimbal_type == MINI_GIMBAL && mini_yaw_motor != NULL)
             DJIMotorStop(mini_yaw_motor);
 
         switch (gimbal_config->pitch_motor_config.motor_type)
@@ -115,7 +118,7 @@ void GimbalTask()
         DJIMotorCloseLoop(yaw_motor, ANGLE_LOOP | SPEED_LOOP);
         DJIMotorSetRef(yaw_motor, gimbal_cmd_recv.yaw); // yaw和pitch会在robot_cmd中处理好多圈和单圈
 
-        if (gimbal_config->gimbal_type == MINI_GIMBAL)
+        if (gimbal_config->gimbal_type == MINI_GIMBAL && mini_yaw_motor != NULL)
         {
             DJIMotorEnable(mini_yaw_motor);
             DJIMotorSetRef(mini_yaw_motor, gimbal_cmd_recv.mini_yaw); 

@@ -65,6 +65,7 @@
 
 /* USER CODE BEGIN EXPORTED_TYPES */
 typedef void (*USBCallback)(uint16_t); // USB事件回调函数类型
+typedef void (*USBResetCallback)(void); // USB配置、复位或断开时重置上层通信状态
 /* USER CODE END EXPORTED_TYPES */
 
 /**
@@ -105,10 +106,12 @@ extern USBD_CDC_ItfTypeDef USBD_Interface_fops_FS;
   * @{
   */
 
-uint8_t CDC_Transmit_FS(uint8_t* Buf, uint16_t Len);
+uint8_t CDC_Transmit_FS(const uint8_t* Buf, uint16_t Len);
 
 /* USER CODE BEGIN EXPORTED_FUNCTIONS */
-uint8_t* CDCInitRxbufferNcallback(USBCallback transmit_cbk,USBCallback recv_cbk);
+uint8_t* CDCInitRxbufferNcallback(USBCallback transmit_cbk,
+                                 USBCallback recv_cbk,
+                                 USBResetCallback reset_cbk);
 /* USER CODE END EXPORTED_FUNCTIONS */
 
 /**
@@ -128,4 +131,3 @@ uint8_t* CDCInitRxbufferNcallback(USBCallback transmit_cbk,USBCallback recv_cbk)
 #endif
 
 #endif /* __USBD_CDC_IF_H__ */
-
