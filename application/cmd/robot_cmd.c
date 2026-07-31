@@ -24,6 +24,7 @@
 #define HALF_RC_CH_MAX ((RC_CH_VALUE_MAX - RC_CH_VALUE_MIN) / 2.0f)
 #define RAD_TO_DEG 57.295779513f
 #define DEG_TO_RAD (1.0f / 57.295779513f)
+#define RC_YAW_DEADBAND 10.0f
 
 /* cmd应用包含的模块实例指针和交互信息存储*/
 static Robot_Config_s *robot_config;
@@ -198,18 +199,13 @@ static void RemoteControlSet()
 {
     static float add_yaw, add_pitch; // 角度增量
     static shoot_mode_e last_shoot_mode = SHOOT_ZERO_FORCE; 
+    gimbal_mode_e previous_gimbal_mode = gimbal_cmd_send.gimbal_mode;
+    uint8_t previous_vision_control = gimbal_cmd_send.vision_control;
 
     gimbal_cmd_send.vision_control = 0;
 
 #ifdef ONE_BOARD
     // 单独控制云台和底盘
-
-     if (gimbal_cmd_send.last_mode == GIMBAL_ZERO_FORCE && gimbal_cmd_send.gimbal_mode == GIMBAL_GYRO_MODE) 
-    {
-        gimbal_cmd_send.pitch = gimbal_fetch_data.gimbal_imu_data.Pitch; // 目标 = 当前实际位置
-    }
-
-    gimbal_cmd_send.last_mode = gimbal_cmd_send.gimbal_mode;
     
     if (switch_is_down(rc_data[TEMP].rc.switch_left))      
     {   // 左侧开关状态[下],右侧开关状态不为[下],底盘无力,云台陀螺仪模式
@@ -259,8 +255,20 @@ static void RemoteControlSet()
         gimbal_cmd_send.gimbal_mode = GIMBAL_GYRO_MODE;
     }
 
+    gimbal_cmd_send.last_mode = previous_gimbal_mode;
+    if (gimbal_cmd_send.gimbal_mode == GIMBAL_GYRO_MODE &&
+        (previous_gimbal_mode == GIMBAL_ZERO_FORCE || previous_vision_control))
+    {
+        // 进入控制模式或退出视觉接管时，丢弃历史多圈目标。
+        gimbal_cmd_send.yaw = gimbal_fetch_data.gimbal_imu_data.YawTotalAngle;
+        gimbal_cmd_send.pitch = gimbal_fetch_data.gimbal_imu_data.Pitch;
+    }
+
     // 云台陀螺仪模式,并且视觉未识别到目标,纯遥控器拨杆控制
-    add_yaw = RC_TO_YAW_ANGLE * (float)rc_data[TEMP].rc.rocker_l_;
+    float yaw_rocker = (float)rc_data[TEMP].rc.rocker_l_;
+    if (fabsf(yaw_rocker) <= RC_YAW_DEADBAND)
+        yaw_rocker = 0.0f;
+    add_yaw = RC_TO_YAW_ANGLE * yaw_rocker;
     add_pitch = RC_TO_PITCH_ANGLE * (float)rc_data[TEMP].rc.rocker_l1;
 
     if (robot_state == ROBOT_READY)
