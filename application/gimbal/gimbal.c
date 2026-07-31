@@ -64,6 +64,12 @@ static void AxisTrajectoryAccept(Gimbal_Axis_Trajectory_s *trajectory,
     trajectory->anchor_dwt_count = anchor_dwt_count;
 }
 
+static float VisionYawToNearestTotalRad(float vision_yaw_rad)
+{
+    float current_total_rad = gimba_IMU_data->YawTotalAngle * DEGREE_2_RAD;
+    return vision_yaw_rad + PI2 * roundf((current_total_rad - vision_yaw_rad) / PI2);
+}
+
 static void AxisTrajectoryPropagate(const Gimbal_Axis_Trajectory_s *trajectory,
                                     uint32_t now_dwt_count, float *theta_ref_rad,
                                     float *omega_ref_rad_s)
@@ -352,14 +358,14 @@ void GimbalFastTask(void)
     if (vision_snapshot.generation != trajectory_generation)
     {
         AxisTrajectoryAccept(&yaw_trajectory,
-                             vision_snapshot.data.yaw,
+                             VisionYawToNearestTotalRad(vision_snapshot.data.yaw),
                              vision_snapshot.data.yaw_vel,
                              vision_snapshot.data.yaw_acc,
                              vision_snapshot.rx_dwt_count);
         AxisTrajectoryAccept(&pitch_trajectory,
-                             vision_snapshot.data.pitch + VISION_PITCH_ZERO_OFFSET_DEG * DEGREE_2_RAD,
-                             vision_snapshot.data.pitch_vel,
-                             vision_snapshot.data.pitch_acc,
+                             -vision_snapshot.data.pitch + VISION_PITCH_ZERO_OFFSET_DEG * DEGREE_2_RAD,
+                             -vision_snapshot.data.pitch_vel,
+                             -vision_snapshot.data.pitch_acc,
                              vision_snapshot.rx_dwt_count);
         trajectory_generation = vision_snapshot.generation;
     }

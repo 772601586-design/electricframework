@@ -13,7 +13,7 @@
 
 #define RC_TO_YAW_ANGLE 0.002f    // 遥控器转yaw增量阈值
 #define RC_TO_PITCH_ANGLE 0.008f  // 遥控器转pitch增量阈值
-#define VISION_PITCH_ZERO_OFFSET_DEG 0.0f // 视觉pitch零点相对IMU角度的偏移
+#define VISION_PITCH_ZERO_OFFSET_DEG 3.38f // IMU pitch at the horizontal barrel position
 
 //#define _IS_IMU_ROLL    // 是否使用IMU的roll角作为pitch角(由于不常修改，所有作为宏)
 

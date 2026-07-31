@@ -13,13 +13,13 @@
 typedef struct
 {
     uint8_t head[2];   // 'S', 'P'
-    uint8_t mode;      // 0: 不控制, 1: 控制云台不开火, 2: 控制云台并开火
-    float yaw;
-    float yaw_vel;
-    float yaw_acc;
-    float pitch;
-    float pitch_vel;
-    float pitch_acc;
+    uint8_t mode;      // 0: no target, 1: track, 2: track with fire advice
+    float yaw;         // rad, left positive, wrapped to [-pi, pi]
+    float yaw_vel;     // rad/s
+    float yaw_acc;     // rad/s^2
+    float pitch;       // rad, down positive
+    float pitch_vel;   // rad/s
+    float pitch_acc;   // rad/s^2
     uint16_t crc16;
 } Vision_Recv_s;
 
@@ -28,11 +28,11 @@ typedef struct
 {
     uint8_t head[2];   // 'S', 'P'
     uint8_t mode;      // 0: 空闲, 1: 自瞄, 2: 小符, 3: 大符
-    float q[4];        // w, x, y, z
-    float yaw;
-    float yaw_vel;
-    float pitch;
-    float pitch_vel;
+    float q[4];        // w, x, y, z in the vision frame: x forward, y left, z up
+    float yaw;         // rad, left positive, wrapped to [-pi, pi]
+    float yaw_vel;     // rad/s
+    float pitch;       // rad, down positive
+    float pitch_vel;   // rad/s
     float bullet_speed;
     uint16_t bullet_count;
     uint16_t crc16;

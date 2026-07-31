@@ -18,11 +18,12 @@
 #include "bsp_dwt.h"
 #include "bsp_log.h"
 
+#include <math.h>
+
 /* 根据remote_control.h中的通道值自动计算的参数 */
 #define HALF_RC_CH_MAX ((RC_CH_VALUE_MAX - RC_CH_VALUE_MIN) / 2.0f)
 #define RAD_TO_DEG 57.295779513f
 #define DEG_TO_RAD (1.0f / 57.295779513f)
-#define YAW_GEAR_RATIO 1.25f  // yaw轴皮带传动比 1:1.25
 
 /* cmd应用包含的模块实例指针和交互信息存储*/
 static Robot_Config_s *robot_config;
@@ -58,6 +59,19 @@ static referee_info_t* referee_data; // 用于获取裁判系统的数据
 static Referee_Interactive_info_t ui_data; // UI数据，将底盘中的数据传入此结构体的对应变量中，UI会自动检测是否变化，对应显示UI
 
 static Robot_Status_e robot_state; // 机器人整体工作状态
+
+static float VisionYawToNearestTotalDeg(float vision_yaw_rad)
+{
+    float yaw_deg = vision_yaw_rad * RAD_TO_DEG;
+    float current_total_deg = gimbal_fetch_data.gimbal_imu_data.YawTotalAngle;
+    return yaw_deg + 360.0f * roundf((current_total_deg - yaw_deg) / 360.0f);
+}
+
+static void BuildVisionQuaternion(float yaw_deg, float pitch_deg, float roll_deg, float q[4])
+{
+    /* The INS helper names its X/Y rotations Pitch/Roll. Vision uses X/Y as roll/pitch. */
+    EularAngleToQuaternion(yaw_deg, roll_deg, pitch_deg, q);
+}
 
 BuzzzerInstance *buzzer_alarm;
 LEDInstance *led_alarm;
@@ -255,8 +269,9 @@ static void RemoteControlSet()
         if (switch_is_up(rc_data[TEMP].rc.switch_right) &&
             (vision_recv_data->mode == 1 || vision_recv_data->mode == 2))
         {
-            float vision_yaw = vision_recv_data->yaw * RAD_TO_DEG;
-            float vision_pitch = vision_recv_data->pitch * RAD_TO_DEG + VISION_PITCH_ZERO_OFFSET_DEG;
+            float vision_yaw = VisionYawToNearestTotalDeg(vision_recv_data->yaw);
+            // Vision: pitch < 0 is up. Internal IMU/control: pitch > 0 is up.
+            float vision_pitch = -vision_recv_data->pitch * RAD_TO_DEG + VISION_PITCH_ZERO_OFFSET_DEG;
             if (vision_recv_data->mode == 2) {
                 shoot_cmd_send.shoot_mode = SHOOT_ON;
                 shoot_cmd_send.friction_mode = FRICTION_ON;
@@ -416,8 +431,8 @@ static void MouseKeySet()
     case 1:
         if (vision_recv_data->mode == 1 || vision_recv_data->mode == 2)
         {
-            gimbal_cmd_send.yaw = vision_recv_data->yaw * RAD_TO_DEG;
-            gimbal_cmd_send.pitch = vision_recv_data->pitch * RAD_TO_DEG + VISION_PITCH_ZERO_OFFSET_DEG;
+            gimbal_cmd_send.yaw = VisionYawToNearestTotalDeg(vision_recv_data->yaw);
+            gimbal_cmd_send.pitch = -vision_recv_data->pitch * RAD_TO_DEG + VISION_PITCH_ZERO_OFFSET_DEG;
             gimbal_cmd_send.vision_control = 1;
 
             add_yaw = 0.0f;
@@ -428,6 +443,14 @@ static void MouseKeySet()
                 shoot_cmd_send.shoot_rate = 10;
                 shoot_cmd_send.load_mode = LOAD_BURSTFIRE;
             }
+            else
+            {
+                shoot_cmd_send.load_mode = LOAD_STOP;
+            }
+        }
+        else
+        {
+            shoot_cmd_send.load_mode = LOAD_STOP;
         }
         break;
 
@@ -612,23 +635,26 @@ static void RefereeHandler()
         chassis_cmd_send.power_limit = referee_data->GameRobotState.chassis_power_limit;
 
     // 裁判系统热量控制
-    if (referee_data->PowerHeatData.shooter_17mm_1_barrel_heat > 300)
+    uint16_t heat_limit = referee_data->GameRobotState.shooter_barrel_heat_limit;
+    if (heat_limit > 0 &&
+        referee_data->PowerHeatData.shooter_17mm_1_barrel_heat >= heat_limit)
         shoot_cmd_send.load_mode = LOAD_STOP;
 
     // 视觉数据反馈
+    float vision_yaw_deg = gimbal_fetch_data.gimbal_imu_data.Yaw;
+    float vision_pitch_deg = -gimbal_fetch_data.gimbal_imu_data.Pitch +
+                             VISION_PITCH_ZERO_OFFSET_DEG;
+    float vision_roll_deg = gimbal_fetch_data.gimbal_imu_data.Roll;
     float q[4];
-    EularAngleToQuaternion(gimbal_fetch_data.gimbal_imu_data.Yaw,
-                           gimbal_fetch_data.gimbal_imu_data.Pitch,
-                           gimbal_fetch_data.gimbal_imu_data.Roll,
-                           q);
+    BuildVisionQuaternion(vision_yaw_deg, vision_pitch_deg, vision_roll_deg, q);
 
     VisionUpdateTx(
         (gimbal_cmd_send.gimbal_mode == GIMBAL_GYRO_MODE) ? 1 : 0,
         q[0], q[1], q[2], q[3],
-        gimbal_fetch_data.gimbal_imu_data.YawTotalAngle / YAW_GEAR_RATIO,
+        vision_yaw_deg * DEG_TO_RAD,
         gimbal_fetch_data.gimbal_imu_data.Gyro[2],
-        gimbal_fetch_data.gimbal_imu_data.Pitch,
-        gimbal_fetch_data.gimbal_imu_data.Gyro[0],
+        vision_pitch_deg * DEG_TO_RAD,
+        -gimbal_fetch_data.gimbal_imu_data.Gyro[0],
         referee_data->ShootData.bullet_speed,
         referee_data->GameRobotState.shooter_barrel_cooling_value
     );
