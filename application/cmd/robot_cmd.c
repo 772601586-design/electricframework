@@ -25,6 +25,7 @@
 #define RAD_TO_DEG 57.295779513f
 #define DEG_TO_RAD (1.0f / 57.295779513f)
 #define RC_YAW_DEADBAND 10.0f
+#define PITCH_ZERO_OFFSET 0.0f  // pitch轴零点偏移，调整此值使上位机发送0时云台水平
 
 /* cmd应用包含的模块实例指针和交互信息存储*/
 static Robot_Config_s *robot_config;
@@ -159,7 +160,6 @@ static void CalcOffsetAngle()
             chassis_cmd_send.offset_angle = angle - 360.0f - yaw_align_angle;
     }
 }
-
 
 /**
  * @brief 根据gimbal fetch data进行yaw和pitch限幅

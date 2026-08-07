@@ -26,16 +26,7 @@
 
 static Chassis_Config_s *chassis_config;
 
-#define FOLLOW_YAW_DEADBAND_DEG  0.5f
-#define FOLLOW_SMALL_END_DEG     4.0f
-#define FOLLOW_KP_SMALL          15.0f
-#define FOLLOW_KP_LARGE          7.0f
-#define FOLLOW_KFF               0.0f    // 前馈增益,第一阶段先关
-#define FOLLOW_WZ_MAX            120.0f  // 最大角速度 (°/s)
-#define FOLLOW_ACCEL_MAX         600.0f  // 最大角加速度 (°/s²)
-#define FOLLOW_DT                0.005f  // 控制周期 (s)
-#define GIMBAL_GYRO_LPF_ALPHA    0.25f   // 角速度低通系数
-#define GYRO_RATE_DEADBAND       0.8f    // 角速度死区 (°/s)
+#define FOLLOW_KQ_KINEMATIC 1.5f // 第一版平方跟随增益,输出为运动学内部旋转量
 
 #define ROTATE_WZ_MAX 8800.0f      // 自旋模式最大旋转速度(电机RPM单位,M3508极限附近)
 #define ROTATE_WZ_DEFAULT 7500.0f  // 自旋模式默认旋转速度(电机RPM单位)
@@ -177,68 +168,6 @@ void ChassisInit()
 /* ==================== FOLLOW 模式控制函数 ==================== */
 
 /**
- * @brief 平滑死区,deadband内返回0,之外减去边界
- */
-static float ApplySoftDeadband(float input, float deadband)
-{
-    if (input > deadband)
-        return input - deadband;
-    if (input < -deadband)
-        return input + deadband;
-    return 0.0f;
-}
-
-/**
- * @brief 分段线性跟随反馈
- *        小角度(≤4°):高线性增益,解决迟钝
- *        大角度(>4°):降低增益增长率,避免猛冲
- */
-static float FollowYawFeedback(float yaw_error_deg)
-{
-    float e = ApplySoftDeadband(yaw_error_deg, FOLLOW_YAW_DEADBAND_DEG);
-    float abs_e = fabsf(e);
-    float wz_abs;
-
-    if (abs_e <= FOLLOW_SMALL_END_DEG)
-        wz_abs = FOLLOW_KP_SMALL * abs_e;
-    else
-        wz_abs = FOLLOW_KP_SMALL * FOLLOW_SMALL_END_DEG
-               + FOLLOW_KP_LARGE * (abs_e - FOLLOW_SMALL_END_DEG);
-
-    if (wz_abs > FOLLOW_WZ_MAX)
-        wz_abs = FOLLOW_WZ_MAX;
-
-    return (e > 0.0f) ? -wz_abs : wz_abs; // error>0 → wz为负(底盘顺时针转)
-}
-
-/**
- * @brief 角速度微小死区,消除静止噪声
- */
-static float ApplyRateDeadband(float rate_deg_s)
-{
-    if (rate_deg_s > GYRO_RATE_DEADBAND)
-        return rate_deg_s - GYRO_RATE_DEADBAND;
-    if (rate_deg_s < -GYRO_RATE_DEADBAND)
-        return rate_deg_s + GYRO_RATE_DEADBAND;
-    return 0.0f;
-}
-
-/**
- * @brief 斜坡限幅,限制目标角速度变化速率
- */
-static float SlewLimit(float target, float prev, float max_accel, float dt)
-{
-    float delta = target - prev;
-    float max_delta = max_accel * dt;
-
-    if (delta > max_delta)
-        return prev + max_delta;
-    if (delta < -max_delta)
-        return prev - max_delta;
-    return target;
-}
-
-/**
  * @brief 获取四轮最大电流绝对值
  */
 static float GetChassisMaxMotorCurrent(void)
@@ -256,44 +185,33 @@ static float GetChassisMaxMotorCurrent(void)
     return max_current;
 }
 
-static float wz_target_last = 0.0f;
+/**
+ * @brief 将底盘角速度转换为现有运动学解算使用的内部旋转量
+ * @note  ChassisCalculate中的轮心距离以mm保存,平移轮速则是电机轴°/s。
+ */
+static float FollowYawRateToKinematicInput(float yaw_rate_deg_s)
+{
+    return yaw_rate_deg_s * MM_2_M / rpm_2_wheel_vector;
+}
 
 /**
  * @brief FOLLOW 模式云台跟随控制
  * @param offset_angle     云台相对底盘偏角 (°)
- * @param gimbal_yaw_rate  云台yaw角速度 (°/s)
  * @param dbg              调试数据输出
  * @return 底盘目标角速度 wz (°/s)
  */
-static float ChassisFollowControl(float offset_angle, float gimbal_yaw_rate,
-                                  FollowDebugData_t *dbg)
+static float ChassisFollowControl(float offset_angle, FollowDebugData_t *dbg)
 {
-    // 1. 偏角反馈
-    float wz_fb = FollowYawFeedback(offset_angle);
+    float wz_kinematic = -FOLLOW_KQ_KINEMATIC * offset_angle * fabsf(offset_angle);
+    float wz_target = wz_kinematic * rpm_2_wheel_vector / MM_2_M;
 
-    // 2. 前馈(第一阶段 KFF=0)
-    float rate_ff = ApplyRateDeadband(gimbal_yaw_rate);
-    float wz_ff = FOLLOW_KFF * rate_ff;
-
-    // 3. 反馈+前馈
-    float wz_raw = wz_fb + wz_ff;
-
-    // 4. 总角速度硬限幅
-    if (wz_raw > FOLLOW_WZ_MAX)  wz_raw = FOLLOW_WZ_MAX;
-    if (wz_raw < -FOLLOW_WZ_MAX) wz_raw = -FOLLOW_WZ_MAX;
-
-    // 5. 斜坡限幅
-    float wz_target = SlewLimit(wz_raw, wz_target_last, FOLLOW_ACCEL_MAX, FOLLOW_DT);
-    wz_target_last = wz_target;
-
-    // 6. 填入调试数据
     if (dbg)
     {
         dbg->yaw_relative    = offset_angle;
         dbg->yaw_error       = offset_angle; // 目标=0°
-        dbg->gimbal_yaw_rate = gimbal_yaw_rate;
-        dbg->wz_feedback     = wz_fb;
-        dbg->wz_feedforward  = wz_ff;
+        dbg->gimbal_yaw_rate = 0.0f;
+        dbg->wz_feedback     = wz_target;
+        dbg->wz_feedforward  = 0.0f;
         dbg->wz_target       = wz_target;
     }
 
@@ -526,14 +444,14 @@ void ChassisTask()
     case CHASSIS_NO_FOLLOW: // 底盘不旋转,但维持全向机动,一般用于调整云台姿态
         chassis_cmd_recv.wz = chassis_cmd_recv.wz / rpm_2_wheel_vector;
         break;     
-    case CHASSIS_FOLLOW_GIMBAL_YAW: // 跟随云台,平滑死区+分段反馈+前馈
+    case CHASSIS_FOLLOW_GIMBAL_YAW: // 跟随云台,使用第一版平方偏角反馈
     {
         static FollowDebugData_t follow_dbg;
-        chassis_cmd_recv.wz = ChassisFollowControl(
+        float follow_wz_deg_s = ChassisFollowControl(
             chassis_cmd_recv.offset_angle,
-            chassis_cmd_recv.gimbal_yaw_rate,
             &follow_dbg
         );
+        chassis_cmd_recv.wz = FollowYawRateToKinematicInput(follow_wz_deg_s);
 
         // VOFA+ 调试输出(100Hz,每2个周期发一次)
         static uint8_t vofa_div = 0;

@@ -228,7 +228,7 @@ typedef struct
 typedef struct
 {
     attitude_t gimbal_imu_data;
-    uint16_t yaw_motor_single_round_angle;
+    float yaw_motor_single_round_angle;
 
     uint8_t motor_offline_count;                // 云台电机离线数量
     gimbal_motor_state_e motor_state;           // 云台电机状态
